@@ -1,0 +1,335 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: mdsc_main - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP89.tmp" with contents
+[
+/nologo /Gr /Zp4 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Release/mdsc_main.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\jim\projects\NYMTC\source code_4.0.16\Attractions.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_freq_util.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_linkages.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_mc_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_mc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_motorized_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_od_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\atwork_se_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\avail_ram.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\BalanceAttractions.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\calibration_report.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\check_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ClusterJourneys.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\CompetitionAreas.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\CountKPMGJourneys.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\DebugProps.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_freq_util.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_journey_freqs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_mc_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_mc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_motorized_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_od_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\discr_se_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\echo_ini.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\final_reports.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\get_input_data.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\get_journey_data.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\get_motorized_MSC_index.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\get_nm_MSC_index.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\get_skims.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\get_skims_by_row.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\GetStopSize.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\isort.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\link_atwork.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\LogDensity.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_freq_util.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_journey_freqs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_mc_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_mc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_motorized_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_od_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\maint_se_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\mdsc_main.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\Misc.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\motor_dc_coeffs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\motor_dc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\nm_dest_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\nm_dest_gamma.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\nm_dest_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\OD_Utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ParkingCost.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\PreModeChoice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\Read_nm_MSCIndices.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\Read_nm_MSCs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\Read_nm_Targets.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadAttrCorrections.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadBPMDist1Coeffs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadControlFile.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadDistFactors.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadINI.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadKPMGJourneys.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadMotorizedMSCIndices.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadMotorizedMSCs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadMotorizedTargets.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadODSkims.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadRingDistData.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadRiverData.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadSchoolDists.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadSubAreaData.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadTaxiData.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadWalkZoneData.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ReadZonalData.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\run_mdc.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_freq_util.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_journey_freqs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_mc_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_mc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_motorized_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_od_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\school_se_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\SE_Utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\set_function_pointers.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\SetCluster.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\SetStopsCluster.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\StopLocations.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\stops.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\StopsReports.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_freq_util.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_journey_freqs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_mc_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_mc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_motorized_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_od_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\univ_se_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\ValidStop.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_freq_util.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_journey_freqs.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_mc_logsum.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_mc_props.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_motorized_choice.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_od_utilities.c"
+"C:\jim\projects\NYMTC\source code_4.0.16\work_se_utilities.c"
+]
+Creating command line "cl.exe @C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP89.tmp" 
+Creating temporary file "C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP8A.tmp" with contents
+[
+./libs/CaliperMTX.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"Release/mdsc_main.pdb" /machine:I386 /out:"Release/mdsc_main.exe" 
+".\Release\Attractions.obj"
+".\Release\atwork_freq_util.obj"
+".\Release\atwork_linkages.obj"
+".\Release\atwork_mc_logsum.obj"
+".\Release\atwork_mc_props.obj"
+".\Release\atwork_motorized_choice.obj"
+".\Release\atwork_od_utilities.obj"
+".\Release\atwork_se_utilities.obj"
+".\Release\avail_ram.obj"
+".\Release\BalanceAttractions.obj"
+".\Release\calibration_report.obj"
+".\Release\check_logsum.obj"
+".\Release\ClusterJourneys.obj"
+".\Release\CompetitionAreas.obj"
+".\Release\CountKPMGJourneys.obj"
+".\Release\DebugProps.obj"
+".\Release\discr_freq_util.obj"
+".\Release\discr_journey_freqs.obj"
+".\Release\discr_mc_logsum.obj"
+".\Release\discr_mc_props.obj"
+".\Release\discr_motorized_choice.obj"
+".\Release\discr_od_utilities.obj"
+".\Release\discr_se_utilities.obj"
+".\Release\echo_ini.obj"
+".\Release\final_reports.obj"
+".\Release\get_input_data.obj"
+".\Release\get_journey_data.obj"
+".\Release\get_motorized_MSC_index.obj"
+".\Release\get_nm_MSC_index.obj"
+".\Release\get_skims.obj"
+".\Release\get_skims_by_row.obj"
+".\Release\GetStopSize.obj"
+".\Release\isort.obj"
+".\Release\link_atwork.obj"
+".\Release\LogDensity.obj"
+".\Release\maint_freq_util.obj"
+".\Release\maint_journey_freqs.obj"
+".\Release\maint_mc_logsum.obj"
+".\Release\maint_mc_props.obj"
+".\Release\maint_motorized_choice.obj"
+".\Release\maint_od_utilities.obj"
+".\Release\maint_se_utilities.obj"
+".\Release\mdsc_main.obj"
+".\Release\Misc.obj"
+".\Release\motor_dc_coeffs.obj"
+".\Release\motor_dc_props.obj"
+".\Release\nm_dest_choice.obj"
+".\Release\nm_dest_gamma.obj"
+".\Release\nm_dest_props.obj"
+".\Release\OD_Utilities.obj"
+".\Release\ParkingCost.obj"
+".\Release\PreModeChoice.obj"
+".\Release\Read_nm_MSCIndices.obj"
+".\Release\Read_nm_MSCs.obj"
+".\Release\Read_nm_Targets.obj"
+".\Release\ReadAttrCorrections.obj"
+".\Release\ReadBPMDist1Coeffs.obj"
+".\Release\ReadControlFile.obj"
+".\Release\ReadDistFactors.obj"
+".\Release\ReadINI.obj"
+".\Release\ReadKPMGJourneys.obj"
+".\Release\ReadMotorizedMSCIndices.obj"
+".\Release\ReadMotorizedMSCs.obj"
+".\Release\ReadMotorizedTargets.obj"
+".\Release\ReadODSkims.obj"
+".\Release\ReadRingDistData.obj"
+".\Release\ReadRiverData.obj"
+".\Release\ReadSchoolDists.obj"
+".\Release\ReadSubAreaData.obj"
+".\Release\ReadTaxiData.obj"
+".\Release\ReadWalkZoneData.obj"
+".\Release\ReadZonalData.obj"
+".\Release\run_mdc.obj"
+".\Release\school_freq_util.obj"
+".\Release\school_journey_freqs.obj"
+".\Release\school_mc_logsum.obj"
+".\Release\school_mc_props.obj"
+".\Release\school_motorized_choice.obj"
+".\Release\school_od_utilities.obj"
+".\Release\school_se_utilities.obj"
+".\Release\SE_Utilities.obj"
+".\Release\set_function_pointers.obj"
+".\Release\SetCluster.obj"
+".\Release\SetStopsCluster.obj"
+".\Release\StopLocations.obj"
+".\Release\stops.obj"
+".\Release\StopsReports.obj"
+".\Release\univ_freq_util.obj"
+".\Release\univ_journey_freqs.obj"
+".\Release\univ_mc_logsum.obj"
+".\Release\univ_mc_props.obj"
+".\Release\univ_motorized_choice.obj"
+".\Release\univ_od_utilities.obj"
+".\Release\univ_se_utilities.obj"
+".\Release\ValidStop.obj"
+".\Release\work_freq_util.obj"
+".\Release\work_journey_freqs.obj"
+".\Release\work_mc_logsum.obj"
+".\Release\work_mc_props.obj"
+".\Release\work_motorized_choice.obj"
+".\Release\work_od_utilities.obj"
+".\Release\work_se_utilities.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP8A.tmp"
+<h3>Output Window</h3>
+Compiling...
+Attractions.c
+atwork_freq_util.c
+atwork_linkages.c
+atwork_mc_logsum.c
+atwork_mc_props.c
+atwork_motorized_choice.c
+atwork_od_utilities.c
+atwork_se_utilities.c
+avail_ram.c
+BalanceAttractions.c
+calibration_report.c
+check_logsum.c
+ClusterJourneys.c
+CompetitionAreas.c
+CountKPMGJourneys.c
+DebugProps.c
+discr_freq_util.c
+discr_journey_freqs.c
+discr_mc_logsum.c
+discr_mc_props.c
+discr_motorized_choice.c
+discr_od_utilities.c
+discr_se_utilities.c
+echo_ini.c
+final_reports.c
+get_input_data.c
+get_journey_data.c
+get_motorized_MSC_index.c
+get_nm_MSC_index.c
+get_skims.c
+get_skims_by_row.c
+GetStopSize.c
+isort.c
+link_atwork.c
+LogDensity.c
+maint_freq_util.c
+maint_journey_freqs.c
+maint_mc_logsum.c
+maint_mc_props.c
+maint_motorized_choice.c
+maint_od_utilities.c
+maint_se_utilities.c
+mdsc_main.c
+Misc.c
+motor_dc_coeffs.c
+motor_dc_props.c
+nm_dest_choice.c
+nm_dest_gamma.c
+nm_dest_props.c
+OD_Utilities.c
+ParkingCost.c
+PreModeChoice.c
+Read_nm_MSCIndices.c
+Read_nm_MSCs.c
+Read_nm_Targets.c
+ReadAttrCorrections.c
+ReadBPMDist1Coeffs.c
+ReadControlFile.c
+ReadDistFactors.c
+ReadINI.c
+ReadKPMGJourneys.c
+ReadMotorizedMSCIndices.c
+ReadMotorizedMSCs.c
+ReadMotorizedTargets.c
+ReadODSkims.c
+ReadRingDistData.c
+ReadRiverData.c
+ReadSchoolDists.c
+ReadSubAreaData.c
+ReadTaxiData.c
+ReadWalkZoneData.c
+ReadZonalData.c
+run_mdc.c
+school_freq_util.c
+school_journey_freqs.c
+school_mc_logsum.c
+school_mc_props.c
+school_motorized_choice.c
+school_od_utilities.c
+school_se_utilities.c
+SE_Utilities.c
+set_function_pointers.c
+SetCluster.c
+SetStopsCluster.c
+StopLocations.c
+stops.c
+StopsReports.c
+univ_freq_util.c
+univ_journey_freqs.c
+univ_mc_logsum.c
+univ_mc_props.c
+univ_motorized_choice.c
+univ_od_utilities.c
+univ_se_utilities.c
+ValidStop.c
+work_freq_util.c
+work_journey_freqs.c
+work_mc_logsum.c
+work_mc_props.c
+work_motorized_choice.c
+work_od_utilities.c
+work_se_utilities.c
+Linking...
+
+
+
+<h3>Results</h3>
+mdsc_main.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
