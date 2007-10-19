@@ -41,12 +41,26 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 
 
 	int i;
+	int debug = 0;
 	double da, sr2, sr3, sr4, wt, dt, wc, dc, tx;
 	double da_tx, sr, tr_cr;
 	double SumExp, no_walk_SumExp, dval;
 	double util_value;
     BOOL walk_ok, no_walk_ok;
 
+
+
+// if journey is < 0, it was set to flag this function to print the debug statements
+	if ( journey < 0 )
+		debug = 1;
+
+
+
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "\nDebug Info for:  journey = %d, orig=%d, dest=%d, person_type=%d, autos=%d, walk[0]=%d, walk[1]=%d\n\n", journey, orig, dest, person_type, autos, walk[0], walk[1]);
+		for (i=0; i < Ini->NUMBER_ALTS; i++)
+			fprintf (fp_rep, "i=%d, ASC[i] = %e, OD_Utility[i] = %e, SE_Utility[i] = %e\n", i, ASC[i], OD_Utility[i], SE_Utility[i]);
+	}
 
 
 // determine availability of each alternative based on non-missing od skims, autos avalable,
@@ -106,6 +120,11 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 //			Avail[i] = 0;
 
 
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "Avail[] = %3d %3d %3d %3d %3d %3d %3d %3d %3d\n", Avail[0], Avail[1], Avail[2], Avail[3], Avail[4], Avail[5], Avail[6], Avail[7], Avail[8]);
+	}
+
+
 //Calculate the total utilities at the lowest nest level.
 // and calculate the next highest level (1 level higher than lowest) utilties
 	SumExp	= 0.0;
@@ -129,6 +148,12 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	 	da_tx = THETA151*log(SumExp);
 	else
 		da_tx = MISSING;	 	
+
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "da = %e, tx = %e, da_tx = %e, SumExp = %e\n", da, tx, da_tx, SumExp);
+	}
+
+
 
 	SumExp	= 0.0;
 	if (Avail[1]) {
@@ -159,6 +184,12 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	 	sr = THETA151*log(SumExp);
 	else
 		sr = MISSING;	 	
+
+
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "sr2 = %e, sr3 = %e, sr4 = %e, sr = %e, SumExp = %e\n", sr2, sr3, sr4, sr, SumExp);
+	}
+
 
 	SumExp	= 0.0;
 	if (Avail[4]) {
@@ -198,7 +229,13 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	else
 		tr_cr = MISSING;	 	
 
-// Now the highest level (2 levels higher than lowest) utilties
+	
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "wt = %e, dt = %e, wc = %e, dc = %e, tr_cr = %e, SumExp = %e\n", wt, dt, wc, dc, tr_cr, SumExp);
+	}
+
+
+	// Now the highest level (2 levels higher than lowest) utilties
 	SumExp = 0.0;
 	if (Avail[0] || Avail[8]) {
 		if (da_tx < -MAX_EXP || da_tx > MAX_EXP) {
@@ -222,6 +259,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 		}
 		SumExp += exp(tr_cr);
 	}
+
+	
+	
+
 	if (no_walk_SumExp > 0.0) {
 		return_values[0] = (float)log(no_walk_SumExp);
         no_walk_ok = TRUE;
@@ -238,6 +279,14 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 		return_values[1] = MISSING;
         walk_ok = FALSE;
     }
+
+
+
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "no_walk_SumExp = %e, SumExp = %e, return_values[0] = %e, return_values[1] = %e\n", no_walk_SumExp, SumExp, return_values[0], return_values[1]);
+		fprintf (fp_rep, "no_walk_ok = %d, walk_ok = %d\n", no_walk_ok, walk_ok);
+	}
+
 
 
 // logical tests on modal alternative utilities.

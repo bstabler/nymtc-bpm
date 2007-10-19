@@ -5,6 +5,7 @@
 #include "md.h"
 #include "Globals.h"
 
+
 clock_t start, finish;
 int MAX_RANDOM = RAND_MAX+1;
 int Calibrating = 0;
@@ -139,10 +140,12 @@ MDSC with sub-area analysis version history:
 
 4.0.27 - 09Jan2007  - set a maximum of 10000000 records for frozen records files.  multiple files written if more than 10000000 journeys.
 
+4.0.28 - 29Sep2007  - enhanced debugging while trying to understand university journey size variable constraint issues - turned out to be issue with ASCs.
+
 */
 
-#define VERSION "4.0.27"
-#define LAST_MODIFIED "09jan2007"
+#define VERSION "4.0.28"
+#define LAST_MODIFIED "28sep2007"
 
 int __cdecl main (int argc, char *argv[])
 {
@@ -165,6 +168,7 @@ int __cdecl main (int argc, char *argv[])
 	struct co_dist_factors *DistFactors;
 	struct msc_data *msc;
 	char PROGRAM[100];
+	char tempString[200];
 	char *temp;
 
 	HANDLE od_util_heap;
@@ -468,6 +472,13 @@ int __cdecl main (int argc, char *argv[])
 				RiverData, &TaxiData, WalkZoneData, BPMDist1, DistFactors);
 
 
+//#
+		sprintf (tempString, "debugging: finished with run_mdc() in calibration iteration %d\n", i);
+		printf  ("%s", tempString);
+		fprintf (fp_rep, "%s", tempString);
+//#
+
+
 		// total up the number of productions by non-motorized geographic stratum for use in computing pre-mode shares
 		// do this after run_mdc() so that at-work linkages have already been made.
 		for (k=0; k < Ini->NUMBER_JOURNEYS; k++) {
@@ -575,6 +586,12 @@ int __cdecl main (int argc, char *argv[])
 		hwy_dist, OD_Utility, TotProds, &JourneyAttribs, &ZonalData,
 		RiverData, &TaxiData, WalkZoneData, BPMDist1, DistFactors);
 
+//#
+		sprintf (tempString, "debugging: finished with run_mdc()\n", i);
+		printf  ("%s", tempString);
+		fprintf (fp_rep, "%s", tempString);
+//#
+
 
 	// total up the number of productions by non-motorized geographic stratum for use in computing pre-mode shares
 	for (k=0; k < Ini->NUMBER_JOURNEYS; k++) {
@@ -594,6 +611,12 @@ int __cdecl main (int argc, char *argv[])
 		for (j=0; j < 2; j++)
 			cal_obs_scaled[i][j] = nm_cal_est[i][j];
 
+
+//#
+		sprintf (tempString, "debugging: ready to write calibration report.\n", i);
+		printf  ("%s", tempString);
+		fprintf (fp_rep, "%s", tempString);
+//#
 
 	calibration_report (iter, fp_rep, msc, Mode_Obs, NMTots, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
 
@@ -629,6 +652,12 @@ int __cdecl main (int argc, char *argv[])
 	}
 
 
+//#
+		sprintf (tempString, "debugging: done with MDC, exit or go to STOPS.\n", i);
+		printf  ("%s", tempString);
+		fprintf (fp_rep, "%s", tempString);
+//#
+
 	if (Ini->MDC_ONLY == 1)
 		exit (0);
 
@@ -641,6 +670,12 @@ int __cdecl main (int argc, char *argv[])
 
 // Stop frequency and location choice code
 	STOPS:
+
+//#
+		sprintf (tempString, "debugging: start of STOPS section.\n", i);
+		printf  ("%s", tempString);
+		fprintf (fp_rep, "%s", tempString);
+//#
 
 	start = clock();
 
@@ -670,7 +705,9 @@ int __cdecl main (int argc, char *argv[])
 
 
 // read journey orig, dest, and mode
-	printf ("Reading MDC output file for STOPS Processing.\n");
+	sprintf (tempString, "Reading MDC output file for STOPS Processing.\n");
+	printf  ("%s", tempString);
+	fprintf (fp_rep, "%s", tempString);
 	i = 0;
 	while ((fscanf(fp3, "%d %d %d %*d %d", &k, &orig, &dest, &mode)) != EOF) {
 		if (i == Ini->NUMBER_JOURNEYS) {
@@ -694,19 +731,21 @@ int __cdecl main (int argc, char *argv[])
 	fclose (fp3);
 
 	if (i != Ini->NUMBER_JOURNEYS) {
-//		printf ("While reading MDC output file for STOPS Processing,\n");
-//		printf ("the number of MDC output file records=%d is different from the number of\n", i);
-//		printf ("journey records=%d of purpose=%d read in from HAJ output file.\n\n", Ini->NUMBER_JOURNEYS, Ini->PURPOSE_TO_PROCESS+1);
+		printf ("While reading MDC output file for STOPS Processing,\n");
+		printf ("the number of MDC output file records=%d is different from the number of\n", i);
+		printf ("journey records=%d of purpose=%d read in from HAJ output file.\n\n", Ini->NUMBER_JOURNEYS, Ini->PURPOSE_TO_PROCESS+1);
 		fprintf (fp_rep, "While reading MDC output file for STOPS Processing,\n");
 		fprintf (fp_rep, "the number of MDC output file records=%d is different from the number of\n", i);
 		fprintf (fp_rep, "journey records=%d of purpose=%d read in from HAJ output file.\n\n", Ini->NUMBER_JOURNEYS, Ini->PURPOSE_TO_PROCESS+1);
-//		fflush (stdout);
+		fflush (stdout);
 		fflush (fp_rep);
-		//exit (-46);
+		exit (-46);
 	}
 
 
-	printf ("Start of processing for stop frequncy choice and stop location choice models.\n");
+	sprintf (tempString, "Start of processing for stop frequncy choice and stop location choice models.\n");
+	printf  ("%s", tempString);
+	fprintf (fp_rep, "%s", tempString);
 	stops (fp3, origList, destList, modeList, &JourneyAttribs, &ZonalData, RiverData);
 
 
@@ -716,7 +755,9 @@ int __cdecl main (int argc, char *argv[])
 
 
 	finish = clock();
-	printf ("total execution time for processing stops for %d %s journeys:  %.2lf minutes.\n", Ini->NUMBER_JOURNEYS, PurposeLabels[Ini->PURPOSE_TO_PROCESS], (60.0*((double)finish-start)/CLOCKS_PER_SEC)/3600.0);
+	sprintf (tempString, "total execution time for processing stops for %d %s journeys:  %.2lf minutes.\n", Ini->NUMBER_JOURNEYS, PurposeLabels[Ini->PURPOSE_TO_PROCESS], (60.0*((double)finish-start)/CLOCKS_PER_SEC)/3600.0);
+	printf  ("%s", tempString);
+	fprintf (fp_rep, "%s", tempString);
 	
 	return (0);
 }

@@ -11,6 +11,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	FILE *fp;
 	FILE **fp_freeze;
 	FILE **fp_frozen;
+	int badDest = 0;
+	int badDestCount = 0;
 	int numFiles;
 	int i, j, k, m, n, p, r, seq, walk[2];
 	int hh, pnum, haj;
@@ -36,6 +38,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	double pAcc, pNoAcc;
 	char fileNameString[512];
 	char appendString[10];
+	char tempString[200];
 	struct dc_coeff_data *DCcoeff;
 
 
@@ -343,7 +346,9 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	rcount = 0;
 	r = 0;
 	fileIndex = 0;
-// process packets of journey records
+
+
+	// process packets of journey records
 	for (p=0; p < Ini->NUMBER_PACKETS; p++) {
 
 		m = p_order[p];				// p_order is the list of packets in random order
@@ -460,7 +465,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 						if (nrand < pct_acc)
 							acc = 1;
 						else
-						acc = 0;
+							acc = 0;
 					}
 
 				}
@@ -520,8 +525,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				nm_cal_est[nm_msc_index][0]++;
 				nm_cal_est[nm_msc_index][1]++;
 //					m_msc_index = get_motorized_MSC_index (orig, dest, ZonalData, msc);
-                idist = ZonalData->bpmdist1_index[orig];
-                jdist = ZonalData->bpmdist1_index[dest];
+				idist = ZonalData->bpmdist1_index[orig];
+				jdist = ZonalData->bpmdist1_index[dest];
 				m_msc_index = msc->motorized_indices[idist][jdist];
 				m_cal_est[m_msc_index][mode]++;
 
@@ -658,6 +663,10 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
             		jdist = ZonalData->bpmdist1_index[j];
 					m_msc_index = msc->motorized_indices[idist][jdist];
 
+					// if a packet we want to explore, change k to negative to trigger debug info in mc_logsum[] function.
+//					if ( j == 2438 && ( p == 139020 || p == 139069 || p == 139073 ) )
+//						k *= -1;
+	
 					mc_logsum[purpose] (k, orig, j, AvailModes, person_type, autos, walk, da_work, ODutil, SEutil, (float *)msc->MSC[m_msc_index], Logsum[j]);
 					walk[1] = 1;
 				}
@@ -676,6 +685,19 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 			for (i=0; i < Ini->MAX_TAZS*2; i++)
 				dc_cum[i] = 0.0;
+
+
+//			if ( p == 139020 || p == 139069 || p == 139073 ) {
+//				debug_mode = 1;
+//				sprintf(tempString, "writing debug info for p=%d to DEBUGFILE=%s.\n", p, Ini->DEBUGFILE);
+//				fprintf(fp_rep, "%s", tempString);
+//				printf("%s", tempString);
+//				fflush(fp_rep);
+//			}
+//			else {
+//				debug_mode = 0;
+//			}
+
 			motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, 0);
 
 		}
@@ -708,42 +730,60 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					nrand = (double)rand()/(double)MAX_RANDOM;
 					i = binary_search (nrand, 0, 2*Ini->MAX_TAZS - 1, dc_cum);
 
-					dest = i/2 + 1;
-					dest_freq[dest]++;
-					if ((i+1) % 2 == 1)
+
+					if ( i < 0 ) {
+						sprintf (tempString, "m=%d, p=%d, n=%d, k=%d journey had no available destination choice alternatives to choose from; count=%d.\n", m, p, n, k, badDestCount);
+						fprintf(fp_rep, "%s", tempString);
+						badDest = 1;
+
+						dest = orig;
 						acc = 0;
-					else
-						acc = 1;
-
-
-					// for base scenario runs, get the relative proportions of subzone choice from the cumulative joint dest/subzone choice probabilities
-					if (i == 0) {
-						pNoAcc = dc_cum[0];
-						pAcc = dc_cum[1];
-					}
-					else if (i == 1) {
-						pAcc = dc_cum[1];
-						pNoAcc = dc_cum[0];
+						pAcc = 0.0;
+						pNoAcc = 1.0;
 					}
 					else {
-						if (acc == 0) {
-							pNoAcc = dc_cum[i] - dc_cum[i-1];
-							pAcc = dc_cum[i+1] - dc_cum[i];
+
+						badDest = 0;
+
+						dest = i/2 + 1;
+						dest_freq[dest]++;
+						if ((i+1) % 2 == 1)
+							acc = 0;
+						else
+							acc = 1;
+
+
+						// for base scenario runs, get the relative proportions of subzone choice from the cumulative joint dest/subzone choice probabilities
+						if (i == 0) {
+							pNoAcc = dc_cum[0];
+							pAcc = dc_cum[1];
+						}
+						else if (i == 1) {
+							pAcc = dc_cum[1];
+							pNoAcc = dc_cum[0];
 						}
 						else {
-							pAcc = dc_cum[i] - dc_cum[i-1];
-							pNoAcc = dc_cum[i-1] - dc_cum[i-2];
+							if (acc == 0) {
+								pNoAcc = dc_cum[i] - dc_cum[i-1];
+								pAcc = dc_cum[i+1] - dc_cum[i];
+							}
+							else {
+								pAcc = dc_cum[i] - dc_cum[i-1];
+								pNoAcc = dc_cum[i-1] - dc_cum[i-2];
+							}
 						}
-					}
 
 
 
-					if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) > (Ini->MAX_PACKET - 1)) {
-						//printf ("\nmotorized dest choice\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\n", p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
-						fprintf (fp_rep, "\nmotorized dest choice\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\n", p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
-						//fflush (stdout);
-						fflush (fp_rep);
-						exit (-99);
+						if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) > (Ini->MAX_PACKET - 1)) {
+							//printf ("\nmotorized dest choice\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\n", p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
+							fprintf (fp_rep, "\nmotorized dest choice for count=%d\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\n", count, p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
+							//fflush (stdout);
+							fflush (fp_rep);
+							exit (-99);
+						}
+
+
 					}
 
 				}
@@ -794,7 +834,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					//m_msc_index = get_motorized_MSC_index (orig, dest, ZonalData, msc);
                 	idist = ZonalData->bpmdist1_index[orig];
                 	jdist = ZonalData->bpmdist1_index[dest];
-                    m_msc_index = msc->motorized_indices[idist][jdist];
+					m_msc_index = msc->motorized_indices[idist][jdist];
 					mc_props[purpose] (k, AvailModes, person_type, autos, walk, da_work, ODutil, SEutil, Prob, (float *)msc->MSC[m_msc_index], TotalUtility);
 				}
 				else {
@@ -835,17 +875,29 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					fprintf (fp_work[0], "%d %d %d %d\n", JourneyAttribs->hh[k], JourneyAttribs->persno[k], dest, mode+1);
 
 
-				// decrement zonal attractions
-				z_attrs[acc][purpose][dest] --;
-				z_attrs[2][purpose][dest] --;
-				Total[acc] --;
-				Total[2] --;
+
+
+				if ( badDest == 1 ) {
+
+					badDestCount++;
+
+				}
+				else {
+
+					// decrement zonal attractions
+					z_attrs[acc][purpose][dest] --;
+					z_attrs[2][purpose][dest] --;
+					Total[acc] --;
+					Total[2] --;
+
+				}
+
 
 
 				m_cal_est[m_msc_index][mode]++;
 //				nm_msc_index = get_nm_MSC_index (orig, ZonalData, msc);
-                idist = ZonalData->bpmdist1_index[orig];
-                nm_msc_index = msc->nm_indices[idist];
+				idist = ZonalData->bpmdist1_index[orig];
+				nm_msc_index = msc->nm_indices[idist];
 				nm_cal_est[nm_msc_index][1]++;
 
 
@@ -907,7 +959,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 						pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
 						pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
 						count, Ini->NUMBER_JOURNEYS);
-                }
+				}
 
 				if (count % PROGRESS_INCREMENT == 0) {
 					if (strcmp(Ini->RUNNING_MODE_SHARES, "") && Calibrating == 0) {
@@ -951,6 +1003,10 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 		fflush (fp_rep3);
 	}
 
+
+	sprintf (tempString, "%d journeys had no available destination choice alternatives to choose from.  dest set to orig, and acc set to 0 for each.  %d total packets\n", badDestCount, Ini->NUMBER_PACKETS);
+	printf ("%s", tempString);
+	fprintf(fp_rep, "%s", tempString);
 
 	fclose (fp3);
 

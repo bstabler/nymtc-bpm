@@ -139,29 +139,35 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 // calculate destination/access choice proportions
 
 	if (debug_mode == 1) {
-		if (!AlreadyOpen) {
+
+		fprintf (fp_rep, "writing debug output for orig=%d and purpose=%d to %s.\n", orig, purpose, Ini->DEBUGFILE );
+
+
+		if (!AlreadyOpen)
 			fp = fopen (Ini->DEBUGFILE, "w");
-			fprintf (fp, "data dictionary\n\nPercent of journeys processed\norig\nj (dest)\npurpose\nm (walk acc)\nico (orig county)\njco (dest county)\nibpm (orig county with Manhattan sub-areas)\njbpm (dest county with Manhattan sub-areas)\nod distance\nprops[j].d[m] (proportions)\ncum[i] (cumulative proportions)\nutil[j].d[m]\nz_attrs[m][purpose][j]\nLogsum[j][m]\nRiverData.east[ico][jco]\nRiverData.hudson[ico][jco]\nRiverData.minor[ico][jco]\n(ico == jco)\n\n");
-			for (k=0; k < Ini->NUMBER_ALTS - 2; k++)
-				fprintf (fp, "%s od based utility\n", ModeLabel[k]);
-			fprintf (fp, "\n");
-			for (k=0; k < Ini->NUMBER_ALTS; k++)
-				fprintf (fp, "%s se based utility\n", ModeLabel[k]);
-			fprintf (fp, "\n");
-			fprintf (fp, "logsum coeff                = %10.5f\n", DCcoeff->beta);
-			fprintf (fp, "east river crossing coeff   = %10.5f\n", DCcoeff->gamma[0]);
-			fprintf (fp, "hudson river crossing coeff = %10.5f\n", DCcoeff->gamma[1]);
-			fprintf (fp, "minor river crossing coeff  = %10.5f\n", DCcoeff->gamma[2]);
-			fprintf (fp, "intra county coeff          = %10.5f\n", DCcoeff->delta);
-			fprintf (fp, "distance scaling coeff      = %10.5f\n", DCcoeff->alpha);
-			fprintf (fp, "distance scaling exponent   = %10.5f\n", DCcoeff->theta);
-			AlreadyOpen++;
-		}
-		else {
+		else
 			fp = fopen (Ini->DEBUGFILE, "a");
-			AlreadyOpen++;
-		}
+
+
+		fprintf (fp, "data dictionary\n\nPercent of journeys processed\norig\nj (dest)\npurpose\nm (walk acc)\nico (orig county)\njco (dest county)\nibpm (orig county with Manhattan sub-areas)\njbpm (dest county with Manhattan sub-areas)\nod distance\nprops[j].d[m] (proportions)\ncum[i] (cumulative proportions)\nutil[j].d[m]\nz_attrs[m][purpose][j]\nLogsum[j][m]\nRiverData.east[ico][jco]\nRiverData.hudson[ico][jco]\nRiverData.minor[ico][jco]\n(ico == jco)\n\n");
+		for (k=0; k < Ini->NUMBER_ALTS - 2; k++)
+			fprintf (fp, "%s od based utility\n", ModeLabel[k]);
+		fprintf (fp, "\n");
+		for (k=0; k < Ini->NUMBER_ALTS; k++)
+			fprintf (fp, "%s se based utility\n", ModeLabel[k]);
+		fprintf (fp, "\n");
+		fprintf (fp, "logsum coeff                = %10.5f\n", DCcoeff->beta);
+		fprintf (fp, "east river crossing coeff   = %10.5f\n", DCcoeff->gamma[0]);
+		fprintf (fp, "hudson river crossing coeff = %10.5f\n", DCcoeff->gamma[1]);
+		fprintf (fp, "minor river crossing coeff  = %10.5f\n", DCcoeff->gamma[2]);
+		fprintf (fp, "intra county coeff          = %10.5f\n", DCcoeff->delta);
+		fprintf (fp, "distance scaling coeff      = %10.5f\n", DCcoeff->alpha);
+		fprintf (fp, "distance scaling exponent   = %10.5f\n", DCcoeff->theta);
+
+		AlreadyOpen++;
+
 	}
+
 	
 	i = 0;
 	if (util[1].d[0] > -MAX_EXP && util[1].d[0] < MAX_EXP)
@@ -176,8 +182,8 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	jco = ZonalData->County[j];
 	jbpm = ZonalData->bpmdist1_index[j];
 	if (debug_mode == 1) {
-		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[m][purpose][j], Logsum[j][m],
+		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
+			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 			RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
 			(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
@@ -204,8 +210,8 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	jco = ZonalData->County[j];
 	jbpm = ZonalData->bpmdist1_index[j];
 	if (debug_mode == 1) {
-		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[m][purpose][j], Logsum[j][m],
+		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
+			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 			RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
 			(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
@@ -232,8 +238,8 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 			if (debug_mode == 1) {
         		jco = ZonalData->County[j];
         		jbpm = ZonalData->bpmdist1_index[j];
-				fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-					(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[m][purpose][j], Logsum[j][m],
+				fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
+					(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 					RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
 					(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
 				for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
