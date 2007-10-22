@@ -153,6 +153,7 @@ struct IniData {
 	char SUBAREA_ATWORK_LO_FILE[256];
 	char SUBAREA_ATWORK_MD_FILE[256];
 	char SUBAREA_ATWORK_HI_FILE[256];
+	char FREEPARKPCTS[256];
 	char JOURNEYS_WITH_STOPS[256];
 	char WORKDESTFILE[256];
 	char ATWORK_LO_FILE[256];
@@ -536,6 +537,7 @@ void cluster_journeys (struct journey_attribs *, int **, int **);
 float parking_cost (int, struct zone_data *, int **);
 float nw_parking_cost (int, struct zone_data *, int **);
 void percent_free_parking (struct zone_data *);
+void write_free_parking (FILE* fp, struct zone_data *ZonalData);
 void parking_cost_index_lookup_table (int **);
 void final_reports (FILE *, int **, double *, int **, int **, double *, int ***, float **, struct zone_data *, int);
 void calibration_report (int, FILE *, struct msc_data *, float*, int *, float **, float **, float *, float **, float);

@@ -437,6 +437,20 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	parking_cost_index_lookup_table (ranprkcst);
 	percent_free_parking (ZonalData);
 
+	// if an output file was named for writing zonal free parking percentages, write them.
+	if (strcmp(Ini->FREEPARKPCTS, "")) {
+		if ((fp = fopen(Ini->FREEPARKPCTS, "wt")) == NULL) {
+			printf ("error opening FREEPARKPCTS = %s.\nNo free parking percentages written out.\n", Ini->FREEPARKPCTS);
+			fprintf (fp_rep, "error opening FREEPARKPCTS = %s.\nNo free parking percentages written out.\n", Ini->FREEPARKPCTS);
+			fflush (fp_rep);
+		}
+		else {
+			write_free_parking (fp, ZonalData);
+			fclose (fp);
+		}
+	}
+
+
 	
 
 // open and read sub-area definition data file if SUBAREA_ANALYSIS is selected

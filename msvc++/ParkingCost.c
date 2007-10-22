@@ -10,7 +10,7 @@ float parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 {
 
   // parking costs for each range
-	float prkcst[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
+	float prkcst[] = { 250, 750, 1250, 1750, 2250, 2750, 3250, 3750, 4250, 4750 };
 	double rand_no;
 	float empden;
 	int i, j, k;
@@ -59,7 +59,7 @@ float nw_parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 {
 
   // parking costs for each range
-	float prkcst[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
+	float prkcst[] = { 250, 750, 1250, 1750, 2250, 2750, 3250, 3750, 4250, 4750 };
 	double rand_no;
 	float empden;
 	int i, j, k;
@@ -141,6 +141,20 @@ void percent_free_parking (struct zone_data *ZonalData)
 									
 		ZonalData->empden[i] = empden;
 	}
+}
+
+
+// this function can be called after percent_free_parking() to write a file with the zonal free parking percentages that were calculated.
+void write_free_parking (FILE* fp, struct zone_data *ZonalData)
+{
+	
+	int i;
+
+	fprintf (fp, "%s,%s,%s\n", "zone", "workPctfreePark", "nonworkPctfreePark");
+
+	for (i=1; i <= Ini->MAX_TAZS; i++)
+		fprintf (fp, "%d,%.8f,%.8f\n", i, ZonalData->PctFreePark[i], ZonalData->NW_PctFreePark[i]);
+
 }
 
 

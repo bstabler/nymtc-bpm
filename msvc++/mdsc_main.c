@@ -142,10 +142,13 @@ MDSC with sub-area analysis version history:
 
 4.0.28 - 29Sep2007  - enhanced debugging while trying to understand university journey size variable constraint issues - turned out to be issue with ASCs.
 
+4.0.29.1 - 22Oct2007  - changed parking costs in dollars to costs in cents.
+					  Added function to write zonal free parking proportions to file named by FREEPARKPCTS, if that control is specified.
+
 */
 
-#define VERSION "4.0.28"
-#define LAST_MODIFIED "28sep2007"
+#define VERSION "4.0.29.1"
+#define LAST_MODIFIED "22oct2007"
 
 int __cdecl main (int argc, char *argv[])
 {

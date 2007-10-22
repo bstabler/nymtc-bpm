@@ -94,6 +94,11 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	else
 		strcpy (Ini->SUBAREA_ATWORK_HI_FILE, "");
 
+	if ((temp = GetStringFromINI (fp, "FILES", "FREEPARKPCTS")) != NULL)
+		strcpy (Ini->FREEPARKPCTS, temp);
+	else
+		strcpy (Ini->FREEPARKPCTS, "");
+
 	if ((temp = GetStringFromINI (fp, "FILES", "OUTPUTJOURNEYS")) != NULL)
 		strcpy (Ini->OUTPUTJOURNEYS, temp);
 	else
