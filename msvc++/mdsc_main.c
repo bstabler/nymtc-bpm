@@ -145,10 +145,12 @@ MDSC with sub-area analysis version history:
 4.0.29.1 - 22Oct2007  - changed parking costs in dollars to costs in cents.
 					  Added function to write zonal free parking proportions to file named by FREEPARKPCTS, if that control is specified.
 
+4.0.29.2 - 24Oct2007  - added some new error reporting in atwork logsum calculation.
+
 */
 
-#define VERSION "4.0.29.1"
-#define LAST_MODIFIED "22oct2007"
+#define VERSION "4.0.29.2"
+#define LAST_MODIFIED "24oct2007"
 
 int __cdecl main (int argc, char *argv[])
 {
