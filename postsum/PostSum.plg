@@ -6,16 +6,16 @@
 --------------------Configuration: PostSum - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\hicksji\LOCALS~1\Temp\RSP3E.tmp" with contents
+Creating temporary file "C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP2E8.tmp" with contents
 [
 /nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Release/PostSum.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
-"E:\Jim\Nymtc\SumNYMTC\PostSum.c"
-"E:\Jim\Nymtc\SumNYMTC\ReadControlFile.c"
-"E:\Jim\Nymtc\SumNYMTC\ReadDistRegionData.c"
-"E:\Jim\Nymtc\SumNYMTC\ReadINI.c"
+"C:\jim\util\svn_workspace\projects\nymtcbpm\postsum\PostSum.c"
+"C:\jim\util\svn_workspace\projects\nymtcbpm\postsum\ReadControlFile.c"
+"C:\jim\util\svn_workspace\projects\nymtcbpm\postsum\ReadDistRegionData.c"
+"C:\jim\util\svn_workspace\projects\nymtcbpm\postsum\ReadINI.c"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\hicksji\LOCALS~1\Temp\RSP3E.tmp" 
-Creating temporary file "C:\DOCUME~1\hicksji\LOCALS~1\Temp\RSP3F.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP2E8.tmp" 
+Creating temporary file "C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP2E9.tmp" with contents
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"Release/PostSum.pdb" /machine:I386 /out:"Release/PostSum.exe" 
 .\Release\PostSum.obj
@@ -23,7 +23,7 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 .\Release\ReadDistRegionData.obj
 .\Release\ReadINI.obj
 ]
-Creating command line "link.exe @C:\DOCUME~1\hicksji\LOCALS~1\Temp\RSP3F.tmp"
+Creating command line "link.exe @C:\DOCUME~1\JHicks\LOCALS~1\Temp\RSP2E9.tmp"
 <h3>Output Window</h3>
 Compiling...
 PostSum.c

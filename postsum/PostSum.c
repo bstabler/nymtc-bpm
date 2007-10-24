@@ -11,7 +11,8 @@
 #define MODES 11
 #define MAJOR_PURPOSES 3
 #define MAJOR_MODES 6
-#define SUB_REGIONS 7
+#define SR7_REGIONS 7
+#define SAD14_REGIONS 14
 #define STOPS 4
 
 #define JOURNEYS 20000000
@@ -21,11 +22,14 @@
 char **filenames;
 char *report_file;
 char *corresp_file;
+char *summaryType;
 
+char **SubregionLabels;
+int numSubRegions;
 
 int main (int argc, char *argv[]) {
 
-	void read_dist_region_data (FILE *fp, int *taz2dist, int *taz2reg, int tazs);
+	void read_dist_region_data (FILE *fp, char *subregion, int *taz2dist, int *taz2reg, int tazs);
 	void print_table (FILE *fp, int **table, char *tableHeading, char *rowHeading,
 		char *rowLabels[], char *colLabels[], int rows, int cols);
 	void read_ini_control_file (FILE *fp);
@@ -87,6 +91,21 @@ int main (int argc, char *argv[]) {
 
 
 
+	if ( strcmp(summaryType, "SR7") == 0 ) {
+		numSubRegions = SR7_REGIONS;
+		SubregionLabels = SR7_Labels;
+	}
+	else if ( strcmp(summaryType, "SAD14") == 0 ) {
+		numSubRegions = SAD14_REGIONS;
+		SubregionLabels = SAD14_Labels;
+	}
+	else {
+		printf ("invalid summary type value = %s - should be SR7 or SAD14.\n", summaryType);
+		exit (-1);
+	}
+	
+
+
 // allocate memory for summary tables
 	table1 = (int **) calloc (DISTRICTS+1, sizeof(int *));
 	for (i=0; i < DISTRICTS+1; i++)
@@ -105,23 +124,23 @@ int main (int argc, char *argv[]) {
 
 	table3 = (int ***) calloc (MAJOR_PURPOSES+1, sizeof(int **));
 	for (i=0; i < MAJOR_PURPOSES+1; i++) {
-		table3[i] = (int **) calloc (SUB_REGIONS+1, sizeof(int *));
-		for (j=0; j < SUB_REGIONS+1; j++)
-			table3[i][j] = (int *) calloc (SUB_REGIONS+1, sizeof(int));
+		table3[i] = (int **) calloc (numSubRegions+1, sizeof(int *));
+		for (j=0; j < numSubRegions+1; j++)
+			table3[i][j] = (int *) calloc (numSubRegions+1, sizeof(int));
 	}
 
 	table4 = (int ***) calloc (MAJOR_MODES+1, sizeof(int **));
 	for (i=0; i < MAJOR_MODES+1; i++) {
-		table4[i] = (int **) calloc (SUB_REGIONS+1, sizeof(int *));
-		for (j=0; j < SUB_REGIONS+1; j++)
-			table4[i][j] = (int *) calloc (SUB_REGIONS+1, sizeof(int));
+		table4[i] = (int **) calloc (numSubRegions+1, sizeof(int *));
+		for (j=0; j < numSubRegions+1; j++)
+			table4[i][j] = (int *) calloc (numSubRegions+1, sizeof(int));
 	}
 
 	table5 = (int ***) calloc (STOPS+1, sizeof(int **));
 	for (i=0; i < STOPS+1; i++) {
-		table5[i] = (int **) calloc (SUB_REGIONS+1, sizeof(int *));
-		for (j=0; j < SUB_REGIONS+1; j++)
-			table5[i][j] = (int *) calloc (SUB_REGIONS+1, sizeof(int));
+		table5[i] = (int **) calloc (numSubRegions+1, sizeof(int *));
+		for (j=0; j < numSubRegions+1; j++)
+			table5[i][j] = (int *) calloc (numSubRegions+1, sizeof(int));
 	}
 
 	table6 = (int ***) calloc (PURPOSES+1, sizeof(int **));
@@ -140,9 +159,9 @@ int main (int argc, char *argv[]) {
 
 	table8 = (int ***) calloc (MAJOR_MODES+1, sizeof(int **));
 	for (i=0; i < MAJOR_MODES+1; i++) {
-		table8[i] = (int **) calloc (SUB_REGIONS+1, sizeof(int *));
-		for (j=0; j < SUB_REGIONS+1; j++)
-			table8[i][j] = (int *) calloc (SUB_REGIONS+1, sizeof(int));
+		table8[i] = (int **) calloc (numSubRegions+1, sizeof(int *));
+		for (j=0; j < numSubRegions+1; j++)
+			table8[i][j] = (int *) calloc (numSubRegions+1, sizeof(int));
 	}
 
 
@@ -172,7 +191,7 @@ int main (int argc, char *argv[]) {
 		taz2dist[i] = 0;
 		taz2reg[i] = 0;
 	}
-	read_dist_region_data (fp[0], taz2dist, taz2reg, TAZS);
+	read_dist_region_data (fp[0], summaryType, taz2dist, taz2reg, TAZS);
 	fclose (fp[0]);
 
 
@@ -368,31 +387,31 @@ int main (int argc, char *argv[]) {
 	for (i=1; i <= MAJOR_PURPOSES; i++) {
 		strcpy (temp, MajorPurposeLabels[i-1]);
 		strcat (temp, " Paired Journeys -- O/D Sub-regions");
-		print_table (fp_rep, table3[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+		print_table (fp_rep, table3[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 	}
 	strcpy (temp, "Total");
 	strcat (temp, " Paired Journeys -- O/D Sub-regions");
-	print_table (fp_rep, table3[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+	print_table (fp_rep, table3[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 
 
 	for (i=1; i < MAJOR_MODES; i++) {
 		strcpy (temp, MajorModeLabels[i-1]);
 		strcat (temp, " Paired Journeys -- O/D Sub-regions");
-		print_table (fp_rep, table4[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+		print_table (fp_rep, table4[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 	}
 	strcpy (temp, "Total");
 	strcat (temp, " Paired Journeys -- O/D Sub-regions");
-	print_table (fp_rep, table4[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+	print_table (fp_rep, table4[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 
 
 	for (i=1; i <= STOPS; i++) {
 		strcpy (temp, StopsMadeLabels[i-1]);
 		strcat (temp, " Paired Journeys -- O/D Sub-regions");
-		print_table (fp_rep, table5[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+		print_table (fp_rep, table5[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 	}
 	strcpy (temp, "Total");
 	strcat (temp, " Paired Journeys -- O/D Sub-regions");
-	print_table (fp_rep, table5[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+	print_table (fp_rep, table5[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 
 
 	for (i=1; i <= PURPOSES; i++) {
@@ -418,11 +437,11 @@ int main (int argc, char *argv[]) {
 	for (i=1; i < MAJOR_MODES; i++) {
 		strcpy (temp, MajorModeLabels[i-1]);
 		strcat (temp, " Paired Journey Stops -- O/D Sub-regions");
-		print_table (fp_rep, table8[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+		print_table (fp_rep, table8[i], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 	}
 	strcpy (temp, "Total");
 	strcat (temp, " Paired Journey Stops -- O/D Sub-regions");
-	print_table (fp_rep, table8[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, SUB_REGIONS, SUB_REGIONS);
+	print_table (fp_rep, table8[0], temp, "Origin Sub-region", SubregionLabels, SubregionLabels, numSubRegions, numSubRegions);
 
 
 } // end of main

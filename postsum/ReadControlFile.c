@@ -5,6 +5,7 @@
 extern char **filenames;
 extern char *report_file;
 extern char *corresp_file;
+extern char *summaryType;
 
 void read_ini_control_file (FILE *fp)
 {
@@ -65,5 +66,10 @@ void read_ini_control_file (FILE *fp)
 		strcpy (corresp_file, temp);
 	else
 		strcpy (corresp_file, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "SUMMARY_TYPE")) != NULL)
+		strcpy (summaryType, temp);
+	else
+		strcpy (summaryType, "");
 
 }
