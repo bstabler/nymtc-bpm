@@ -60,7 +60,7 @@ int main (int argc, char *argv[]) {
 	int ***table7;
 	int ***table8;
 	
-	int *orig, *dest, *purp, *mode, *oloc, *iloc;
+	int *seq, *orig, *dest, *purp, *mode, *oloc, *iloc;
 
 
 
@@ -70,6 +70,7 @@ int main (int argc, char *argv[]) {
 
 	report_file = (char *) calloc (256, sizeof (char));
 	corresp_file = (char *) calloc (256, sizeof (char));
+	summaryType = (char *) calloc (256, sizeof (char));
 
 
 
@@ -166,6 +167,7 @@ int main (int argc, char *argv[]) {
 
 
 
+	seq  = (int *) calloc (JOURNEYS, sizeof(int));
 	orig = (int *) calloc (JOURNEYS, sizeof(int));
 	dest = (int *) calloc (JOURNEYS, sizeof(int));
 	purp = (int *) calloc (JOURNEYS, sizeof(int));
@@ -195,7 +197,6 @@ int main (int argc, char *argv[]) {
 	fclose (fp[0]);
 
 
-
 	// summarize results from mdsc_out for each purpose
 	for (i=1; i <= PURPOSES; i++) {
 	
@@ -207,7 +208,14 @@ int main (int argc, char *argv[]) {
 		
 		// read MDSC output file for purpose i
 		k = 0;
-		while ((fscanf (fp[i], "%d %d %d %d %d %d", &orig[k], &dest[k], &purp[k], &mode[k], &oloc[k], &iloc[k])) != EOF) {
+		while ((fscanf (fp[i], "%d %d %d %d %d %d %d", &seq[k], &orig[k], &dest[k], &purp[k], &mode[k], &oloc[k], &iloc[k])) != EOF) {
+	
+			// outbound and inbound stop locations for DT and DC may be negative to indicate stop is closer to dest than orig.
+			if (oloc[k] < 0)
+				oloc[k] *= -1;
+			if (iloc[k] < 0)
+				iloc[k] *= -1;
+			
 			purp[k] = i;
 			k++;
 
@@ -222,18 +230,19 @@ int main (int argc, char *argv[]) {
 		}
 			
 		numJourneys = k;
-			
+
 		// close MDSC output file for purpose i
 		fclose (fp[i]);
 		
 		// summarize MDSC output file data for purpose i
 		for (k=0; k < numJourneys; k++) {
-	
+
 			if (purp[k] != i) {
 				printf ("record number %d of %d in file %s has purpose code of %d but should be %d.\n", k, numJourneys, filenames[i], purp[k], i);
 				exit (-2);
 			}
 			
+
 			// get summary level values
 			odist = taz2dist[orig[k]];
 			ddist = taz2dist[dest[k]];
@@ -356,6 +365,7 @@ int main (int argc, char *argv[]) {
 			table8[0][0][0] += numStops;
 
 		} // end loop over journeys
+
 	} // end loop over purposes
 	
 
