@@ -147,10 +147,17 @@ MDSC with sub-area analysis version history:
 
 4.0.29.2 - 24Oct2007  - added some new error reporting in atwork logsum calculation.
 
+4.1.0.0 - 30Oct2007	- Implementing functionality to test CBD zone license plate rationing policies.
+					  Journeys with origins or destinations in the restricted license plate rationing area specified in the RINGDISTDATA file
+					  for each taz will use autos available variable instead of autos owned after tour destination choice.
+					  Autos available are the number available after each auto owned in a household is determined to be restricted or not.
+					  *** NOTE *** this is now a perminant fixture.  To run MDSC without the rationing policy, set all TAZs to 0 (unrestricted)
+					  in the RINGDISTDATA file.
+
 */
 
-#define VERSION "4.0.29.2"
-#define LAST_MODIFIED "24oct2007"
+#define VERSION "4.1.0.0"
+#define LAST_MODIFIED "01nov2007"
 
 int __cdecl main (int argc, char *argv[])
 {
@@ -478,9 +485,11 @@ int __cdecl main (int argc, char *argv[])
 
 
 //#
-		sprintf (tempString, "debugging: finished with run_mdc() in calibration iteration %d\n", i);
+		sprintf (tempString, "finished with run_mdc() in calibration iteration %d\n", i);
 		printf  ("%s", tempString);
 		fprintf (fp_rep, "%s", tempString);
+		fflush (stdout);
+		fflush (fp_rep);
 //#
 
 
@@ -592,9 +601,11 @@ int __cdecl main (int argc, char *argv[])
 		RiverData, &TaxiData, WalkZoneData, BPMDist1, DistFactors);
 
 //#
-		sprintf (tempString, "debugging: finished with run_mdc()\n", i);
+		sprintf (tempString, "finished with run_mdc()\n", i);
 		printf  ("%s", tempString);
 		fprintf (fp_rep, "%s", tempString);
+		fflush (stdout);
+		fflush (fp_rep);
 //#
 
 
@@ -617,11 +628,6 @@ int __cdecl main (int argc, char *argv[])
 			cal_obs_scaled[i][j] = nm_cal_est[i][j];
 
 
-//#
-		sprintf (tempString, "debugging: ready to write calibration report.\n", i);
-		printf  ("%s", tempString);
-		fprintf (fp_rep, "%s", tempString);
-//#
 
 	calibration_report (iter, fp_rep, msc, Mode_Obs, NMTots, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
 
@@ -658,9 +664,11 @@ int __cdecl main (int argc, char *argv[])
 
 
 //#
-		sprintf (tempString, "debugging: done with MDC, exit or go to STOPS.\n", i);
+		sprintf (tempString, "done with MDC, exit or go to STOPS.\n", i);
 		printf  ("%s", tempString);
 		fprintf (fp_rep, "%s", tempString);
+		fflush (stdout);
+		fflush (fp_rep);
 //#
 
 	if (Ini->MDC_ONLY == 1)
@@ -677,9 +685,11 @@ int __cdecl main (int argc, char *argv[])
 	STOPS:
 
 //#
-		sprintf (tempString, "debugging: start of STOPS section.\n", i);
+		sprintf (tempString, "start of STOPS section.\n", i);
 		printf  ("%s", tempString);
 		fprintf (fp_rep, "%s", tempString);
+		fflush (stdout);
+		fflush (fp_rep);
 //#
 
 	start = clock();
@@ -713,6 +723,9 @@ int __cdecl main (int argc, char *argv[])
 	sprintf (tempString, "Reading MDC output file for STOPS Processing.\n");
 	printf  ("%s", tempString);
 	fprintf (fp_rep, "%s", tempString);
+	fflush (stdout);
+	fflush (fp_rep);
+
 	i = 0;
 	while ((fscanf(fp3, "%d %d %d %*d %d", &k, &orig, &dest, &mode)) != EOF) {
 		if (i == Ini->NUMBER_JOURNEYS) {
@@ -751,6 +764,9 @@ int __cdecl main (int argc, char *argv[])
 	sprintf (tempString, "Start of processing for stop frequncy choice and stop location choice models.\n");
 	printf  ("%s", tempString);
 	fprintf (fp_rep, "%s", tempString);
+	fflush (stdout);
+	fflush (fp_rep);
+
 	stops (fp3, origList, destList, modeList, &JourneyAttribs, &ZonalData, RiverData);
 
 

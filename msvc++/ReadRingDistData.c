@@ -4,7 +4,7 @@
 #include "md.h"
 
 
-#define RING_DIST_RECORD_LENGTH 36
+#define RING_DIST_RECORD_LENGTH 48
 #define ZONE_START 1
 #define ZONE_LENGTH 12
 #define RING_START 13
@@ -13,11 +13,13 @@
 #define DIST_LENGTH 12
 #define BPMDIST1_START 33
 #define BPMDIST1_LENGTH 4
+#define LP_RESTRICT_START 37
+#define LP_RESTRICT_LENGTH 12
 
 
 void read_ring_dist_data (FILE *fp, struct zone_data *ZonalData)
 {
-	int zone, ring, rec_len;
+	int zone, ring, rec_len, lpRestrict;
 	float dist;
 	char InputRecord[RING_DIST_RECORD_LENGTH+2];
 	char temp[LRECL], bpmdist1[LRECL];
@@ -47,6 +49,11 @@ void read_ring_dist_data (FILE *fp, struct zone_data *ZonalData)
 				temp[BPMDIST1_LENGTH] = '\0';
 				strcpy (bpmdist1, temp);
 	
+				strncpy (temp, &InputRecord[LP_RESTRICT_START-1], LP_RESTRICT_LENGTH);
+				temp[LP_RESTRICT_LENGTH] = '\0';
+				lpRestrict = atoi(temp);
+
+				
 				ZonalData->ring[zone] = ring;
 				ZonalData->dist[zone] = dist;
 				if (!strcmp(bpmdist1, "01.1"))
@@ -59,6 +66,8 @@ void read_ring_dist_data (FILE *fp, struct zone_data *ZonalData)
 					ZonalData->bpmdist1_index[zone] = 3;
 				else 
 					ZonalData->bpmdist1_index[zone] = (int)(atof(bpmdist1)) + 2;
+				ZonalData->lpRestricted[zone] = lpRestrict;
+
 			}
 			else {
 				printf ("invalid zone number = %d read in from RingDistData file.\n", zone);

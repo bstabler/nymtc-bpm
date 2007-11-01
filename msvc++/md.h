@@ -309,7 +309,7 @@ struct river_crossing_data {
 
 struct zone_data {
 // zonal attributes
-	int *AreaType, *UrbanType, *County, *ring, *bpmdist1_index, *SchoolDist;
+	int *AreaType, *UrbanType, *County, *ring, *bpmdist1_index, *SchoolDist, *lpRestricted;
 	int *OrigSubAreaIB, *DestSubAreaIB, *OrigSubAreaOB, *DestSubAreaOB;
 	float *TotEmp, *LandArea, *HHPop, *HHNum, *UnvEnrol, *K12ETot, *empden, *PctFreePark, *NW_PctFreePark;
 	float *RetEmp, *OffEmp, *PctAcc, *dist;
@@ -333,8 +333,8 @@ struct tran_data {
 
 struct journey_attribs {
 	short *orig, *purpose, *walk_orig, *income, *autos, *workers, *children, *person_type;
-	short *ak, *aa, *at_work_mode, *persno, *nwas, *frozen;
-	int *hh, *packet, *haj;
+	short *ak, *aa, *at_work_mode, *persno, *nwas, *frozen, *autosAvail;					// autosAvail are the number of autos available to hh for travel, subject to rationing.
+	int *hh, *packet, *haj;	
 };
 
 struct socec_data {
@@ -408,6 +408,7 @@ void read_walk_zone_data (FILE *, struct walk_zone_data *);
 void read_bpmdist1_coeffs (FILE *, struct bpmdist1_coeff_data);
 void read_school_district_data (FILE *, struct zone_data *);
 void read_kpmg_journey_records (FILE *, FILE **, struct zone_data *, struct journey_attribs *, int **);
+int getNumAutosRestricted (int hhAutoOwnership);
 void read_ring_dist_data (FILE *, struct zone_data *);
 void read_attr_corrections (FILE *, double *);
 void read_dist_factors (FILE *, struct co_dist_factors *);
@@ -474,6 +475,7 @@ void atwork_wt_od_util  (int, int, float *, float *, float *, struct tran_data *
 //void atwork_dc_od_util  (int, int, float **, float **, float **, struct tran_data *, struct zone_data *, float *);
 void atwork_tx_od_util  (int, int, float *, float *, float *, struct zone_data *, struct taxi_data *, float *);
 void SE_Utilities (int, struct journey_attribs *, struct zone_data *, float *);
+void SE_UtilitiesRestricted (int, struct journey_attribs *, struct zone_data *, float *);
 float work_sr2_se_util (struct socec_data *);
 float work_sr3_se_util (struct socec_data *);
 float work_sr4_se_util (struct socec_data *);

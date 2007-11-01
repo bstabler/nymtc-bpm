@@ -60,7 +60,18 @@ void work_freq_util (int i, double obDensity, double ibDensity, double ivtt, int
 	short *hh_freqs, short **hh_pers_freqs, int *hh2id)
 {
 
-	int hh_index, pers_index;
+	int hh_index, pers_index, autos;
+
+
+
+	// set the autos variable for use in auto sufficiency calculation to autos owned,
+	// or in the case where an origin or destination is in the restricted area
+	// for license plate rationing, to autos available.
+	if ( ZonalData->lpRestricted[orig[i]] || ZonalData->lpRestricted[dest[i]] )
+		autos = JourneyAttribs->autosAvail[i];
+	else
+		autos = JourneyAttribs->autos[i];
+
 
 
 	// get the pers frequency table index
@@ -82,10 +93,10 @@ void work_freq_util (int i, double obDensity, double ibDensity, double ivtt, int
 					+ OB_AUTO_HI*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->income[i] == 3)
 					+ OB_TRANSIT_LOW_MED*((mode[i] >= 5 && mode[i] <= 8) && JourneyAttribs->income[i] < 3)
 					+ OB_TRANSIT_HI*((mode[i] >= 5 && mode[i] <= 8) && JourneyAttribs->income[i] == 3)
-					+ OB_AUTO_NOA*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] == 0)
-					+ OB_AUTO_AFW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] <  JourneyAttribs->workers[i])
-					+ OB_AUTO_ASW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] == JourneyAttribs->workers[i])
-					+ OB_AUTO_AMW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] >  JourneyAttribs->workers[i])
+					+ OB_AUTO_NOA*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos == 0)
+					+ OB_AUTO_AFW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos <  JourneyAttribs->workers[i])
+					+ OB_AUTO_ASW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos == JourneyAttribs->workers[i])
+					+ OB_AUTO_AMW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos >  JourneyAttribs->workers[i])
 					+ OB_TRANSIT_IVT*(ivtt)
 					+ OB_AUTO_DA_OR_TX*(mode[i] == 1 || mode[i] == 9)
 					+ OB_HH_NWADULTS_GT_0*(JourneyAttribs->nwas[i] > 0)
@@ -106,10 +117,10 @@ void work_freq_util (int i, double obDensity, double ibDensity, double ivtt, int
 					+ IB_AUTO_HI*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->income[i] == 3)
 					+ IB_TRANSIT_LOW_MED*((mode[i] >= 5 && mode[i] <= 8) && JourneyAttribs->income[i] < 3)
 					+ IB_TRANSIT_HI*((mode[i] >= 5 && mode[i] <= 8) && JourneyAttribs->income[i] == 3)
-					+ IB_AUTO_NOA*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] == 0)
-					+ IB_AUTO_AFW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] <  JourneyAttribs->workers[i])
-					+ IB_AUTO_ASW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] == JourneyAttribs->workers[i])
-					+ IB_AUTO_AMW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] >  JourneyAttribs->workers[i])
+					+ IB_AUTO_NOA*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos == 0)
+					+ IB_AUTO_AFW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos <  JourneyAttribs->workers[i])
+					+ IB_AUTO_ASW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos == JourneyAttribs->workers[i])
+					+ IB_AUTO_AMW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos >  JourneyAttribs->workers[i])
 					+ IB_TRANSIT_IVT*(ivtt)
 					+ IB_AUTO_DA_OR_TX*(mode[i] == 1 || mode[i] == 9)
 					+ IB_HH_NWADULTS_GT_0*(JourneyAttribs->nwas[i] > 0)
@@ -130,10 +141,10 @@ void work_freq_util (int i, double obDensity, double ibDensity, double ivtt, int
 					+ OBIB_AUTO_HI*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->income[i] == 3)
 					+ OBIB_TRANSIT_LOW_MED*((mode[i] >= 5 && mode[i] <= 8) && JourneyAttribs->income[i] < 3)
 					+ OBIB_TRANSIT_HI*((mode[i] >= 5 && mode[i] <= 8) && JourneyAttribs->income[i] == 3)
-					+ OBIB_AUTO_NOA*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] == 0)
-					+ OBIB_AUTO_AFW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] <  JourneyAttribs->workers[i])
-					+ OBIB_AUTO_ASW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] == JourneyAttribs->workers[i])
-					+ OBIB_AUTO_AMW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && JourneyAttribs->autos[i] >  JourneyAttribs->workers[i])
+					+ OBIB_AUTO_NOA*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos == 0)
+					+ OBIB_AUTO_AFW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos <  JourneyAttribs->workers[i])
+					+ OBIB_AUTO_ASW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos == JourneyAttribs->workers[i])
+					+ OBIB_AUTO_AMW*(((mode[i] >= 1 && mode[i] <= 4) || mode[i] == 9) && autos >  JourneyAttribs->workers[i])
 					+ OBIB_TRANSIT_IVT*(ivtt)
 					+ OBIB_AUTO_DA_OR_TX*(mode[i] == 1 || mode[i] == 9)
 					+ OBIB_HH_NWADULTS_GT_0*(JourneyAttribs->nwas[i] > 0)

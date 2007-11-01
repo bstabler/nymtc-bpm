@@ -42,6 +42,7 @@ void get_journey_data (FILE *fp_work[], struct zone_data *ZonalData, struct jour
 	(*JourneyAttribs).hh			= (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_JOURNEYS*sizeof(int));
 	(*JourneyAttribs).packet		= (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_JOURNEYS*sizeof(int));
 	(*JourneyAttribs).haj			= (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_JOURNEYS*sizeof(int));
+	(*JourneyAttribs).autosAvail	= (short *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_JOURNEYS*sizeof(short));
 //	addRAM ("get_journey_data", 3*Ini->NUMBER_JOURNEYS*sizeof(int) + 13*Ini->NUMBER_JOURNEYS*sizeof(short));
 
 

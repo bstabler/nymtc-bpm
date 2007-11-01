@@ -306,6 +306,7 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	ZonalData->ring = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 	ZonalData->dist = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 	ZonalData->bpmdist1_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->lpRestricted = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 //	addRAM ("get_input_data", 2*(Ini->MAX_TAZS+1)*sizeof(int) + 1*(Ini->MAX_TAZS+1)*sizeof(float));
 	read_ring_dist_data (fp, ZonalData);
 	fclose (fp);

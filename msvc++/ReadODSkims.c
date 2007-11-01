@@ -7,7 +7,6 @@ void read_od_skims (float ***hwy_dist_util, float ***hwy_dist, float ***hwy_time
 	int i, j;
 	int nrows, ncols;
 	float **Bus_ivt, **ExpBus_ivt, **Rail_ivt, **CR_ivt, **Ferry_ivt;
-	float **hwy_hov_time, **hwy_hov_dist;
 	MATRIX hMatrix;
 	MATRIX tMatrix;
 
@@ -31,14 +30,10 @@ void read_od_skims (float ***hwy_dist_util, float ***hwy_dist, float ***hwy_time
 	*hwy_dist_util = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nrows+1)*sizeof(float *));
 	*hwy_dist = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nrows+1)*sizeof(float *));
 	*hwy_time = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nrows+1)*sizeof(float *));
-	hwy_hov_time = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nrows+1)*sizeof(float *));
-	hwy_hov_dist = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nrows+1)*sizeof(float *));
 	for (i=0; i <= nrows; i++) {
 		(*hwy_dist_util)[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (ncols+1)*sizeof(float));
 		(*hwy_dist)[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (ncols+1)*sizeof(float));
 		(*hwy_time)[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (ncols+1)*sizeof(float));
-		hwy_hov_dist[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (ncols+1)*sizeof(float));
-		hwy_hov_time[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (ncols+1)*sizeof(float));
 	}
 //	addRAM ("read_od_skims", 3*(nrows+1)*(ncols+1)*sizeof(float));
 

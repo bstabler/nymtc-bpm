@@ -16,7 +16,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	int numFiles;
 	int i, j, k, m, n, p, r, seq, walk[2];
 	int hh, pnum, haj;
-	int acc, orig, dest, purpose, income, autos, ut_orig, mode, person_type, atwork_mode, da_work;
+	int acc, orig, dest, purpose, income, autos, autosAvail, ut_orig, mode, person_type, atwork_mode, da_work;
 	int m_msc_index, nm_msc_index;
 	int unmet_count, last_k, count, cnt, dist;
 	int debug_part, *debug_parts, debug_mode=0;
@@ -358,6 +358,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 		orig = JourneyAttribs->orig[k];
 		ut_orig = ZonalData->UrbanType[JourneyAttribs->orig[k]];
 		autos = JourneyAttribs->autos[k];
+		autosAvail = JourneyAttribs->autosAvail[k];
 		income = JourneyAttribs->income[k];
 		purpose = JourneyAttribs->purpose[k];
 		person_type = JourneyAttribs->person_type[k];
@@ -816,7 +817,22 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
+
+
 				// get the modal proportions for this destination
+
+				// if orig or selected destination TAZ is in the restricted area, use restricted SE_Utility to reflect
+				// license plate rationing policy implemented.  Restricted SE_Utility reflects altered auto sufficiency
+				// if a HHs auto was subject to rationing.
+				// also use autosAvail instead of autos owned for mode choice proportions.
+
+				if ( ZonalData->lpRestricted[orig] || ZonalData->lpRestricted[dest] ) {
+					for	(i=0; i < Ini->NUMBER_ALTS; i++)
+						SEutil[i] = 0.0;
+					SE_UtilitiesRestricted (k, JourneyAttribs, ZonalData, SEutil);
+					autos = autosAvail;
+				}
+
 				se_flag = 0;
 				od_flag = 0;
 				for	(i=0; i < Ini->NUMBER_ALTS; i++) {

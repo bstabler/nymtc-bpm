@@ -34,6 +34,7 @@
 #define JRNY_TYPE_LENGTH 2
 
 
+#define AUTO_RESTRICTION_PROBABILITY 0.10
 
 
 void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *ZonalData, struct journey_attribs *JourneyAttribs, int **TotProds)
@@ -43,6 +44,7 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 
 	int h, i, j, k, seq, orig, dest, walk_orig, income, workers, children, nwas, autos, persno, hh;
 	int haj, purpose, hh_jrnys, person_type, jrny_type;
+	int numAutosRestricted;
 	int num_journeys=0, num_households=0;
 	int start_k, adult_maint, adult_discr, child_maint, child_discr;
 	int max_seq, max_pers, mdsc_journeys, input_journeys;
@@ -55,6 +57,8 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 	short *work_dest, *work_mode, *work_dest_unfrozen, *work_mode_unfrozen;
 	char JourneyRecord[JOURNEY_RECORD_LENGTH+1];
 	char temp[LRECL];
+
+
 
 
 	max_seq=0;
@@ -244,6 +248,9 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 			hh_jrnys = atoi(temp);
 		
 
+			numAutosRestricted = getNumAutosRestricted (autos);
+
+
 			num_households ++;
 
 			// read the journeys for this household.
@@ -338,6 +345,7 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 						JourneyAttribs->children[k] = children;
 						JourneyAttribs->nwas[k] = nwas;
 						JourneyAttribs->autos[k] = autos;
+						JourneyAttribs->autosAvail[k] = autos - numAutosRestricted;
 						JourneyAttribs->person_type[k] = person_type;
 						JourneyAttribs->hh[k] = seq;
 						JourneyAttribs->persno[k] = persno;
@@ -643,3 +651,29 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 }
 
 
+
+int getNumAutosRestricted (int hhAutoOwnership) {
+
+	// hhAutoOwnership can by 0, 1, 2 or 3 - no cars, 1 car, 2 cars, or 3 or more cars.
+
+
+	int i;
+	int numAutosRestricted = 0;
+	double nrand;
+
+	
+	// loop over number of autos in household for households with at least one auto.
+	for (i=1; i <= hhAutoOwnership; i++) {
+
+		// do monte carlo selection to see if HH's auto is restricted and if so, increment restricted count.
+		nrand = (double)rand()/(double)MAX_RANDOM;
+		if ( nrand < AUTO_RESTRICTION_PROBABILITY )
+			numAutosRestricted++;
+
+	}
+
+	// numAutosRestricted will be used to determine an alternative auto sufficiency variable for the household
+	// for use in motorized journey mode choice model for journeys with destination in restricted area.
+	return numAutosRestricted;
+
+}
