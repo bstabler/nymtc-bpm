@@ -34,7 +34,6 @@
 #define JRNY_TYPE_LENGTH 2
 
 
-#define AUTO_RESTRICTION_PROBABILITY 0.10
 
 
 void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *ZonalData, struct journey_attribs *JourneyAttribs, int **TotProds)
@@ -667,7 +666,7 @@ int getNumAutosRestricted (int hhAutoOwnership) {
 
 		// do monte carlo selection to see if HH's auto is restricted and if so, increment restricted count.
 		nrand = (double)rand()/(double)MAX_RANDOM;
-		if ( nrand < AUTO_RESTRICTION_PROBABILITY )
+		if ( nrand < Ini->PCT_LP_RESTRICTION )
 			numAutosRestricted++;
 
 	}

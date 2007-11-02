@@ -154,10 +154,13 @@ MDSC with sub-area analysis version history:
 					  *** NOTE *** this is now a perminant fixture.  To run MDSC without the rationing policy, set all TAZs to 0 (unrestricted)
 					  in the RINGDISTDATA file.
 
+4.1.0.1 - 02Nov2007	-	Added PCT_LP_RESTRICTION control to set the percentage of vehicles to be restriced from restricted area defined in RINGDISTDATA.
+						Set values in range [0.0, 1.0].
+
 */
 
-#define VERSION "4.1.0.0"
-#define LAST_MODIFIED "01nov2007"
+#define VERSION "4.1.0.1"
+#define LAST_MODIFIED "02nov2007"
 
 int __cdecl main (int argc, char *argv[])
 {

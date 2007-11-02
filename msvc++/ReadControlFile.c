@@ -296,6 +296,7 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	Ini->STOPS_ONLY				= GetIntFromINI (fp, "PARAMS", "STOPS_ONLY");
 	Ini->MDC_ONLY				= GetIntFromINI (fp, "PARAMS", "MDC_ONLY");
 	Ini->SUBAREA_ANALYSIS		= GetIntFromINI (fp, "PARAMS", "SUBAREA_ANALYSIS");
+	Ini->PCT_LP_RESTRICTION		= GetFloatFromINI (fp, "PARAMS", "PCT_LP_RESTRICTION");
 	Ini->LOW_COMPETITION		= GetIntFromINI (fp, "PARAMS", "LOW_COMPETITION");
 	Ini->CORRECT_ORDER			= GetIntFromINI (fp, "PARAMS", "CORRECT_ORDER");
 	Ini->DEGREE_OF_RELEVANCE	= GetFloatFromINI (fp, "PARAMS", "DEGREE_OF_RELEVANCE");

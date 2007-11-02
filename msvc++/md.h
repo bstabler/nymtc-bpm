@@ -204,6 +204,7 @@ struct IniData {
 	int ZERO_UTIL;					// use 0 (no) to include OD utility, 1 (yes) to omit OD utility for debugging
 	int STOPS_ONLY;
 	int MDC_ONLY;
+	float PCT_LP_RESTRICTION;
 	int SUBAREA_ANALYSIS;
 	int LOW_COMPETITION;			// if 1, competition areas defined by default rules; if 0, use Peter's memo item 2.3.4 rules.
 	int CORRECT_ORDER;				// if 0, use order stops models were originally calibrated to; if 1, use correct journey sequence.
