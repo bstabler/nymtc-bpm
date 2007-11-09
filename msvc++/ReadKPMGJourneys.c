@@ -41,6 +41,9 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 
 	FILE *fp1, *fp2;
 
+	int dummy=0;
+
+
 	int h, i, j, k, seq, orig, dest, walk_orig, income, workers, children, nwas, autos, persno, hh;
 	int haj, purpose, hh_jrnys, person_type, jrny_type;
 	int numAutosRestricted;
@@ -246,6 +249,7 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 			temp[HH_JRNYS_LENGTH] = '\0';
 			hh_jrnys = atoi(temp);
 		
+
 
 			numAutosRestricted = getNumAutosRestricted (autos);
 

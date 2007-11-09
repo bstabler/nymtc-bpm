@@ -8,6 +8,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 			  struct walk_zone_data *WalkZoneData, struct bpmdist1_coeff_data BPMDist1,
 			  struct co_dist_factors *DistFactors)
 {
+
 	FILE *fp;
 	FILE **fp_freeze;
 	FILE **fp_frozen;
@@ -16,7 +17,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	int numFiles;
 	int i, j, k, m, n, p, r, seq, walk[2];
 	int hh, pnum, haj;
-	int acc, orig, dest, purpose, income, autos, autosAvail, ut_orig, mode, person_type, atwork_mode, da_work;
+	int acc, orig, dest, purpose, income, autos, ut_orig, mode, person_type, atwork_mode, da_work;
 	int m_msc_index, nm_msc_index;
 	int unmet_count, last_k, count, cnt, dist;
 	int debug_part, *debug_parts, debug_mode=0;
@@ -30,6 +31,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	int count1, count2, rcount;
 	int fileIndex;
 	float gamma;
+	double rn;
+	double *frozenRand;
 	float **Logsum, ***z_attrs, **t_attrs;
 	float *Prob, *SEutil, *ODutil, *TotalUtility;
 	float Total[3];
@@ -46,6 +49,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	printf ("\nallocating memory for run_mdc().\n");
 	fprintf (fp_rep, "\nallocating memory for run_mdc().\n");
 
+	frozenRand = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_JOURNEYS+1)*sizeof(double));
 	frozenDest = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_JOURNEYS+1)*sizeof(int));
 	frozenAcc = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_JOURNEYS+1)*sizeof(int));
 	frozenMode = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_JOURNEYS+1)*sizeof(int));
@@ -226,7 +230,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 			rcount = 0;
 			printf ("\nreading frozen journey records...");
 			fprintf (fp_rep, "\nreading frozen journey records...");
-			while ( (fscanf (fp_frozen[fileIndex], "%*d,%d,%d,%d,%d,%*d,%*d,%*d,%*d,%*d,%d,%*d,%d,%d,%d,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f", &k, &hh, &pnum, &haj, &dest, &acc, &m, &atwork_mode)) != EOF) {
+			while ( (fscanf (fp_frozen[fileIndex], "%*d,%d,%d,%d,%d,%*d,%*d,%*d,%*d,%*d,%*d,%d,%*d,%d,%*d,%*d,%d,%d,%f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f,%*f", &k, &hh, &pnum, &haj, &dest, &acc, &m, &atwork_mode, &rn)) != EOF) {
 				if (hh != JourneyAttribs->hh[k] || pnum != JourneyAttribs->persno[k] || haj != JourneyAttribs->haj[k]) {
 					printf ("\ninconsistency between order of frozen journey records and model journey records");
 					printf ("\nfrozen record: k=%d, hh=%d, persno=%d, haj=%d", k, hh, pnum, haj);
@@ -238,12 +242,22 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					fflush (fp_rep);
 					exit (-71);
 				}
+				frozenRand[k] = rn;
 				frozenDest[k] = dest;
 				frozenAcc[k] = acc;
 				frozenMode[k] = m;
 				frozenAtWorkMode[k] = atwork_mode;
 				rcount++;
 				r++;
+
+				// if this is FTA_RESTART for at-work purpose, and if flag is set to 1, change the mode used for the work tour on the journey record
+				// to the value in the frozen records file;
+				// otherwise, the mode used for the work tour will be what was linked when reading the HAJ journeys, i.e. the mode used in the work tour
+				// for the work tour model run in FTA_RESTART mode.
+				if (Ini->FTA_RESTART && Ini->PURPOSE_TO_PROCESS == 7 && Ini->USE_FROZEN_WORKTOUR_MODE == 1) {
+					JourneyAttribs->at_work_mode[k] = frozenAtWorkMode[k];
+				}
+
 
 				if (r == MAX_FROZEN_RECORDS) {
 					r = 0;
@@ -357,8 +371,6 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 		k = p_sort[p_start[m]];
 		orig = JourneyAttribs->orig[k];
 		ut_orig = ZonalData->UrbanType[JourneyAttribs->orig[k]];
-		autos = JourneyAttribs->autos[k];
-		autosAvail = JourneyAttribs->autosAvail[k];
 		income = JourneyAttribs->income[k];
 		purpose = JourneyAttribs->purpose[k];
 		person_type = JourneyAttribs->person_type[k];
@@ -485,18 +497,12 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 						exit (-38);
 					}
 
-					if (Ini->USE_FROZEN_WORKTOUR_MODE == 1) {
-						atwork_mode = frozenAtWorkMode[k];
-					}
-					else {
-						atwork_mode = JourneyAttribs->at_work_mode[k];
-					}
-
 				}
 
 
 				dest_freq[dest]++;
 				mode = 9;
+
 
 				if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) > (Ini->MAX_PACKET - 1)) {
 					printf ("\nnon-motorized dest choice\np=%d\nm=%d\nn=%d\nk=%d\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%f\ninitial size=%f\nexit (-97)\n", p, m, n, k, orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
@@ -569,10 +575,10 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 				// write out the information needed for FTA_RESTART analysis
 				if (Ini->FREEZE_MDC_OUTPUT == 1 && fp_freeze[fileIndex] != NULL) {
-					fprintf (fp_freeze[fileIndex], "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,autos,JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,mode+1,atwork_mode,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+					fprintf (fp_freeze[fileIndex], "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf,%.1lf\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,JourneyAttribs->autos[k],JourneyAttribs->autos[k],JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,ZonalData->lpRestricted[orig],ZonalData->lpRestricted[dest],mode+1,atwork_mode,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 					if ( count1 == 0 ) {
 						fprintf (fp_rep,"first frozen non-motorized journey record:\n");
-						fprintf (fp_rep,"seq=%d\nk=%d\nhh=%d\npers=%d\nhaj=%d\npurpose=%d\nincome=%d\nautos=%d\nworkers=%d\norig=%d\ndest=%d\nwalk_orig=%d\nacc=%d\nmode=%d\natwork_mode=%d\nPr[0]=%.1lf\nPr[1]=%.1lf\nPr[2]=%.1lf\nPr[3]=%.1lf\nPr[4]=%.1lf\nPr[5]=%.1lf\nPr[6]=%.1lf\nPr[7]=%.1lf\nPr[8]=%.1lf\nPr[9]=%.1lf\nPr[10]=%.1lf\nUt[0]=%.1lf\nUt[1]=%.1lf\nUt[2]=%.1lf\nUt[3]=%.1lf\nUt[4]=%.1lf\nUt[5]=%.1lf\nUt[6]=%.1lf\nUt[7]=%.1lf\nUt[8]=%.1lf\nUt[9]=%.1lf\nUt[10]=%.1lf\nPrNoAcc=%.1lf\nPrAcc=%.1lf\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,autos,JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,mode+1,atwork_mode,0,0,0,0,0,0,0,0,0,1.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+						fprintf (fp_rep,"seq=%d\nk=%d\nhh=%d\npers=%d\nhaj=%d\npurpose=%d\nincome=%d\nautos=%d\nworkers=%d\norig=%d\ndest=%d\nwalk_orig=%d\nacc=%d\nmode=%d\natwork_mode=%d\nPr[0]=%.1lf\nPr[1]=%.1lf\nPr[2]=%.1lf\nPr[3]=%.1lf\nPr[4]=%.1lf\nPr[5]=%.1lf\nPr[6]=%.1lf\nPr[7]=%.1lf\nPr[8]=%.1lf\nPr[9]=%.1lf\nPr[10]=%.1lf\nUt[0]=%.1lf\nUt[1]=%.1lf\nUt[2]=%.1lf\nUt[3]=%.1lf\nUt[4]=%.1lf\nUt[5]=%.1lf\nUt[6]=%.1lf\nUt[7]=%.1lf\nUt[8]=%.1lf\nUt[9]=%.1lf\nUt[10]=%.1lf\nPrNoAcc=%.1lf\nPrAcc=%.1lf\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,JourneyAttribs->autos[k],JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,mode+1,atwork_mode,0,0,0,0,0,0,0,0,0,1.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 						fflush(fp_rep);
 					}
 					count1++;
@@ -668,7 +674,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 //					if ( j == 2438 && ( p == 139020 || p == 139069 || p == 139073 ) )
 //						k *= -1;
 	
-					mc_logsum[purpose] (k, orig, j, AvailModes, person_type, autos, walk, da_work, ODutil, SEutil, (float *)msc->MSC[m_msc_index], Logsum[j]);
+					mc_logsum[purpose] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, da_work, ODutil, SEutil, (float *)msc->MSC[m_msc_index], Logsum[j]);
 					walk[1] = 1;
 				}
 				else {
@@ -818,7 +824,6 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-
 				// get the modal proportions for this destination
 
 				// if orig or selected destination TAZ is in the restricted area, use restricted SE_Utility to reflect
@@ -826,12 +831,22 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				// if a HHs auto was subject to rationing.
 				// also use autosAvail instead of autos owned for mode choice proportions.
 
-				if ( ZonalData->lpRestricted[orig] || ZonalData->lpRestricted[dest] ) {
+				autos = JourneyAttribs->autos[k];
+				if ( Ini->PCT_LP_RESTRICTION > 0.0 && (ZonalData->lpRestricted[orig] || ZonalData->lpRestricted[dest]) ) {
 					for	(i=0; i < Ini->NUMBER_ALTS; i++)
 						SEutil[i] = 0.0;
 					SE_UtilitiesRestricted (k, JourneyAttribs, ZonalData, SEutil);
-					autos = autosAvail;
+					autos = JourneyAttribs->autosAvail[k];
+;
 				}
+				else {
+
+					for	(i=0; i < Ini->NUMBER_ALTS; i++)
+						SEutil[i] = 0.0;
+					SE_Utilities (k, JourneyAttribs, ZonalData, SEutil);
+
+				}
+
 
 				se_flag = 0;
 				od_flag = 0;
@@ -883,6 +898,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 						i = Ini->NUMBER_ALTS;
 					}
 				}
+
+
 
 
 
@@ -950,10 +967,10 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 				// write out the information needed for FTA_RESTART analysis
 				if (Ini->FREEZE_MDC_OUTPUT == 1 && fp_freeze[fileIndex] != NULL) {
-					fprintf (fp_freeze[fileIndex], "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,autos,JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,mode+1,atwork_mode,Prob[0],Prob[1],Prob[2],Prob[3],Prob[4],Prob[5],Prob[6],Prob[7],Prob[8],Prob[9],Prob[10],TotalUtility[0],TotalUtility[1],TotalUtility[2],TotalUtility[3],TotalUtility[4],TotalUtility[5],TotalUtility[6],TotalUtility[7],TotalUtility[8],TotalUtility[9],TotalUtility[10],pNoAcc,pAcc);
+					fprintf (fp_freeze[fileIndex], "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8lf,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le,%.8le\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,JourneyAttribs->autos[k],autos,JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,ZonalData->lpRestricted[orig],ZonalData->lpRestricted[dest],mode+1,atwork_mode,nrand,Prob[0],Prob[1],Prob[2],Prob[3],Prob[4],Prob[5],Prob[6],Prob[7],Prob[8],Prob[9],Prob[10],SEutil[0],SEutil[1],SEutil[2],SEutil[3],SEutil[4],SEutil[5],SEutil[6],SEutil[7],SEutil[8],SEutil[9],SEutil[10],TotalUtility[0],TotalUtility[1],TotalUtility[2],TotalUtility[3],TotalUtility[4],TotalUtility[5],TotalUtility[6],TotalUtility[7],TotalUtility[8],TotalUtility[9],TotalUtility[10],pNoAcc,pAcc);
 					if ( count2 == 0 ) {
 						fprintf (fp_rep,"first frozen motorized journey record:\n");
-						fprintf (fp_rep,"seq=%d\nk=%d\nhh=%d\npers=%d\nhaj=%d\npurpose=%d\nincome=%d\nautos=%d\nworkers=%d\norig=%d\ndest=%d\nwalk_orig=%d\nacc=%d\nmode=%d\natwork_mode=%d\nPr[0]=%.8lf\nPr[1]=%.8lf\nPr[2]=%.8lf\nPr[3]=%.8lf\nPr[4]=%.8lf\nPr[5]=%.8lf\nPr[6]=%.8lf\nPr[7]=%.8lf\nPr[8]=%.8lf\nPr[9]=%.8lf\nPr[10]=%.8lf\nUt[0]=%.8le\nUt[1]=%.8le\nUt[2]=%.8le\nUt[3]=%.8le\nUt[4]=%.8le\nUt[5]=%.8le\nUt[6]=%.8le\nUt[7]=%.8le\nUt[8]=%.8le\nUt[9]=%.8le\nUt[10]=%.8le\nPrNoAcc=%.8lf\nPrAcc=%.8lf\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,autos,JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,mode+1,atwork_mode,Prob[0],Prob[1],Prob[2],Prob[3],Prob[4],Prob[5],Prob[6],Prob[7],Prob[8],Prob[9],Prob[10],TotalUtility[0],TotalUtility[1],TotalUtility[2],TotalUtility[3],TotalUtility[4],TotalUtility[5],TotalUtility[6],TotalUtility[7],TotalUtility[8],TotalUtility[9],TotalUtility[10],pNoAcc,pAcc);
+						fprintf (fp_rep,"seq=%d\nk=%d\nhh=%d\npers=%d\nhaj=%d\npurpose=%d\nincome=%d\nautos=%d\nworkers=%d\norig=%d\ndest=%d\nwalk_orig=%d\nacc=%d\nmode=%d\natwork_mode=%d\nPr[0]=%.8lf\nPr[1]=%.8lf\nPr[2]=%.8lf\nPr[3]=%.8lf\nPr[4]=%.8lf\nPr[5]=%.8lf\nPr[6]=%.8lf\nPr[7]=%.8lf\nPr[8]=%.8lf\nPr[9]=%.8lf\nPr[10]=%.8lf\nUt[0]=%.8le\nUt[1]=%.8le\nUt[2]=%.8le\nUt[3]=%.8le\nUt[4]=%.8le\nUt[5]=%.8le\nUt[6]=%.8le\nUt[7]=%.8le\nUt[8]=%.8le\nUt[9]=%.8le\nUt[10]=%.8le\nPrNoAcc=%.8lf\nPrAcc=%.8lf\n", seq,k,JourneyAttribs->hh[k],JourneyAttribs->persno[k],JourneyAttribs->haj[k],purpose+1,income,JourneyAttribs->autos[k],JourneyAttribs->workers[k],orig,dest,JourneyAttribs->walk_orig[k],acc,mode+1,atwork_mode,Prob[0],Prob[1],Prob[2],Prob[3],Prob[4],Prob[5],Prob[6],Prob[7],Prob[8],Prob[9],Prob[10],TotalUtility[0],TotalUtility[1],TotalUtility[2],TotalUtility[3],TotalUtility[4],TotalUtility[5],TotalUtility[6],TotalUtility[7],TotalUtility[8],TotalUtility[9],TotalUtility[10],pNoAcc,pAcc);
 						fflush(fp_rep);
 					}
 					count2++;

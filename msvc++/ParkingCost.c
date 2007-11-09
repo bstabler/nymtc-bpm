@@ -10,7 +10,7 @@ float parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 {
 
   // parking costs for each range
-	float prkcst[] = { 250, 750, 1250, 1750, 2250, 2750, 3250, 3750, 4250, 4750 };
+	float prkcst[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
 	double rand_no;
 	float empden;
 	int i, j, k;
@@ -59,7 +59,7 @@ float nw_parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 {
 
   // parking costs for each range
-	float prkcst[] = { 250, 750, 1250, 1750, 2250, 2750, 3250, 3750, 4250, 4750 };
+	float prkcst[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
 	double rand_no;
 	float empden;
 	int i, j, k;

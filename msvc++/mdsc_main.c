@@ -157,10 +157,17 @@ MDSC with sub-area analysis version history:
 4.1.0.1 - 02Nov2007	-	Added PCT_LP_RESTRICTION control to set the percentage of vehicles to be restriced from restricted area defined in RINGDISTDATA.
 						Set values in range [0.0, 1.0].
 
+4.1.0.2 - 06Nov2007	-	Changed parking cost back to units of dollars in ParkingCost.c.
+
+4.1.0.3 - 07Nov2007 -   Corrected bugs in reporting autos/autosAvail and using SEutil for journeys subject to rationing
+
+4.1.0.4 - 08Nov2007 -   Corrected bugs in at-work purpose model where work tour mode was not preserved correctly in FTA_RESTART runs with
+						USE_FROZEN_WORKTOUR_MODE set to 1 - resulted in incorrect ordering and processing of at-work journeys.
+
 */
 
-#define VERSION "4.1.0.1"
-#define LAST_MODIFIED "02nov2007"
+#define VERSION "4.1.0.4"
+#define LAST_MODIFIED "08nov2007"
 
 int __cdecl main (int argc, char *argv[])
 {
@@ -237,6 +244,14 @@ int __cdecl main (int argc, char *argv[])
 	read_ini_control_file (fp, Ini);
 	if (Ini->ZERO_UTIL != 1)
 		Ini->ZERO_UTIL = 0;
+
+
+	//## for debugging
+	//Ini->ZERO_UTIL = 1;
+	//Ini->MDC_ONLY = 1;
+	//## for debugging
+
+
 	Ini->TerminalTime[0] = 0;
 	Ini->TerminalTime[1] = 9;
 	Ini->TerminalTime[2] = 7;
@@ -755,9 +770,11 @@ int __cdecl main (int argc, char *argv[])
 		printf ("While reading MDC output file for STOPS Processing,\n");
 		printf ("the number of MDC output file records=%d is different from the number of\n", i);
 		printf ("journey records=%d of purpose=%d read in from HAJ output file.\n\n", Ini->NUMBER_JOURNEYS, Ini->PURPOSE_TO_PROCESS+1);
+		printf ("exit (-46)\n\n");
 		fprintf (fp_rep, "While reading MDC output file for STOPS Processing,\n");
 		fprintf (fp_rep, "the number of MDC output file records=%d is different from the number of\n", i);
 		fprintf (fp_rep, "journey records=%d of purpose=%d read in from HAJ output file.\n\n", Ini->NUMBER_JOURNEYS, Ini->PURPOSE_TO_PROCESS+1);
+		fprintf (fp_rep, "exit (-46)\n\n");
 		fflush (stdout);
 		fflush (fp_rep);
 		exit (-46);
