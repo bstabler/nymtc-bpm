@@ -164,10 +164,13 @@ MDSC with sub-area analysis version history:
 4.1.0.4 - 08Nov2007 -   Corrected bugs in at-work purpose model where work tour mode was not preserved correctly in FTA_RESTART runs with
 						USE_FROZEN_WORKTOUR_MODE set to 1 - resulted in incorrect ordering and processing of at-work journeys.
 
+4.1.0.5 - 13Nov2007 -   Changed the hardcoded MAX_FROZEN_RECORDS from 10000000 to 8000000 so that expanded frozen records format is
+						accommodated and frozen records files stay under 4GB threshold. 
+
 */
 
-#define VERSION "4.1.0.4"
-#define LAST_MODIFIED "08nov2007"
+#define VERSION "4.1.0.5"
+#define LAST_MODIFIED "13nov2007"
 
 int __cdecl main (int argc, char *argv[])
 {
