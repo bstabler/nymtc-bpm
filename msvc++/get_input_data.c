@@ -1,5 +1,25 @@
 #include "md.h"
 
+
+// zonal parking percent and cost over-rides data input file formats
+#define RECORD_LENGTH					120
+#define TAZ_START						  1
+#define TAZ_LENGTH						  5
+#define W_PCT_FREE_START				  6
+#define W_PCT_FREE_LENGTH				 15
+#define NW_PCT_FREE_START				 21
+#define NW_PCT_FREE_LENGTH				 20
+#define W_PCT_INC_NONMAN_ORIG_START		 41
+#define W_PCT_INC_NONMAN_ORIG_LENGTH	 20
+#define NW_PCT_INC_NONMAN_ORIG_START	 61
+#define NW_PCT_INC_NONMAN_ORIG_LENGTH	 20
+#define W_PCT_INC_MAN_ORIG_START		 81
+#define W_PCT_INC_MAN_ORIG_LENGTH		 20
+#define NW_PCT_INC_MAN_ORIG_START		101
+#define NW_PCT_INC_MAN_ORIG_LENGTH		 20
+
+
+
 void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, FILE *fp_work[],
 	int **ranprkcst, struct taxi_data *TaxiData, struct zone_data *ZonalData,
 	struct river_crossing_data *RiverData, struct walk_zone_data **WalkZoneData,
@@ -7,7 +27,11 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 {
 
 	FILE *fp;
-	int i;
+	int i, rec_len;
+
+	char InputRecord[RECORD_LENGTH];
+	char temp[RECORD_LENGTH];
+	char value[RECORD_LENGTH];
 
 
 // if work purpose open file work destinations file for output; if at-work, open all 3 work destination files for input.
@@ -337,13 +361,26 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	ZonalData->TotEmp			= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 	ZonalData->RetEmp			= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 	ZonalData->OffEmp			= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
+	ZonalData->PctAcc			= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 	ZonalData->PctFreePark		= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 	ZonalData->NW_PctFreePark	= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
-	ZonalData->PctAcc			= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
+	ZonalData->wPctIncNonMan	= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
+	ZonalData->nwPctIncNonMan	= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
+	ZonalData->wPctIncMan		= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
+	ZonalData->nwPctIncMan		= (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 	read_zone_data (fp, ZonalData);
 	fclose (fp);
 //	addRAM ("get_input_data", 4*(Ini->MAX_TAZS+1)*sizeof(int) + 12*(Ini->MAX_TAZS+1)*sizeof(float));
 
+
+
+	// initialize the parking cost percenatge increases for every zone to 1.0
+	for (i=0; i < Ini->MAX_TAZS + 1; i++) {
+		ZonalData->wPctIncNonMan[i] = 1.0f;
+		ZonalData->nwPctIncNonMan[i] = 1.0f;
+		ZonalData->wPctIncMan[i] = 1.0f;
+		ZonalData->nwPctIncMan[i] = 1.0f;
+	}
 
 
 // open and read zonal school district correspondance file if purpose is school
@@ -437,6 +474,74 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	printf ("calculating parking costs.\n");
 	parking_cost_index_lookup_table (ranprkcst);
 	percent_free_parking (ZonalData);
+
+
+	// open and read PARKINGUSER data file that specifies over-ride values for percent free parking in specified zones,
+	// then apply zonal percentage over-rides and store zonal parking cost increases
+	if (strcmp(Ini->PARKINGUSER, "")) {
+		
+		if ((fp = fopen(Ini->PARKINGUSER, "rt")) == NULL)
+			ExitWithCode(150);
+
+		fgets(InputRecord, RECORD_LENGTH, fp);		// ignore header record
+		while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
+			InputRecord[RECORD_LENGTH] = '\0';
+			rec_len = (int)strlen(InputRecord);
+
+			if (rec_len == RECORD_LENGTH) {
+
+				strncpy (temp, &InputRecord[TAZ_START-1], TAZ_LENGTH);
+				temp[TAZ_LENGTH] = '\0';
+				i = atoi(temp);
+
+				strncpy (temp, &InputRecord[W_PCT_FREE_START-1], W_PCT_FREE_LENGTH);
+				temp[W_PCT_FREE_LENGTH] = '\0';
+				sscanf(temp, "%s", value);
+				// if value is "nul", strcmp returns 0, and the following is false
+				if ( strcmp(value, "nul") )
+					ZonalData->PctFreePark[i] = (float)atof(temp);
+
+				strncpy (temp, &InputRecord[NW_PCT_FREE_START-1], NW_PCT_FREE_LENGTH);
+				temp[NW_PCT_FREE_LENGTH] = '\0';
+				sscanf(temp, "%s", value);
+				// if value is "nul", strcmp returns 0, and the following is false
+				if ( strcmp(value, "nul") )
+					ZonalData->NW_PctFreePark[i] = (float)atof(temp);
+
+				strncpy (temp, &InputRecord[W_PCT_INC_NONMAN_ORIG_START-1], W_PCT_INC_NONMAN_ORIG_LENGTH);
+				sscanf(temp, "%s", value);
+				// if value is "nul", strcmp returns 0, and the following is false
+				if ( strcmp(value, "nul") )
+					ZonalData->wPctIncNonMan[i] = (float)atof(temp);
+
+				strncpy (temp, &InputRecord[NW_PCT_INC_NONMAN_ORIG_START-1], NW_PCT_INC_NONMAN_ORIG_LENGTH);
+				temp[NW_PCT_INC_NONMAN_ORIG_LENGTH] = '\0';
+				sscanf(temp, "%s", value);
+				// if value is "nul", strcmp returns 0, and the following is false
+				if ( strcmp(value, "nul") )
+					ZonalData->nwPctIncNonMan[i] = (float)atof(temp);
+
+				strncpy (temp, &InputRecord[W_PCT_INC_MAN_ORIG_START-1], W_PCT_INC_MAN_ORIG_LENGTH);
+				temp[W_PCT_INC_MAN_ORIG_LENGTH] = '\0';
+				sscanf(temp, "%s", value);
+				// if value is "nul", strcmp returns 0, and the following is false
+				if ( strcmp(value, "nul") )
+					ZonalData->wPctIncMan[i] = (float)atof(temp);
+
+				strncpy (temp, &InputRecord[NW_PCT_INC_MAN_ORIG_START-1], NW_PCT_INC_MAN_ORIG_LENGTH);
+				temp[NW_PCT_INC_MAN_ORIG_LENGTH] = '\0';
+				sscanf(temp, "%s", value);
+				// if value is "nul", strcmp returns 0, and the following is false
+				if ( strcmp(value, "nul") )
+					ZonalData->nwPctIncMan[i] = (float)atof(temp);
+
+			}
+		}
+		
+		fclose (fp);
+	}
+
+
 
 	// if an output file was named for writing zonal free parking percentages, write them.
 	if (strcmp(Ini->FREEPARKPCTS, "")) {

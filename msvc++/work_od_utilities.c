@@ -30,10 +30,10 @@ void work_da_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost + ParkCost/2));
+					 + COST*(Cost + ParkCost));
 		}
 	}
 }
@@ -51,10 +51,10 @@ void work_sr2_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost/2 + ParkCost/4)
+					 + COST*(Cost + ParkCost)/2.0
 					 + UA_2P*(ZonalData->UrbanType[j] == 1));
 		}
 	}						 
@@ -73,10 +73,10 @@ void work_sr3_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost/3 + ParkCost/6)
+					 + COST*(Cost + ParkCost)/3.0
 					 + UA_3P*(ZonalData->UrbanType[j] == 1));
 		}
 	}						 
@@ -95,10 +95,10 @@ void work_sr4_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];									// cost in cents
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost/4 + ParkCost/8)
+					 + COST*(Cost + ParkCost)/4.0
 					 + UA_4P*(ZonalData->UrbanType[j] == 1));
 		}
 	}						 

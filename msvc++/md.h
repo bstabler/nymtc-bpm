@@ -154,6 +154,7 @@ struct IniData {
 	char SUBAREA_ATWORK_MD_FILE[256];
 	char SUBAREA_ATWORK_HI_FILE[256];
 	char FREEPARKPCTS[256];
+	char PARKINGUSER[256];
 	char JOURNEYS_WITH_STOPS[256];
 	char WORKDESTFILE[256];
 	char ATWORK_LO_FILE[256];
@@ -197,6 +198,7 @@ struct IniData {
 	int CACHE_SIZE;
 
 // model parameters
+	int PARKING_COST_IN_CENTS;		// if specified, and if 1, use parking cost values specified in cents, otherwise use values specified in dollars;
 	int FTA_RESTART;				// if 1, run model using frozen dest choices and optionally frozen transit subzone and work tour mode choices from previous MDSC model run.  0 is normal operating mode.
 	int FREEZE_MDC_OUTPUT;			// if 1, frozen MDC model output will be written so a subsequent FTA_RESTART model can be run.  0 is normal operating mode.
 	int USE_FROZEN_SUBZONE;			// if 1, use frozen transit subzone choice.  0 is normal operating mode and a new choice will be made for each tour.
@@ -313,7 +315,7 @@ struct zone_data {
 	int *AreaType, *UrbanType, *County, *ring, *bpmdist1_index, *SchoolDist, *lpRestricted;
 	int *OrigSubAreaIB, *DestSubAreaIB, *OrigSubAreaOB, *DestSubAreaOB;
 	float *TotEmp, *LandArea, *HHPop, *HHNum, *UnvEnrol, *K12ETot, *empden, *PctFreePark, *NW_PctFreePark;
-	float *RetEmp, *OffEmp, *PctAcc, *dist;
+	float *RetEmp, *OffEmp, *PctAcc, *dist, *wPctIncNonMan, *nwPctIncNonMan, *wPctIncMan, *nwPctIncMan;
 } ;
 
 struct tran_data {
@@ -537,8 +539,8 @@ void balance_attractions (double *, float ***, float **, int **, struct zone_dat
 int set_cluster (short, short, short, short, short, short, short, short, short);
 void get_cluster_parts (int, struct cluster_parts);
 void cluster_journeys (struct journey_attribs *, int **, int **);
-float parking_cost (int, struct zone_data *, int **);
-float nw_parking_cost (int, struct zone_data *, int **);
+float parking_cost (int, int, struct zone_data *, int **);
+float nw_parking_cost (int, int, struct zone_data *, int **);
 void percent_free_parking (struct zone_data *);
 void write_free_parking (FILE* fp, struct zone_data *ZonalData);
 void parking_cost_index_lookup_table (int **);
@@ -567,12 +569,6 @@ void univ_mc_logsum   (int, int, int, int *, int, int, int *, int, float *, floa
 void maint_mc_logsum  (int, int, int, int *, int, int, int *, int, float *, float *, float *, float *);
 void discr_mc_logsum  (int, int, int, int *, int, int, int *, int, float *, float *, float *, float *);
 void atwork_mc_logsum (int, int, int, int *, int, int, int *, int, float *, float *, float *, float *);
-//float work_mc_logsum   (int, int, int, int *, int, int, int *, int, float *, float *, float *);
-//float school_mc_logsum (int, int, int, int *, int, int, int *, int, float *, float *, float *);
-//float univ_mc_logsum   (int, int, int, int *, int, int, int *, int, float *, float *, float *);
-//float maint_mc_logsum  (int, int, int, int *, int, int, int *, int, float *, float *, float *);
-//float discr_mc_logsum  (int, int, int, int *, int, int, int *, int, float *, float *, float *);
-//float atwork_mc_logsum (int, int, int, int *, int, int, int *, int, float *, float *, float *);
 void work_mc_props    (int, int *, int, int, int *, int, float *, float *, float *, float *, float *);
 void school_mc_props  (int, int *, int, int, int *, int, float *, float *, float *, float *, float *);
 void univ_mc_props    (int, int *, int, int, int *, int, float *, float *, float *, float *, float *);

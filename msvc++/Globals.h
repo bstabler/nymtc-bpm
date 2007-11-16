@@ -150,10 +150,11 @@ char *ErrorCodes[] = 	{ 	"Normal Exit", 																	// 0
 				"HIGHWAY_HOV3p_SKIM entry missing in control file (.ini)",									// 143
 				"Inconsistent matrix dimensions between highway skims",										// 144
 				"Frozen journey file from previous MDSC run could not be opened for reading for FTA_RESTART",										// 145
-				"FROZEN_MDC_INPUT entry expected, but missing in control file (.ini).  Trying to locate frozen journey filename for reading.",	// 146
+				"FROZEN_MDC_INPUT entry expected, but missing in control file (.ini).  Trying to locate frozen journey filename for reading.",		// 146
 				"Frozen journey file could not be opened for writing.",																				// 147
-				"FROZEN_MDC_OUTPUT entry expected, but missing in control file (.ini).  Trying to locate frozen journey filename for writing.",	// 148
+				"FROZEN_MDC_OUTPUT entry expected, but missing in control file (.ini).  Trying to locate frozen journey filename for writing.",		// 148
 				"HIGHWAY_TAXI_SKIM entry missing in control file (.ini)",																			// 149
+				"PARKINGUSER zonal free parking percent over-rides file could not be opened for reading",											// 150
 				""
 			};
 

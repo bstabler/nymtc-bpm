@@ -167,10 +167,20 @@ MDSC with sub-area analysis version history:
 4.1.0.5 - 13Nov2007 -   Changed the hardcoded MAX_FROZEN_RECORDS from 10000000 to 8000000 so that expanded frozen records format is
 						accommodated and frozen records files stay under 4GB threshold. 
 
+4.1.0.6 - 15Nov2007 -   Added PARKING_COST_IN_CENTS in params section of control file.  If this control is specified and if set to 1, parking
+						costs in cents are used; otherwise parking costs in dollars are used.
+
+4.1.0.7 - 16Nov2007 -   Added PARKINGUSER in files section of control file.  If this control is specified the file is read with destination zone
+						over-ride values for pctFreeParking (w and nw), parking cost multiplier for origins not in Manhattan (w and nw), and
+						parking cost multiplier for origins in Manhattan (w and nw).  These over-rides are appplied and the parking_cost functions
+						modified to apply the logic.  Also changed discr and school od_utilities functions to call nw_parking_cost() and work
+						od_utility function to not divide parking cost by 2 as it was so divided in parking_cost functions.
+						Finally, changed frozen record file formats to not include SE_Util fields again to shorten them.
+
 */
 
-#define VERSION "4.1.0.5"
-#define LAST_MODIFIED "13nov2007"
+#define VERSION "4.1.0.7"
+#define LAST_MODIFIED "16nov2007"
 
 int __cdecl main (int argc, char *argv[])
 {

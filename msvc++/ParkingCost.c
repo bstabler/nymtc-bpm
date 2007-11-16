@@ -6,17 +6,32 @@
 #define POPDEN_COEFF -0.00001081
 #define EMPDEN_COEFF -0.000002988
 
-float parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
+
+
+
+
+
+float parking_cost (int otaz, int dtaz, struct zone_data *ZonalData, int **ranprkcst)
 {
 
   // parking costs for each range
-	float prkcst[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
+	float finalCost;
+	float *prkcst;
+	float prkcstDollars[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
+	float prkcstCents[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 	double rand_no;
 	float empden;
 	int i, j, k;
+
 	
+	// if PARKING_COST_IN_CENTS param was set to 1 in control file, use cents; otherwise if not defined or set to any other value use dollars.
+	prkcst = prkcstDollars;
+	if ( Ini->PARKING_COST_IN_CENTS == 1 )
+		prkcst = prkcstCents;
+
+
 	// get employment density index
-	empden = ZonalData->empden[taz];
+	empden = ZonalData->empden[dtaz];
 	if (empden > 390000)
 		i = 9;
 	else if (empden > 365000)
@@ -42,7 +57,7 @@ float parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 // determine if parking is free, and if not, return parking cost.
 
 	rand_no = (double)rand()/(double)MAX_RANDOM;
-	if (rand_no < ZonalData->PctFreePark[taz])
+	if (rand_no < ZonalData->PctFreePark[dtaz])
 		return (0.0);
 	else {
 		// i is the employment density range index.
@@ -50,22 +65,46 @@ float parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 		// j is the parking cost range index
 		k = (int)(RANDOM_NUMBERS*((double)rand()/(double)MAX_RANDOM));
 		j = ranprkcst[i][k];
-		return (prkcst[j]);
+
+		
+		// for the following, if the dtaz was not in the PARKINGUSER file, the factors will be 1.0.
+
+		// if origin zone is in Manhattan, factor parking cost at destination by zonal factor for origin in Manhattan:
+		if ( ZonalData->UrbanType[otaz] == 1 )
+			finalCost = prkcst[j] * ZonalData->wPctIncMan[dtaz];
+		// otherwise, factor parking cost at destination by zonal factor for origin not in Manhattan:
+		else
+			finalCost = prkcst[j] * ZonalData->wPctIncNonMan[dtaz];
+
+
+		return (finalCost/2.0f);
+
 	}
 }
 
 
-float nw_parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
+float nw_parking_cost (int otaz, int dtaz, struct zone_data *ZonalData, int **ranprkcst)
 {
 
   // parking costs for each range
-	float prkcst[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
+	float finalCost;
+	float *prkcst;
+	float prkcstDollars[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
+	float prkcstCents[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 	double rand_no;
 	float empden;
 	int i, j, k;
+
 	
+	// if PARKING_COST_IN_CENTS param was set to 1 in control file, use cents; otherwise if not defined or set to any other value use dollars.
+	prkcst = prkcstDollars;
+	if ( Ini->PARKING_COST_IN_CENTS == 1 )
+		prkcst = prkcstCents;
+
+
+
 	// get employment density index
-	empden = ZonalData->empden[taz];
+	empden = ZonalData->empden[dtaz];
 	if (empden > 390000)
 		i = 9;
 	else if (empden > 365000)
@@ -91,7 +130,7 @@ float nw_parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 // determine if parking is free, and if not, return parking cost.
 
 	rand_no = (double)rand()/(double)MAX_RANDOM;
-	if (rand_no < ZonalData->NW_PctFreePark[taz])
+	if (rand_no < ZonalData->NW_PctFreePark[dtaz])
 		return (0.0);
 	else {
 		// i is the employment density range index.
@@ -99,11 +138,27 @@ float nw_parking_cost (int taz, struct zone_data *ZonalData, int **ranprkcst)
 		// j is the parking cost range index
 		k = (int)(RANDOM_NUMBERS*((double)rand()/(double)MAX_RANDOM));
 		j = ranprkcst[i][k];
-		return ((float)0.5*prkcst[j]);
+
+
+		// for the following, if the dtaz was not in the PARKINGUSER file, the factors will be 1.0.
+
+		// if origin zone is in Manhattan, factor parking cost at destination by zonal factor for origin in Manhattan:
+		if ( ZonalData->UrbanType[otaz] == 1 )
+			finalCost = prkcst[j] * ZonalData->nwPctIncMan[dtaz];
+		// otherwise, factor parking cost at destination by zonal factor for origin not in Manhattan:
+		else
+			finalCost = prkcst[j] * ZonalData->nwPctIncNonMan[dtaz];
+
+
+		return (finalCost/2.0f);
+
 	}
+
 }
 
 
+
+// called by get_input_data() prior to applying zonal overrides defined in PARKINGUSER file.
 void percent_free_parking (struct zone_data *ZonalData)
 {
 	int i;
@@ -115,7 +170,8 @@ void percent_free_parking (struct zone_data *ZonalData)
 											 -1.7470, -1.7470,  -2.2450, -2.2450, -2.2450, -2.2450, -2.2450,
 											  -2.2450, -2.2450, -2.2450, -2.2450, -2.2450, -1.8180, -2.2450 };
 
-	
+
+
 	// calculate probability of free parking in each zone.
 	for (i=1; i <= Ini->MAX_TAZS; i++) {
 		popden = 0.0;
@@ -140,7 +196,12 @@ void percent_free_parking (struct zone_data *ZonalData)
 			ZonalData->NW_PctFreePark[i] = 1.0;
 									
 		ZonalData->empden[i] = empden;
+
 	}
+
+
+
+
 }
 
 

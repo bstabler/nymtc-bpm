@@ -31,7 +31,7 @@ void maint_da_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = nw_parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = nw_parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
 					 + COST*(Cost + ParkCost)
@@ -53,7 +53,7 @@ void maint_sr2_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = nw_parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = nw_parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
 					 + COST*(Cost + ParkCost)/2.0
@@ -75,7 +75,7 @@ void maint_sr3_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = nw_parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = nw_parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
 					 + COST*(Cost + ParkCost)/3.0
@@ -97,7 +97,7 @@ void maint_sr4_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];									// cost in cents
-			ParkCost = nw_parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = nw_parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
 					 + COST*(Cost + ParkCost)/4.0

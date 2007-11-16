@@ -23,7 +23,7 @@ void atwork_da_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + Ovtt
 					 + 0.15*(Cost + ParkCost)));
@@ -44,7 +44,7 @@ void atwork_sr2_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, flo
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 			Short = (hwy_time[j] <= 7.0);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + Ovtt
@@ -66,7 +66,7 @@ void atwork_sr3_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, flo
 			Ivtt = hwy_time[j];
 			Ovtt = Ini->TerminalTime[ZonalData->AreaType[i]] + Ini->TerminalTime[ZonalData->AreaType[j]];
 			Cost = Ini->HWY_CENTS_PER_MILE*hwy_dist[j] + hwy_toll[j];		// tolls are in cents in the skims table
-			ParkCost = parking_cost (j, ZonalData, ranprkcst);
+			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 			Short = (hwy_time[j] <= 7.0);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + Ovtt
