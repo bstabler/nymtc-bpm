@@ -62,6 +62,26 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 
 
 
+	// check that only one household auto restriction policy is being evaluated.
+	// must be full hh restriction or individual car restriction, or neither.  Cannot be both.
+	if ( Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0 && Ini->PCT_LP_RESTRICTION > 0.0 ) {
+
+			fprintf (fp_rep, "only one retriction of household autos should be specified in one model run.\n");
+			fprintf (fp_rep, "PCT_HHS_WITH_FULL_AUTO_RESTRICTION = %.5f and PCT_LP_RESTRICTION = %.5f.\n", Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION, Ini->PCT_LP_RESTRICTION);
+			fprintf (fp_rep, "only 1 of the two, or neither should be > 0.0 for a model run.\n");
+			fprintf (fp_rep, "exit (-234).\n\n");
+			fflush (fp_rep);
+			printf ("only one retriction of household autos should be specified in one model run.\n");
+			printf ("PCT_HHS_WITH_FULL_AUTO_RESTRICTION = %.5f and PCT_LP_RESTRICTION = %.5f.\n", Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION, Ini->PCT_LP_RESTRICTION);
+			printf ("only 1 of the two, or neither should be > 0.0 for a model run.\n");
+			printf ("exit (-234).\n\n");
+			fflush (stdout);
+			exit (-234);
+
+	}
+
+
+
 
 	max_seq=0;
 	max_pers=0;
@@ -664,14 +684,28 @@ int getNumAutosRestricted (int hhAutoOwnership) {
 	int numAutosRestricted = 0;
 	double nrand;
 
-	
-	// loop over number of autos in household for households with at least one auto.
-	for (i=1; i <= hhAutoOwnership; i++) {
+
+	// if PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0, apply full household auto restrictions
+	if ( Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0 ) {
 
 		// do monte carlo selection to see if HH's auto is restricted and if so, increment restricted count.
 		nrand = (double)rand()/(double)MAX_RANDOM;
-		if ( nrand < Ini->PCT_LP_RESTRICTION )
-			numAutosRestricted++;
+		if ( nrand < Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION )
+			numAutosRestricted = hhAutoOwnership;
+
+	}
+	// else evaluate each household auto's restriction status relative to the PCT_LP_RESTRICTION percentage.
+	else {
+	
+		// loop over number of autos in household for households with at least one auto.
+		for (i=1; i <= hhAutoOwnership; i++) {
+
+			// do monte carlo selection to see if HH's auto is restricted and if so, increment restricted count.
+			nrand = (double)rand()/(double)MAX_RANDOM;
+			if ( nrand < Ini->PCT_LP_RESTRICTION )
+				numAutosRestricted++;
+
+		}
 
 	}
 

@@ -177,10 +177,15 @@ MDSC with sub-area analysis version history:
 						od_utility function to not divide parking cost by 2 as it was so divided in parking_cost functions.
 						Finally, changed frozen record file formats to not include SE_Util fields again to shorten them.
 
+4.1.1.0 - 28dec2007 -   Added PCT_HHS_WITH_FULL_AUTO_RESTRICTION to define a percentage of HHs which are to have full auto restriction applied.
+						For this percentage of households, the number of restricted autos is set equal to the number of autos in the hh.
+						The mode choice model which uses the restricted auto sufficiency value when a destination is in a restricted zone is 
+						impacted by this change.
+
 */
 
-#define VERSION "4.1.0.7"
-#define LAST_MODIFIED "16nov2007"
+#define VERSION "4.1.1.0"
+#define LAST_MODIFIED "28dec2007"
 
 int __cdecl main (int argc, char *argv[])
 {
