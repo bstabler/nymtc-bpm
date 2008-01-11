@@ -67,7 +67,7 @@ void work_freq_util (int i, double obDensity, double ibDensity, double ivtt, int
 	// set the autos variable for use in auto sufficiency calculation to autos owned,
 	// or in the case where an origin or destination is in the restricted area
 	// for license plate rationing, to autos available.
-	if ( Ini->PCT_LP_RESTRICTION > 0.0 && (ZonalData->lpRestricted[orig[i]] || ZonalData->lpRestricted[dest[i]]) )
+	if ( (Ini->PCT_LP_RESTRICTION > 0.0 || Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0)  &&  (ZonalData->lpRestricted[orig[i]] || ZonalData->lpRestricted[dest[i]]) )
 		autos = JourneyAttribs->autosAvail[i];
 	else
 		autos = JourneyAttribs->autos[i];

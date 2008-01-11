@@ -60,6 +60,8 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 	char JourneyRecord[JOURNEY_RECORD_LENGTH+1];
 	char temp[LRECL];
 
+	int hhsWithAutoRestrictions = 0;
+	int numHhsWithOneOrMoreAutos = 0;
 
 
 	// check that only one household auto restriction policy is being evaluated.
@@ -273,6 +275,11 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 
 			numAutosRestricted = getNumAutosRestricted (autos);
 
+			if ( numAutosRestricted > 0 )
+				hhsWithAutoRestrictions++;
+
+			if ( autos > 0 )
+				numHhsWithOneOrMoreAutos++;
 
 			num_households ++;
 
@@ -557,6 +564,8 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 //		printf ("%d atwork journeys could not be linked to their corresponding work journeys\n\n", not_linked);
 	fprintf (fp_rep, "\nmax hh id = %d\n", max_seq);
 	fprintf (fp_rep, "max pers id = %d\n", max_pers);
+	fprintf (fp_rep, "number of HAJ households which will have reduced autos available for any journey ends that are restricted = %d\n", hhsWithAutoRestrictions);
+	fprintf (fp_rep, "number of HAJ households with one or more autos prior to any autos available reductions = %d\n", numHhsWithOneOrMoreAutos);
 	fprintf (fp_rep, "total HAJ households = %d\n", num_households);
 	fprintf (fp_rep, "total HAJ journeys = %d\n\n", num_journeys);
 	if (Ini->PURPOSE_TO_PROCESS == 7)

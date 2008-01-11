@@ -182,10 +182,18 @@ MDSC with sub-area analysis version history:
 						The mode choice model which uses the restricted auto sufficiency value when a destination is in a restricted zone is 
 						impacted by this change.
 
+4.1.1.1 - 02jan2008 -   Changed read_kpmg_journey_records() to write a line to REPORTFILE to list number of hhs with "potential" auto restrictions.
+						AutosAvailable will be used for this hh if a journey orig or dest is in a restricted zone.  Part of HAJ summary report.
+
+4.1.1.2 - 02jan2008 -   Added another report line in read_kpmg_journey_records() to write a line to REPORTFILE to list number of hhs with one or
+						more autos.  This number divided by the number of "potential" hhs reported should be approximately equal to the input number
+						specified by PCT_HHS_WITH_FULL_AUTO_RESTRICTION.  Also added PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0 as a condition
+						for using reduced auto availability for stop frequency utility tour mode choice socioeconomic utility.
+
 */
 
-#define VERSION "4.1.1.0"
-#define LAST_MODIFIED "28dec2007"
+#define VERSION "4.1.1.2"
+#define LAST_MODIFIED "02jan2008"
 
 int __cdecl main (int argc, char *argv[])
 {

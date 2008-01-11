@@ -832,12 +832,12 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				// also use autosAvail instead of autos owned for mode choice proportions.
 
 				autos = JourneyAttribs->autos[k];
-				if ( Ini->PCT_LP_RESTRICTION > 0.0 && (ZonalData->lpRestricted[orig] || ZonalData->lpRestricted[dest]) ) {
+				if ( (Ini->PCT_LP_RESTRICTION > 0.0 || Ini->PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0)  &&  (ZonalData->lpRestricted[orig] || ZonalData->lpRestricted[dest]) ) {
 					for	(i=0; i < Ini->NUMBER_ALTS; i++)
 						SEutil[i] = 0.0;
 					SE_UtilitiesRestricted (k, JourneyAttribs, ZonalData, SEutil);
 					autos = JourneyAttribs->autosAvail[k];
-;
+
 				}
 				else {
 
