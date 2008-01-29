@@ -17,6 +17,12 @@
 #define W_PCT_INC_MAN_ORIG_LENGTH		 20
 #define NW_PCT_INC_MAN_ORIG_START		101
 #define NW_PCT_INC_MAN_ORIG_LENGTH		 20
+#define COST_INDEX_START				  1
+#define COST_INDEX_LENGTH				  5
+#define W_COST_VALUE_START				  6
+#define W_COST_VALUE_LENGTH				 15
+#define NW_COST_VALUE_START				 21
+#define NW_COST_VALUE_LENGTH			 15
 
 
 
@@ -32,6 +38,9 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	char InputRecord[RECORD_LENGTH];
 	char temp[RECORD_LENGTH];
 	char value[RECORD_LENGTH];
+	float tempValue;
+	float wParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
+	float nwParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 
 
 // if work purpose open file work destinations file for output; if at-work, open all 3 work destination files for input.
@@ -474,6 +483,54 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	printf ("calculating parking costs.\n");
 	parking_cost_index_lookup_table (ranprkcst);
 	percent_free_parking (ZonalData);
+
+
+	// set default parking cost array values
+	Ini->wParkingCostArray = wParkingCostArray;
+	Ini->nwParkingCostArray = nwParkingCostArray;
+
+	
+	// open and read PARKINGCOSTS data file that specifies density range index values and associated parking costs.
+	// parking costs are assumed input as cents.  If no file is found, default values in cents are used.
+	if (strcmp(Ini->PARKINGCOSTS, "")) {
+		
+		if ((fp = fopen(Ini->PARKINGCOSTS, "rt")) == NULL)
+			ExitWithCode(151);
+
+		fgets(InputRecord, RECORD_LENGTH, fp);		// ignore header record
+
+		while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
+			InputRecord[RECORD_LENGTH] = '\0';
+			rec_len = (int)strlen(InputRecord);
+
+			if (rec_len == RECORD_LENGTH) {
+
+				// read index
+				strncpy (temp, &InputRecord[COST_INDEX_START-1], COST_INDEX_LENGTH);
+				temp[COST_INDEX_LENGTH] = '\0';
+				i = atoi(temp);
+
+				// read work journey parking cost in cents
+				strncpy (temp, &InputRecord[W_COST_VALUE_START-1], W_COST_VALUE_LENGTH);
+				temp[W_COST_VALUE_LENGTH] = '\0';
+				tempValue = (float)atof(temp);
+
+				// assume indices are 1,...,10.
+				Ini->wParkingCostArray[i-1] = tempValue;
+
+				// read non-work journey parking cost in cents
+				strncpy (temp, &InputRecord[NW_COST_VALUE_START-1], NW_COST_VALUE_LENGTH);
+				temp[NW_COST_VALUE_LENGTH] = '\0';
+				tempValue = (float)atof(temp);
+
+				// assume indices are 1,...,10.
+				Ini->nwParkingCostArray[i-1] = tempValue;
+			}
+		}
+		
+		fclose (fp);
+	}
+
 
 
 	// open and read PARKINGUSER data file that specifies over-ride values for percent free parking in specified zones,

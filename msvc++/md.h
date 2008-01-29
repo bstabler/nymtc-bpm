@@ -155,6 +155,7 @@ struct IniData {
 	char SUBAREA_ATWORK_HI_FILE[256];
 	char FREEPARKPCTS[256];
 	char PARKINGUSER[256];
+	char PARKINGCOSTS[256];
 	char JOURNEYS_WITH_STOPS[256];
 	char WORKDESTFILE[256];
 	char ATWORK_LO_FILE[256];
@@ -198,7 +199,6 @@ struct IniData {
 	int CACHE_SIZE;
 
 // model parameters
-	int PARKING_COST_IN_CENTS;		// if specified, and if 1, use parking cost values specified in cents, otherwise use values specified in dollars;
 	int FTA_RESTART;				// if 1, run model using frozen dest choices and optionally frozen transit subzone and work tour mode choices from previous MDSC model run.  0 is normal operating mode.
 	int FREEZE_MDC_OUTPUT;			// if 1, frozen MDC model output will be written so a subsequent FTA_RESTART model can be run.  0 is normal operating mode.
 	int USE_FROZEN_SUBZONE;			// if 1, use frozen transit subzone choice.  0 is normal operating mode and a new choice will be made for each tour.
@@ -291,7 +291,10 @@ struct IniData {
 
 // terminal times by area type for hwy ovtt
 	float TerminalTime[AREA_TYPES+1];
-	
+
+// parking cost data by index read in by get_input_data().
+	float* wParkingCostArray;
+	float* nwParkingCostArray;
 } ;
 typedef struct IniData * INIDATA;
 extern INIDATA Ini;

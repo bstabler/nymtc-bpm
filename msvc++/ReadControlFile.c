@@ -104,6 +104,11 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	else
 		strcpy (Ini->PARKINGUSER, "");
 
+	if ((temp = GetStringFromINI (fp, "FILES", "PARKINGCOSTS")) != NULL)
+		strcpy (Ini->PARKINGCOSTS, temp);
+	else
+		strcpy (Ini->PARKINGCOSTS, "");
+
 	if ((temp = GetStringFromINI (fp, "FILES", "OUTPUTJOURNEYS")) != NULL)
 		strcpy (Ini->OUTPUTJOURNEYS, temp);
 	else
@@ -292,7 +297,6 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	Ini->CACHE_SIZE			= GetIntFromINI (fp, "MATRIX_PARAMS", "CACHE_SIZE");
 
 // Model Parameters
-	Ini->PARKING_COST_IN_CENTS	= GetIntFromINI (fp, "PARAMS", "PARKING_COST_IN_CENTS");
 	Ini->FTA_RESTART			= GetIntFromINI (fp, "PARAMS", "FTA_RESTART");
 	Ini->FREEZE_MDC_OUTPUT		= GetIntFromINI (fp, "PARAMS", "FREEZE_MDC_OUTPUT");
 	Ini->USE_FROZEN_SUBZONE			= GetIntFromINI (fp, "PARAMS", "USE_FROZEN_SUBZONE");

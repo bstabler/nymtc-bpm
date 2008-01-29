@@ -16,19 +16,12 @@ float parking_cost (int otaz, int dtaz, struct zone_data *ZonalData, int **ranpr
 
   // parking costs for each range
 	float finalCost;
-	float *prkcst;
-	float prkcstDollars[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
-	float prkcstCents[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 	double rand_no;
 	float empden;
 	int i, j, k;
 
+	float *prkcst = Ini->wParkingCostArray;
 	
-	// if PARKING_COST_IN_CENTS param was set to 1 in control file, use cents; otherwise if not defined or set to any other value use dollars.
-	prkcst = prkcstDollars;
-	if ( Ini->PARKING_COST_IN_CENTS == 1 )
-		prkcst = prkcstCents;
-
 
 	// get employment density index
 	empden = ZonalData->empden[dtaz];
@@ -88,21 +81,14 @@ float nw_parking_cost (int otaz, int dtaz, struct zone_data *ZonalData, int **ra
 
   // parking costs for each range
 	float finalCost;
-	float *prkcst;
-	float prkcstDollars[] = { 2.50, 7.50, 12.50, 17.50, 22.50, 27.50, 32.50, 37.50, 42.50, 47.50 };
-	float prkcstCents[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 	double rand_no;
 	float empden;
 	int i, j, k;
 
 	
-	// if PARKING_COST_IN_CENTS param was set to 1 in control file, use cents; otherwise if not defined or set to any other value use dollars.
-	prkcst = prkcstDollars;
-	if ( Ini->PARKING_COST_IN_CENTS == 1 )
-		prkcst = prkcstCents;
+	float *prkcst = Ini->nwParkingCostArray;
 
-
-
+	
 	// get employment density index
 	empden = ZonalData->empden[dtaz];
 	if (empden > 390000)

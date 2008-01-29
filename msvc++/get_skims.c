@@ -45,7 +45,10 @@ void GetSkims (char *label, int Count, int TotCount, short core, MATRIX hMatrix,
 		// The TransCAD tables are referenced by TAZ ID.
 		// The row index is determined by incrementing here by HWY_INDEX_OFFSET.
 		tazID = i + Index;
-		MATRIX_GetVector (hMatrix, tazID, MATRIX_IsColMajor(hMatrix), MATRIX_GetDataType(hMatrix), RowData);
+
+		//MATRIX_GetVector (hMatrix, tazID, MATRIX_IsColMajor(hMatrix), MATRIX_GetDataType(hMatrix), RowData);
+		MATRIX_GetVector (hMatrix, tazID, MATRIX_ROW, FLOAT_TYPE, RowData);
+		
 		for (j=0; j < ncols; j++)
 			SkimData[i][j+1] = RowData[j];
 

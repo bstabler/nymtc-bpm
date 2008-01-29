@@ -155,6 +155,7 @@ char *ErrorCodes[] = 	{ 	"Normal Exit", 																	// 0
 				"FROZEN_MDC_OUTPUT entry expected, but missing in control file (.ini).  Trying to locate frozen journey filename for writing.",		// 148
 				"HIGHWAY_TAXI_SKIM entry missing in control file (.ini)",																			// 149
 				"PARKINGUSER zonal free parking percent over-rides file could not be opened for reading",											// 150
+				"PARKINGCOSTS indexed parking costs values file could not be opened for reading",													// 151
 				""
 			};
 

@@ -190,10 +190,14 @@ MDSC with sub-area analysis version history:
 						specified by PCT_HHS_WITH_FULL_AUTO_RESTRICTION.  Also added PCT_HHS_WITH_FULL_AUTO_RESTRICTION > 0.0 as a condition
 						for using reduced auto availability for stop frequency utility tour mode choice socioeconomic utility.
 
+4.1.1.3 - 29jan2008 -   Removed PARKING_COST_IN_CENTS parameter and made default parking prices those previously hardcoded, in cents.
+						If PARKINGCOSTS file is specifed, it should contain 1 header record and 10 lines with 2 fields to define indices and parking cost in cents.
+						If file is not specified, default values are used.
+
 */
 
-#define VERSION "4.1.1.2"
-#define LAST_MODIFIED "02jan2008"
+#define VERSION "4.1.1.3"
+#define LAST_MODIFIED "29jan2008"
 
 int __cdecl main (int argc, char *argv[])
 {
@@ -224,7 +228,7 @@ int __cdecl main (int argc, char *argv[])
 	start = clock();
 
 
-// load matrix dll
+// load matrix dlls
 	tc_status = 0;
 	InitMatDLL(&tc_status);
 	if (tc_status != TC_OKAY) {
