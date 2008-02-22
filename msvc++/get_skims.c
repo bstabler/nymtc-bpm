@@ -9,11 +9,11 @@
 
 void GetSkims (char *label, int Count, int TotCount, short core, MATRIX hMatrix, int Index, float **SkimData)
 {
-//	int i, j, k, temp_len;
-	int i, j;
+	int i, j, k, temp_len, pct;
+	//int i, j;
 	int nrows, ncols, tazID;
 	float *RowData;
-//	char temp[120];
+	char temp[120];
 
 //	if (Ini->RAM_DEBUG_LEVEL == 2)
 //		addRAM ("GetSkims 0", 0);
@@ -41,6 +41,7 @@ void GetSkims (char *label, int Count, int TotCount, short core, MATRIX hMatrix,
 // Read skims data from TransCAD native format (.mtx file) matrix file.
 	MATRIX_SetCore (hMatrix, core);
 	MATRIX_CreateCache(hMatrix, SERIAL_CACHE, CACHE_ALL, Ini->CACHE_SIZE);
+	printf ("[debug:] CACHE_SIZE = %d.\n", Ini->CACHE_SIZE);
 	for (i=1; i <= nrows; i++) { 
 		// The TransCAD tables are referenced by TAZ ID.
 		// The row index is determined by incrementing here by HWY_INDEX_OFFSET.
@@ -52,11 +53,13 @@ void GetSkims (char *label, int Count, int TotCount, short core, MATRIX hMatrix,
 		for (j=0; j < ncols; j++)
 			SkimData[i][j+1] = RowData[j];
 
-//		sprintf (temp, "reading %s skims %3d%% complete", label, 100*(Count+i)/TotCount);
-//		temp_len = (int)strlen(temp);
-//		for (k=0; k < temp_len; k++)
-//			sprintf (&temp[temp_len + k], "\b");
-//		printf ("%s", temp);
+		pct = 100*(Count+i)/TotCount;
+		sprintf (temp, "reading %s skims %3d%% complete", label, pct);
+		temp_len = (int)strlen(temp);
+		for (k=0; k < temp_len; k++)
+			sprintf (&temp[temp_len + k], "\b");
+		printf ("%s", temp);
+
 	}
 	MATRIX_DestroyCache(hMatrix);
 

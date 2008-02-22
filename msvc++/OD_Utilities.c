@@ -113,6 +113,7 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 	nrows_taxi=MATRIX_GetNRows(taxiMatrix);
 	ncols_taxi=MATRIX_GetNCols(taxiMatrix);
 
+
 	if(nrows!=nrows_hov2){
 		printf("highway sov matrix and highway hov2 matrix have different number of rows.");
 		ExitWithCode(144);
@@ -162,7 +163,7 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 		hwy_dist_temp[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nrows+1)*sizeof(float));
 	GetSkims ("highway", 0*nrows, 3*nrows, Ini->HWY_DIST_CORE, hMatrix, Ini->HWY_INDEX_OFFSET, hwy_dist_temp);
 
-	printf ("Running related od utilities...\n");
+	printf ("Computing highway related od utilities...\n");
 
 	// set values for intrazonal skims
 	// distance is min[min dest skim, 0.5*sqrt(land area)].
@@ -191,6 +192,8 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 				hwy_dist[i] = hwy_dist[j];
 				hwy_dist_temp[i][i]=hwy_dist[i];
 		}
+
+		hwy_dist_temp[i][i]=hwy_dist[i];
 
 		// time is distance divided by speed, which is indexed by area type.
 		hwy_time[i] = (float)(60.0*hwy_dist[i]/Ini->AUTO_SPEED[ZonalData->AreaType[i]]);

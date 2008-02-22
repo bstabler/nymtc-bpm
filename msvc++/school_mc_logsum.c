@@ -36,16 +36,31 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 // autos = number of autos in the HH.
 // walk is an int array of dimension 2.  walk[0] = 0 if HH cannot walk to transit at origin, 1 otherwise.
 // walk[1] = 0 if walk to transit is not available at the destination, 1 otherwise.
+// ASC is a 2D float array of alternative specific constants -- urban type by modes.
 // OD_Utility is a float array of the systematic portions of the modal utilities.
 
 
 	int i;
+	int debug = 0;
 	double da, sr2, sr3, sr4, wt, dt, wc, dc, tx, sb;
 	double wt_wc, sr, dt_dc;
 	double SumExp, no_walk_SumExp, dval;
 	double util_value;
     BOOL walk_ok, no_walk_ok;
 
+
+
+// if journey is < 0, it was set to flag this function to print the debug statements
+	if ( journey < 0 )
+		debug = 1;
+
+
+
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "\nDebug Info for: school journey = %d, orig=%d, dest=%d, person_type=%d, autos=%d, walk[0]=%d, walk[1]=%d\n\n", journey, orig, dest, person_type, autos, walk[0], walk[1]);
+		for (i=0; i < Ini->NUMBER_ALTS; i++)
+			fprintf (fp_rep, "i=%d, ASC[i] = %e, OD_Utility[i] = %e, SE_Utility[i] = %e\n", i, ASC[i], OD_Utility[i], SE_Utility[i]);
+	}
 
 
 // determine availability of each alternative based on non-missing od skims, autos avalable,
@@ -106,13 +121,21 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 //			Avail[i] = 0;
 
 
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "Avail[] = %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d\n", Avail[0], Avail[1], Avail[2], Avail[3], Avail[4], Avail[5], Avail[6], Avail[7], Avail[8], Avail[9], Avail[10]);
+	}
+
+
 //Calculate the total utilities at the lowest nest level.
 // and calculate the next highest level (1 level higher than lowest) utilties
 	SumExp	= 0.0;
 	if (Avail[0]) {
 		da  = OD_Utility[0] + SE_Utility[0] + ASC[0];
 		if (da < -MAX_EXP || da > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(da);
@@ -122,11 +145,18 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 		    da = MISSING;	 	
 	}
 
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "da = %e, SumExp = %e\n", da, SumExp);
+	}
+
 	SumExp	= 0.0;
 	if (Avail[1]) {
 		sr2 = OD_Utility[1] + SE_Utility[1] + ASC[1];
 		if (sr2 < -MAX_EXP || sr2 > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr2);
@@ -134,7 +164,10 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	if (Avail[2]) {
 		sr3 = OD_Utility[2] + SE_Utility[2] + ASC[2];
 		if (sr3 < -MAX_EXP || sr3 > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr3);
@@ -142,7 +175,10 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	if (Avail[3]) {
 		sr4 = OD_Utility[3] + SE_Utility[3] + ASC[3];
 		if (sr4 < -MAX_EXP || sr4 > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr4);
@@ -152,11 +188,19 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	else
 		sr = MISSING;
 	 	
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "sr2 = %e, sr3 = %e, sr4 = %e, sr = %e, SumExp = %e\n", sr2, sr3, sr4, sr, SumExp);
+	}
+
+
 	SumExp	= 0.0;
 	if (Avail[4]) {
 		wt  = OD_Utility[4] + SE_Utility[4] + ASC[4];
 		if (wt < -MAX_EXP || wt > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wt);
@@ -164,7 +208,10 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	if (Avail[6]) {
 		wc  = OD_Utility[6] + SE_Utility[6] + ASC[6];
 		if (wc < -MAX_EXP || wc > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wc);
@@ -174,11 +221,19 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	else
 		wt_wc = MISSING;	
  	
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "wt = %e, wc = %e, wt_wc = %e, SumExp = %e\n", wt, wc, wt_wc, SumExp);
+	}
+
+
 	SumExp	= 0.0;
 	if (Avail[5]) {
 		dt  = OD_Utility[5] + SE_Utility[5] + ASC[5];
 		if (dt < -MAX_EXP || dt > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dt);
@@ -186,7 +241,10 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	if (Avail[7]) {
 		dc  = OD_Utility[7] + SE_Utility[7] + ASC[7];
 		if (dc < -MAX_EXP || dc > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dc);
@@ -196,11 +254,19 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	else
 		dt_dc = MISSING;	 	
 
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "dt = %e, dc = %e, dt_dc = %e, SumExp = %e\n", dt, dc, dt_dc, SumExp);
+	}
+
+
 	SumExp	= 0.0;
 	if (Avail[8]) {
 		tx  = OD_Utility[8] + SE_Utility[8] + ASC[8];
 		if (tx < -MAX_EXP || tx > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(tx);
@@ -212,11 +278,18 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	else
 		tx = MISSING;
 
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "tx = %e, SumExp = %e\n", tx, SumExp);
+	}
+
 	SumExp	= 0.0;
 	if (Avail[10]) {
 		sb  = SE_Utility[10] + ASC[10];
 		if (sb < -MAX_EXP || sb > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sb);
@@ -228,6 +301,10 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	else
 		sb = MISSING;
 
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "sb = %e, SumExp = %e\n", sb, SumExp);
+	}
+
 
 
 
@@ -235,14 +312,20 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	SumExp = 0.0;
 	if (Avail[0]) {
 		if (da < -MAX_EXP || da > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(da);
 	}
 	if (Avail[1] || Avail[2] || Avail[3]) {
 		if (sr < -MAX_EXP || sr > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr);
@@ -250,21 +333,30 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
     no_walk_SumExp = SumExp;
 	if (Avail[4] || Avail[6]) {
 		if (wt_wc < -MAX_EXP || wt_wc > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wt_wc);
 	}
 	if (Avail[5]|| Avail[7]) {
 		if (dt_dc < -MAX_EXP || dt_dc > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dt_dc);
 	}
 	if (Avail[8]) {
 		if (tx < -MAX_EXP || tx > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
         dval = exp(tx);
@@ -273,7 +365,10 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 	}
 	if (Avail[10]) {
 		if (sb < -MAX_EXP || sb > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
         dval = exp(sb);
@@ -297,6 +392,16 @@ void school_mc_logsum (int journey, int orig, int dest, int *Avail, int person_t
 		return_values[1] = MISSING;
         walk_ok = FALSE;
     }
+
+
+
+	if ( debug == 1 ) {
+		fprintf (fp_rep, "no_walk_SumExp = %e, SumExp = %e, return_values[0] = %e, return_values[1] = %e\n", no_walk_SumExp, SumExp, return_values[0], return_values[1]);
+		fprintf (fp_rep, "no_walk_ok = %d, walk_ok = %d\n", no_walk_ok, walk_ok);
+	}
+
+
+
 
 // logical tests on modal alternative utilities.
 // program exits if test fails.

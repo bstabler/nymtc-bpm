@@ -674,6 +674,9 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 //					if ( j == 2438 && ( p == 139020 || p == 139069 || p == 139073 ) )
 //						k *= -1;
 	
+					if ( k == 2980115 )
+							k *= -1;
+
 					mc_logsum[purpose] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, da_work, ODutil, SEutil, (float *)msc->MSC[m_msc_index], Logsum[j]);
 					walk[1] = 1;
 				}

@@ -25,6 +25,9 @@
 #define NW_COST_VALUE_LENGTH			 15
 
 
+extern float wParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
+extern float nwParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
+
 
 void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, FILE *fp_work[],
 	int **ranprkcst, struct taxi_data *TaxiData, struct zone_data *ZonalData,
@@ -39,8 +42,6 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	char temp[RECORD_LENGTH];
 	char value[RECORD_LENGTH];
 	float tempValue;
-	float wParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
-	float nwParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 
 
 // if work purpose open file work destinations file for output; if at-work, open all 3 work destination files for input.

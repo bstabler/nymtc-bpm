@@ -57,7 +57,7 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 
 
 	if ( debug == 1 ) {
-		fprintf (fp_rep, "\nDebug Info for:  journey = %d, orig=%d, dest=%d, person_type=%d, autos=%d, walk[0]=%d, walk[1]=%d\n\n", journey, orig, dest, person_type, autos, walk[0], walk[1]);
+		fprintf (fp_rep, "\nDebug Info for:  university journey = %d, orig=%d, dest=%d, person_type=%d, autos=%d, walk[0]=%d, walk[1]=%d\n\n", journey, orig, dest, person_type, autos, walk[0], walk[1]);
 		for (i=0; i < Ini->NUMBER_ALTS; i++)
 			fprintf (fp_rep, "i=%d, ASC[i] = %e, OD_Utility[i] = %e, SE_Utility[i] = %e\n", i, ASC[i], OD_Utility[i], SE_Utility[i]);
 	}
@@ -121,7 +121,7 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 
 
 	if ( debug == 1 ) {
-		fprintf (fp_rep, "Avail[] = %3d %3d %3d %3d %3d %3d %3d %3d %3d\n", Avail[0], Avail[1], Avail[2], Avail[3], Avail[4], Avail[5], Avail[6], Avail[7], Avail[8]);
+		fprintf (fp_rep, "Avail[] = %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d\n", Avail[0], Avail[1], Avail[2], Avail[3], Avail[4], Avail[5], Avail[6], Avail[7], Avail[8], Avail[9], Avail[10]);
 	}
 
 
@@ -131,7 +131,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[0]) {
 		da  = OD_Utility[0] + SE_Utility[0] + ASC[0];
 		if (da < -MAX_EXP || da > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(da);
@@ -139,7 +142,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[8]) {
 		tx  = OD_Utility[8] + SE_Utility[8] + ASC[8];
 		if (tx < -MAX_EXP || tx > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(tx);
@@ -159,7 +165,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[1]) {
 		sr2 = OD_Utility[1] + SE_Utility[1] + ASC[1];
 		if (sr2 < -MAX_EXP || sr2 > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr2);
@@ -167,7 +176,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[2]) {
 		sr3 = OD_Utility[2] + SE_Utility[2] + ASC[2];
 		if (sr3 < -MAX_EXP || sr3 > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr3);
@@ -175,7 +187,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[3]) {
 		sr4 = OD_Utility[3] + SE_Utility[3] + ASC[3];
 		if (sr4 < -MAX_EXP || sr4 > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr4);
@@ -195,7 +210,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[4]) {
 		wt  = OD_Utility[4] + SE_Utility[4] + ASC[4];
 		if (wt < -MAX_EXP || wt > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wt);
@@ -203,7 +221,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[5]) {
 		dt  = OD_Utility[5] + SE_Utility[5] + ASC[5];
 		if (dt < -MAX_EXP || dt > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dt);
@@ -211,7 +232,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[6]) {
 		wc  = OD_Utility[6] + SE_Utility[6] + ASC[6];
 		if (wc < -MAX_EXP || wc > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wc);
@@ -219,7 +243,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	if (Avail[7]) {
 		dc  = OD_Utility[7] + SE_Utility[7] + ASC[7];
 		if (dc < -MAX_EXP || dc > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dc);
@@ -239,14 +266,20 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
 	SumExp = 0.0;
 	if (Avail[0] || Avail[8]) {
 		if (da_tx < -MAX_EXP || da_tx > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(da_tx);
 	}
 	if (Avail[1] || Avail[2] || Avail[3]) {
 		if (sr < -MAX_EXP || sr > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr);
@@ -254,7 +287,10 @@ void univ_mc_logsum (int journey, int orig, int dest, int *Avail, int person_typ
     no_walk_SumExp = SumExp;
 	if (Avail[4] || Avail[5] || Avail[6] || Avail[7]) {
 		if (tr_cr < -MAX_EXP || tr_cr > MAX_EXP) {
+			fprintf (fp_rep, "\nprocessing journey #%d\n", journey);
+			fflush(fp_rep);
 			printf ("\nprocessing journey #%d\n", journey);
+			fflush(stdout);
 			ExitWithCode(6);
 		}
 		SumExp += exp(tr_cr);

@@ -194,10 +194,15 @@ MDSC with sub-area analysis version history:
 						If PARKINGCOSTS file is specifed, it should contain 1 header record and 10 lines with 2 fields to define indices and parking cost in cents.
 						If file is not specified, default values are used.
 
+4.1.1.4 - 31Jan2008 -   enhanced debugging while trying to understand school journey mode choice logsum exponent overflow.
+
+4.1.1.5 - 31Jan2008 -   moved default parking costs array initialization to a global array and declared as external
+
+
 */
 
-#define VERSION "4.1.1.3"
-#define LAST_MODIFIED "29jan2008"
+#define VERSION "4.1.1.5"
+#define LAST_MODIFIED "31jan2008"
 
 int __cdecl main (int argc, char *argv[])
 {
