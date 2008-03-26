@@ -198,11 +198,17 @@ MDSC with sub-area analysis version history:
 
 4.1.1.5 - 31Jan2008 -   moved default parking costs array initialization to a global array and declared as external
 
+4.1.1.5.1 - 25Mar2008 -   Added console and report output to print highway time & dist skim values for 3 selected ODs to check
+						  the io with compressed vs uncompressed TransCAD matrix formats.
+
+4.1.1.5.2 - 25Mar2008 -   Added console and report output to print walk transit in-vehicle time skim values for 3 selected ODs to check
+						  the io with compressed vs uncompressed TransCAD matrix formats.
+
 
 */
 
-#define VERSION "4.1.1.5"
-#define LAST_MODIFIED "31jan2008"
+#define VERSION "4.1.1.5.2"
+#define LAST_MODIFIED "25mar2008"
 
 int __cdecl main (int argc, char *argv[])
 {

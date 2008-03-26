@@ -171,16 +171,16 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 
 		GetSkimsByRow (i, Ini->HWY_TIME_CORE, hMatrix, Ini->HWY_INDEX_OFFSET, hwy_time);
 		GetSkimsByRow (i, Ini->HWY_DIST_CORE, hMatrix, Ini->HWY_INDEX_OFFSET, hwy_dist);
-		GetSkimsByRow (i,Ini->HWY_TOLL_CORE, hMatrix, Ini->HWY_INDEX_OFFSET, hwy_toll);
+		GetSkimsByRow (i, Ini->HWY_TOLL_CORE, hMatrix, Ini->HWY_INDEX_OFFSET, hwy_toll);
 		GetSkimsByRow (i, Ini->HWY_HOV2_TIME_CORE, hov2Matrix, Ini->HWY_INDEX_OFFSET, hwy_hov2_time);
 		GetSkimsByRow (i, Ini->HWY_HOV2_DIST_CORE, hov2Matrix, Ini->HWY_INDEX_OFFSET, hwy_hov2_dist);
-		GetSkimsByRow (i,Ini->HWY_HOV2_TOLL_CORE, hov2Matrix, Ini->HWY_INDEX_OFFSET, hwy_hov2_toll);
+		GetSkimsByRow (i, Ini->HWY_HOV2_TOLL_CORE, hov2Matrix, Ini->HWY_INDEX_OFFSET, hwy_hov2_toll);
 		GetSkimsByRow (i, Ini->HWY_HOV3p_TIME_CORE, hov3pMatrix, Ini->HWY_INDEX_OFFSET, hwy_hov3p_time);
 		GetSkimsByRow (i, Ini->HWY_HOV3p_DIST_CORE, hov3pMatrix, Ini->HWY_INDEX_OFFSET, hwy_hov3p_dist);
-		GetSkimsByRow (i,Ini->HWY_HOV3p_TOLL_CORE, hov3pMatrix, Ini->HWY_INDEX_OFFSET, hwy_hov3p_toll);
+		GetSkimsByRow (i, Ini->HWY_HOV3p_TOLL_CORE, hov3pMatrix, Ini->HWY_INDEX_OFFSET, hwy_hov3p_toll);
 		GetSkimsByRow (i, Ini->HWY_TAXI_TIME_CORE, taxiMatrix, Ini->HWY_INDEX_OFFSET, hwy_taxi_time);
 		GetSkimsByRow (i, Ini->HWY_TAXI_DIST_CORE, taxiMatrix, Ini->HWY_INDEX_OFFSET, hwy_taxi_dist);
-		GetSkimsByRow (i,Ini->HWY_TAXI_TOLL_CORE, taxiMatrix, Ini->HWY_INDEX_OFFSET, hwy_taxi_toll);
+		GetSkimsByRow (i, Ini->HWY_TAXI_TOLL_CORE, taxiMatrix, Ini->HWY_INDEX_OFFSET, hwy_taxi_toll);
 
 		//printf ("Reading %s skims complete\n", "highway");
 
@@ -190,10 +190,28 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 		for (j=1; j <= Ini->MAX_TAZS; j++) {
 			if (hwy_dist[j]> 0.0 && hwy_dist[j] < hwy_dist[i])
 				hwy_dist[i] = hwy_dist[j];
-				hwy_dist_temp[i][i]=hwy_dist[i];
 		}
 
 		hwy_dist_temp[i][i]=hwy_dist[i];
+
+
+
+		printf ("O/D highway distance and time skim value checks:\n");
+		fprintf (fp_rep, "O/D highway distance and time skim value checks:\n");
+		if (i == 1) {
+			printf ("hwy_dist[1][5] = %.2f, hwy_time[1][5] = %.2f\n", hwy_dist[5], hwy_time[5]);
+			fprintf (fp_rep, "hwy_dist[1][5] = %.2f, hwy_time[1][5] = %.2f\n", hwy_dist[5], hwy_time[5]);
+		}
+		else if (i == 10) {
+			printf ("hwy_dist[10][5] = %.2f, hwy_time[10][5] = %.2f\n", hwy_dist[5], hwy_time[5]);
+			fprintf (fp_rep, "hwy_dist[10][5] = %.2f, hwy_time[10][5] = %.2f\n", hwy_dist[5], hwy_time[5]);
+		}
+		else if (i == 25) {
+			printf ("hwy_dist[25][15] = %.2f, hwy_time[25][15] = %.2f\n", hwy_dist[15], hwy_time[15]);
+			fprintf (fp_rep, "hwy_dist[25][15] = %.2f, hwy_time[25][15] = %.2f\n", hwy_dist[15], hwy_time[15]);
+		}
+
+
 
 		// time is distance divided by speed, which is indexed by area type.
 		hwy_time[i] = (float)(60.0*hwy_dist[i]/Ini->AUTO_SPEED[ZonalData->AreaType[i]]);
@@ -339,6 +357,24 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 			GetSkimsByRow (i, Ini->ACCESS_OVTT_CORE,   tMatrix[0], Ini->TRAN_INDEX_OFFSET, wtTranSkims.Acc_ovtt);
 			GetSkimsByRow (i, Ini->TRANSFER_WALK_CORE, tMatrix[0], Ini->TRAN_INDEX_OFFSET, wtTranSkims.Xfr_ovtt);
 			GetSkimsByRow (i, Ini->AUTO_TIME_CORE,     tMatrix[0], Ini->TRAN_INDEX_OFFSET, drive_acc_time);
+
+
+			printf ("O/D walk-transit in-vehicle time skim values checks:\n");
+			fprintf (fp_rep, "O/D walk-transit in-vehicle time skim values checks:\n");
+			if (i == 11) {
+				printf ("bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f\n, ferry_ivtt[11][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fprintf (fp_rep, "bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f\n, ferry_ivtt[11][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+			}
+			else if (i == 80) {
+				printf ("bus_ivtt[80][5] = %.2f, expbus_ivtt[80][5] = %.2f, rail_ivtt[80][5] = %.2f, cr_ivtt[80][5] = %.2f\n, ferry_ivtt[80][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fprintf (fp_rep, "bus_ivtt[80][5] = %.2f, expbus_ivtt[80][5] = %.2f, rail_ivtt[80][5] = %.2f, cr_ivtt[80][5] = %.2f\n, ferry_ivtt[80][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+			}
+			else if (i == 169) {
+				printf ("bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f\n, ferry_ivtt[169][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fprintf (fp_rep, "bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f\n, ferry_ivtt[169][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+			}
+
+
 
 			//printf ("Reading %s skims complete\n", "walk to transit");
 
