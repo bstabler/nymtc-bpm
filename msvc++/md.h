@@ -200,6 +200,7 @@ struct IniData {
 	int CACHE_SIZE;
 
 // model parameters
+	float CPI_RATIO;
 	int FTA_RESTART;				// if 1, run model using frozen dest choices and optionally frozen transit subzone and work tour mode choices from previous MDSC model run.  0 is normal operating mode.
 	int FREEZE_MDC_OUTPUT;			// if 1, frozen MDC model output will be written so a subsequent FTA_RESTART model can be run.  0 is normal operating mode.
 	int USE_FROZEN_SUBZONE;			// if 1, use frozen transit subzone choice.  0 is normal operating mode and a new choice will be made for each tour.

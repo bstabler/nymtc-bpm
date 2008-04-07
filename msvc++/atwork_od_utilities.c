@@ -26,7 +26,7 @@ void atwork_da_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + Ovtt
-					 + 0.15*(Cost + ParkCost)));
+					 + 0.15*Ini->CPI_RATIO*(Cost + ParkCost)));
 		}
 	}
 }
@@ -48,7 +48,7 @@ void atwork_sr2_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, flo
 			Short = (hwy_time[j] <= 7.0);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + Ovtt
-					 + 0.015*(Cost + ParkCost)/2.0) + SHORT_2P*Short);
+					 + 0.015*Ini->CPI_RATIO*(Cost + ParkCost)/2.0) + SHORT_2P*Short);
 		}
 	}						 
 }
@@ -70,7 +70,7 @@ void atwork_sr3_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, flo
 			Short = (hwy_time[j] <= 7.0);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + Ovtt
-					 + 0.015*(Cost + ParkCost)/3.5) + SHORT_3P*Short);
+					 + 0.015*Ini->CPI_RATIO*(Cost + ParkCost)/3.5) + SHORT_3P*Short);
 		}
 	}						 
 }
@@ -114,7 +114,7 @@ void atwork_wt_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			Short = (hwy_time[j] <= 7.0);
 		
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + 3.0*(Ovtt)
-					 + 0.015*(Cost)) + SHORT_WT*Short);
+					 + 0.015*Ini->CPI_RATIO*(Cost)) + SHORT_WT*Short);
 		}
 		else {
 			Utility[j] = MISSING;
@@ -142,7 +142,7 @@ void atwork_tx_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, floa
 			Short = (hwy_time[j] <= 7.0);
 			
 			Utility[j] = (float)(IN_VEH_TIM*(Ivtt + 10.0*Taxi_wait
-					+ 0.015*(Taxi_cost + Taxi_toll)*100) + SHORT_TX*Short);
+					+ 0.015*Ini->CPI_RATIO*(Taxi_cost + Taxi_toll)*100) + SHORT_TX*Short);
 		}
 	}
 }

@@ -33,7 +33,7 @@ void work_da_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost + ParkCost));
+					 + COST*Ini->CPI_RATIO*(Cost + ParkCost));
 		}
 	}
 }
@@ -54,7 +54,7 @@ void work_sr2_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost + ParkCost)/2.0
+					 + COST*Ini->CPI_RATIO*(Cost + ParkCost)/2.0
 					 + UA_2P*(ZonalData->UrbanType[j] == 1));
 		}
 	}						 
@@ -76,7 +76,7 @@ void work_sr3_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost + ParkCost)/3.0
+					 + COST*Ini->CPI_RATIO*(Cost + ParkCost)/3.0
 					 + UA_3P*(ZonalData->UrbanType[j] == 1));
 		}
 	}						 
@@ -98,7 +98,7 @@ void work_sr4_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float
 			ParkCost = parking_cost (i, j, ZonalData, ranprkcst);
 		
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + Ovtt)
-					 + COST*(Cost + ParkCost)/4.0
+					 + COST*Ini->CPI_RATIO*(Cost + ParkCost)/4.0
 					 + UA_4P*(ZonalData->UrbanType[j] == 1));
 		}
 	}						 
@@ -143,7 +143,7 @@ void work_wt_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt)
 					 + FW_LE7_TR*(Wait_le7) + FW_GT7_TR*(Wait_gt7) + XFER_WAIT*(Xfr_wait)
 					 + WALK*(Xfr_ovtt)
-					 + COST*(Cost)
+					 + COST*Ini->CPI_RATIO*(Cost)
 					 + UA_WT*(ZonalData->UrbanType[j] == 1));
 		}
 		else {
@@ -195,7 +195,7 @@ void work_dt_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + 2.0*DrAcc_ovtt)
 					 + FW_LE7_TR*(Wait_le7) + FW_GT7_TR*(Wait_gt7) + XFER_WAIT*(Xfr_wait)
 					 + WALK*(Xfr_ovtt)
-					 + COST*(Cost) + INFORMLOT_TR*(InfLot)
+					 + COST*Ini->CPI_RATIO*(Cost) + INFORMLOT_TR*(InfLot)
 					 + UA_DT*(ZonalData->UrbanType[j] == 1));
 		}
 		else {
@@ -246,7 +246,7 @@ void work_wc_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt)
 					 + FW_LE7_CR*(Wait_le7) + FW_GT7_CR*(Wait_gt7) + XFER_WAIT*(Xfr_wait)
 					 + WALK*(Xfr_ovtt)
-					 + COST*(Cost)
+					 + COST*Ini->CPI_RATIO*(Cost)
 					 + CR_DIST*(Dist)
 					 + UA_WC*(ZonalData->UrbanType[j] == 1));
 		}
@@ -300,7 +300,7 @@ void work_dc_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt + 2.0*DrAcc_ovtt)
 					 + FW_LE7_CR*(Wait_le7) + FW_GT7_CR*(Wait_gt7) + XFER_WAIT*(Xfr_wait)
 					 + WALK*(Xfr_ovtt)
-					 + COST*(Cost) + INFORMLOT_CR*(InfLot)
+					 + COST*Ini->CPI_RATIO*(Cost) + INFORMLOT_CR*(InfLot)
 					 + CR_DIST*(Dist)
 					 + UA_DC*(ZonalData->UrbanType[j] == 1));
 		}
@@ -329,7 +329,7 @@ void work_tx_od_util (int i, int ncols, float *hwy_time, float *hwy_dist, float 
 				Taxi_toll = 2*hwy_toll[j]/100;
 			
 			Utility[j] = (float)(IN_VEH_TIME*(Ivtt)
-					+ COST*(Taxi_cost + Taxi_toll)*100
+					+ COST*Ini->CPI_RATIO*(Taxi_cost + Taxi_toll)*100
 					+ WAIT_TX*(Taxi_wait)
 				    + UA_TX*(ZonalData->UrbanType[j] == 1));
 		}
