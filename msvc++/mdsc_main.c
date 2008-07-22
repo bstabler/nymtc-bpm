@@ -204,15 +204,18 @@ MDSC with sub-area analysis version history:
 4.1.1.5.2 - 25Mar2008 -   Added console and report output to print walk transit in-vehicle time skim values for 3 selected ODs to check
 						  the io with compressed vs uncompressed TransCAD matrix formats.
 
-4.1.1.6 - 07Apr2008 -   added a new control in the PARAMS section called CPI_RATIO.  If n o control is entered in the control file,
+4.1.1.6 - 07Apr2008 -   added a new control in the PARAMS section called CPI_RATIO.  If no control is entered in the control file,
 						the default value of 1.0 is used.  If a value is entered for this control, that value is multiplied by the
 						model costs in the utility calculations.
+
+4.1.1.7 - 22Jul2008 -   Changed reporting of highway time/dist and walk-transit ivt for diagnosing TransCAD matrix IO problems.
+						Print heading only for first selected o/d and flush stdout and file handle for last selected o/d for both hwy & transit.
 
 
 */
 
-#define VERSION "4.1.1.6"
-#define LAST_MODIFIED "07apr2008"
+#define VERSION "4.1.1.7"
+#define LAST_MODIFIED "22jul2008"
 
 int __cdecl main (int argc, char *argv[])
 {

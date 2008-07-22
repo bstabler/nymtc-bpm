@@ -196,9 +196,9 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 
 
 
-		printf ("O/D highway distance and time skim value checks:\n");
-		fprintf (fp_rep, "O/D highway distance and time skim value checks:\n");
 		if (i == 1) {
+			printf ("O/D highway distance and time skim value checks:\n");
+			fprintf (fp_rep, "O/D highway distance and time skim value checks:\n");
 			printf ("hwy_dist[1][5] = %.2f, hwy_time[1][5] = %.2f\n", hwy_dist[5], hwy_time[5]);
 			fprintf (fp_rep, "hwy_dist[1][5] = %.2f, hwy_time[1][5] = %.2f\n", hwy_dist[5], hwy_time[5]);
 		}
@@ -209,6 +209,8 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 		else if (i == 25) {
 			printf ("hwy_dist[25][15] = %.2f, hwy_time[25][15] = %.2f\n", hwy_dist[15], hwy_time[15]);
 			fprintf (fp_rep, "hwy_dist[25][15] = %.2f, hwy_time[25][15] = %.2f\n", hwy_dist[15], hwy_time[15]);
+			fflush(stdout);
+			fflush(fp_rep);
 		}
 
 
@@ -359,9 +361,9 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 			GetSkimsByRow (i, Ini->AUTO_TIME_CORE,     tMatrix[0], Ini->TRAN_INDEX_OFFSET, drive_acc_time);
 
 
-			printf ("O/D walk-transit in-vehicle time skim values checks:\n");
-			fprintf (fp_rep, "O/D walk-transit in-vehicle time skim values checks:\n");
 			if (i == 11) {
+				printf ("O/D walk-transit in-vehicle time skim values checks:\n");
+				fprintf (fp_rep, "O/D walk-transit in-vehicle time skim values checks:\n");
 				printf ("bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f\n, ferry_ivtt[11][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
 				fprintf (fp_rep, "bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f\n, ferry_ivtt[11][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
 			}
@@ -372,6 +374,8 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 			else if (i == 169) {
 				printf ("bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f\n, ferry_ivtt[169][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
 				fprintf (fp_rep, "bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f\n, ferry_ivtt[169][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fflush(stdout);
+				fflush(fp_rep);
 			}
 
 
