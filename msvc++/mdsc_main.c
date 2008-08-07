@@ -211,11 +211,14 @@ MDSC with sub-area analysis version history:
 4.1.1.7 - 22Jul2008 -   Changed reporting of highway time/dist and walk-transit ivt for diagnosing TransCAD matrix IO problems.
 						Print heading only for first selected o/d and flush stdout and file handle for last selected o/d for both hwy & transit.
 
+4.1.1.8 - 07Aug2008 -   Made this change while debugging MDC auto calibration issue.
+						Fixed problem Caliper introduced in motor_dc_props() where util and props arrays were not properly declared upon re-entry
+						during auto-calibration.
 
 */
 
-#define VERSION "4.1.1.7"
-#define LAST_MODIFIED "22jul2008"
+#define VERSION "4.1.1.8"
+#define LAST_MODIFIED "07aug2008"
 
 int __cdecl main (int argc, char *argv[])
 {
@@ -244,19 +247,6 @@ int __cdecl main (int argc, char *argv[])
 	HANDLE od_util_heap;
     
 	start = clock();
-
-
-// load matrix dlls
-	tc_status = 0;
-	InitMatDLL(&tc_status);
-	if (tc_status != TC_OKAY) {
-		printf ("TransCAD matrix I/O DLLs not initialized.\n");
-		printf ("Make sure TransCAD key is firmly in the parallel port.\n");
-		printf ("exit (-5).\n");
-		fflush (stdout);
-		exit (-5);
-	}
-
 
 
 	if (argc == 2) {
@@ -290,9 +280,26 @@ int __cdecl main (int argc, char *argv[])
 	Ini->MDC_ONLY = 0;
 	Ini->LOW_COMPETITION = 1;
 	read_ini_control_file (fp, Ini);
-	if (Ini->ZERO_UTIL != 1)
+ 
+
+// load matrix dlls
+	if (Ini->ZERO_UTIL != 1) {
 		Ini->ZERO_UTIL = 0;
-	
+
+		tc_status = 0;
+		InitMatDLL(&tc_status);
+		if (tc_status != TC_OKAY) {
+			printf ("TransCAD matrix I/O DLLs not initialized.\n");
+			printf ("Make sure TransCAD key is firmly in the parallel port.\n");
+			printf ("exit (-5).\n");
+			fflush (stdout);
+			exit (-5);
+		}
+
+	}
+
+
+
 	// set CPI_RATIO to 1.0 if no value was specified in control file.
 	if (Ini->CPI_RATIO == 0xffffffff)
 		Ini->CPI_RATIO = 1.0;
@@ -467,6 +474,11 @@ int __cdecl main (int argc, char *argv[])
 			fprintf (fp_rep,   "************ W A R N I N G *************\n");
 			fprintf (fp_rep,   "** OD Utility is not being calculated **\n");
 			fprintf (fp_rep,   "****************************************\n\n");
+
+			// allocate memory for highway distance array
+			hwy_dist = (float **) calloc(Ini->MAX_TAZS+1, sizeof(float *));
+			for (i=0; i < Ini->MAX_TAZS+1; i++)
+				hwy_dist[i] = (float *) calloc(Ini->MAX_TAZS+1, sizeof(float));
 		}
 		else {
 			od_util_heap = HeapCreate (0, 2048, 0);
@@ -478,13 +490,15 @@ int __cdecl main (int argc, char *argv[])
 				for (i=0; i < Ini->MAX_TAZS+1; i++)
 					OD_Utility[k][i] = (float *) HeapAlloc (od_util_heap, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
 			}
+
+			// read highway and transit skims and compute OD utilities for each modal alternative
+			printf ("Compute OD based utilities\n");
+			OD_Utilities (Ini->PURPOSE_TO_PROCESS, &ZonalData, &TaxiData, ranprkcst, &hwy_dist, OD_Utility);
+
 		}
+
 //		addRAM ("mdsc_main 3", (Ini->NUMBER_ALTS-2)*(Ini->MAX_TAZS+1)*(Ini->MAX_TAZS+1)*sizeof(float));
 
-
-// read highway and transit skims and compute OD utilities for each modal alternative
-		printf ("Compute OD based utilities\n");
-		OD_Utilities (Ini->PURPOSE_TO_PROCESS, &ZonalData, &TaxiData, ranprkcst, &hwy_dist, OD_Utility);
 	}
 
 
@@ -555,7 +569,7 @@ int __cdecl main (int argc, char *argv[])
 
 
 //#
-		sprintf (tempString, "finished with run_mdc() in calibration iteration %d\n", i);
+		sprintf (tempString, "finished with run_mdc() in calibration iteration %d\n", iter);
 		printf  ("%s", tempString);
 		fprintf (fp_rep, "%s", tempString);
 		fflush (stdout);

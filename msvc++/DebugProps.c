@@ -2,7 +2,7 @@
 
 void debug_props (int k, struct dc_coeff_data *DCcoeff, struct journey_attribs *JourneyAttribs, struct zone_data *ZonalData,
 				  float ***OD_Utility, float ***z_attrs, struct river_crossing_data RiverData, float **hwy_dist,
-				  struct bpmdist1_coeff_data BPMDist1, struct msc_data *msc)
+				  struct bpmdist1_coeff_data BPMDist1, struct msc_data *msc, double **util, double **props)
 {
 
 	int i, j, walk[2], debug_mode=1;
@@ -104,7 +104,7 @@ void debug_props (int k, struct dc_coeff_data *DCcoeff, struct journey_attribs *
 	// of joint destination/access probability distribution.
 	for (i=0; i < Ini->MAX_TAZS*2 + 2; i++)
 		dc_cum[i] = 0.0;
-	motor_dc_props (JourneyAttribs->orig[k], JourneyAttribs->purpose[k], DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, 0);
+	motor_dc_props (JourneyAttribs->orig[k], JourneyAttribs->purpose[k], DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 0);
 
 
 	// save values to restore for original journey record

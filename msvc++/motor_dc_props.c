@@ -1,14 +1,10 @@
 #include "md.h"
 
-struct d_vals
-{
-    double d[2];
-};
 
 void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float ***ODutil, float *SEutil,
 					 float **Logsum, float ***z_attrs, struct river_crossing_data RiverData,
 					 struct zone_data *ZonalData, struct bpmdist1_coeff_data BPMDist1,
-					 double *cum, float *hwydist, int debug_mode, short only_free)
+					 double *cum, float *hwydist, int debug_mode, double **util, double **props, short only_free)
 {
 
 	FILE *fp;
@@ -17,41 +13,62 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	double dist_scale, denominator, delta_IntraCounty;
     double gamma0, gamma1, gamma2;
     double gamma0River, gamma1River, gamma2River, util_val;
-	static struct d_vals *util, *props;
 	static int AlreadyOpen=0, allocated = 0;
     int *RiverData_east, *RiverData_hudson, *RiverData_minor;
     float *BPMDist1_co_co_coeffs, BPMDist1_intra_county;
 
 
-    if (!allocated)
-        {
-    	util  = (struct d_vals *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(struct d_vals));
-	    props = (struct d_vals *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(struct d_vals));
-        allocated = 1;
+//  07aug2008:
+//	Caliper had changed this part of the code, introducing some structure to hold util and props values.
+//	The array of structures, defined as static, weren't properly declared upon re-entry, on multiple auto-calibration iterations.
+//	I changed the util and props values back to simple 2-D arrays and declared and freed them in run_mdc, so they were setup
+//	only once per calibration iteration.  There's no need to initialize them each time, they are assigned, not used to accumulate values.
+
+
+
+//    if (!allocated)
+//        {
+//    	util  = (double**) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(double *));
+//	    props = (double**) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(double *));
+//		for (i=0; i < Ini->MAX_TAZS+1; i++) {
+//			util[i]  = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(double));
+//			props[i] = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(double));
+//		}
+//        allocated = 1;
 //    	if (Ini->RAM_DEBUG_LEVEL == 2)
 //	    	addRAM ("motor_dc_props", 2*(Ini->MAX_TAZS+1)*2*sizeof(struct d_vals));
-        }
-    else if (only_free)
-        {
-        HeapFree (heapHandle, 0, util);
-        HeapFree (heapHandle, 0, props);
-        return;
-        }
-    else
-        {
+//        }
+//    else if (only_free)
+//        {
+//		for (i=0; i < Ini->MAX_TAZS+1; i++) {
+//			HeapFree (heapHandle, 0, util[i]);
+//			HeapFree (heapHandle, 0, props[i]);
+//		}
+//        HeapFree (heapHandle, 0, util);
+//        HeapFree (heapHandle, 0, props);
+//        return;
+//        }
+//    else
+//        {
+
+//		for (i=0; i < Ini->MAX_TAZS+1; i++) {
+//			memset (util[i], 0, 2*sizeof(double));
+//			memset (props[i], 0, 2*sizeof(double));
+//		}
+
         // init the first couple of elemets - a lot of what they do is 1-based
-        util[0].d[0] = 0.;
-        util[0].d[1] = 0.;
-        util[1].d[0] = 0.;
-        util[1].d[1] = 0.;
-        props[0].d[0] = 0.;
-        props[0].d[1] = 0.;
-        props[1].d[0] = 0.;
-        props[1].d[1] = 0.;
+//        util[0].d[0] = 0.;
+//        util[0].d[1] = 0.;
+//        util[1].d[0] = 0.;
+//        util[1].d[1] = 0.;
+//        props[0].d[0] = 0.;
+//        props[0].d[1] = 0.;
+//        props[1].d[0] = 0.;
+//        props[1].d[1] = 0.;
         // looks like the memset is not necessary - it always sets it to 0 with if then else
 //        memset(util, 0, (Ini->MAX_TAZS+1) * sizeof(struct d_vals));
 //        memset(props, 0, (Ini->MAX_TAZS+1) * sizeof(struct d_vals));
-        }
+//        }
 //	util  = (double **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(double *));
 //	props = (double **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(double *));
 //	for (i=0; i < Ini->MAX_TAZS+1; i++) {
@@ -102,7 +119,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 				}
 			    for (m=0; m < 2; m++) {
 				    if (z_attrs[m][purpose][j] > 0.0) {
-					    util[j].d[m] = log(z_attrs[m][purpose][j])
+					    util[j][m] = log(z_attrs[m][purpose][j])
 						    + DCcoeff->beta*Logsum[j][m]
                             + gamma0River
                             + gamma1River
@@ -110,27 +127,27 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 						    + delta_IntraCounty
 					        + util_val
     					    + dist_scale;
-					    if (util[j].d[m] > MAX_EXP) {
-						    util[j].d[m] = MAX_EXP;
-						    denominator += exp(util[j].d[m]);
+					    if (util[j][m] > MAX_EXP) {
+						    util[j][m] = MAX_EXP;
+						    denominator += exp(util[j][m]);
 					    }
-					    else if (util[j].d[m] > -MAX_EXP && util[j].d[m] < MAX_EXP) {
-						    denominator += exp(util[j].d[m]);
+					    else if (util[j][m] > -MAX_EXP && util[j][m] < MAX_EXP) {
+						    denominator += exp(util[j][m]);
 					    }
 				    }
 				    else {
-					    util[j].d[m] = MISSING;
+					    util[j][m] = MISSING;
 				    }
 			    }
 			}
 			else {
-				util[j].d[0] = MISSING;
-				util[j].d[1] = MISSING;
+				util[j][0] = MISSING;
+				util[j][1] = MISSING;
 			}
 		}
 		else {
-			util[j].d[0] = MISSING;
-			util[j].d[1] = MISSING;
+			util[j][0] = MISSING;
+			util[j][1] = MISSING;
 		}
 	}
 
@@ -149,7 +166,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 			fp = fopen (Ini->DEBUGFILE, "a");
 
 
-		fprintf (fp, "data dictionary\n\nPercent of journeys processed\norig\nj (dest)\npurpose\nm (walk acc)\nico (orig county)\njco (dest county)\nibpm (orig county with Manhattan sub-areas)\njbpm (dest county with Manhattan sub-areas)\nod distance\nprops[j].d[m] (proportions)\ncum[i] (cumulative proportions)\nutil[j].d[m]\nz_attrs[m][purpose][j]\nLogsum[j][m]\nRiverData.east[ico][jco]\nRiverData.hudson[ico][jco]\nRiverData.minor[ico][jco]\n(ico == jco)\n\n");
+		fprintf (fp, "data dictionary\n\nPercent of journeys processed\norig\nj (dest)\npurpose\nm (walk acc)\nico (orig county)\njco (dest county)\nibpm (orig county with Manhattan sub-areas)\njbpm (dest county with Manhattan sub-areas)\nod distance\nprops[j][m] (proportions)\ncum[i] (cumulative proportions)\nutil[j][m]\nz_attrs[m][purpose][j]\nLogsum[j][m]\nRiverData.east[ico][jco]\nRiverData.hudson[ico][jco]\nRiverData.minor[ico][jco]\n(ico == jco)\n\n");
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++)
 			fprintf (fp, "%s od based utility\n", ModeLabel[k]);
 		fprintf (fp, "\n");
@@ -170,11 +187,11 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 
 	
 	i = 0;
-	if (util[1].d[0] > -MAX_EXP && util[1].d[0] < MAX_EXP)
-		props[1].d[0] = exp(util[1].d[0])/denominator;
+	if (util[1][0] > -MAX_EXP && util[1][0] < MAX_EXP)
+		props[1][0] = exp(util[1][0])/denominator;
 	else
-		props[1].d[0] = 0.0;
-	cum[0] = props[1].d[0];
+		props[1][0] = 0.0;
+	cum[0] = props[1][0];
 
 	j = 1;
 	m = 0;
@@ -183,7 +200,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	jbpm = ZonalData->bpmdist1_index[j];
 	if (debug_mode == 1) {
 		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
+			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 			RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
 			(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
@@ -197,11 +214,11 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 		fprintf (fp, "\n");
 	}
 
-	if (util[1].d[1] > -MAX_EXP && util[1].d[1] < MAX_EXP)
-		props[1].d[1] = exp(util[1].d[1])/denominator;
+	if (util[1][1] > -MAX_EXP && util[1][1] < MAX_EXP)
+		props[1][1] = exp(util[1][1])/denominator;
 	else
-		props[1].d[1] = 0.0;
-	cum[1] = cum[0] + props[1].d[1];
+		props[1][1] = 0.0;
+	cum[1] = cum[0] + props[1][1];
 
 	i = 1;
 	j = 1;
@@ -211,7 +228,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	jbpm = ZonalData->bpmdist1_index[j];
 	if (debug_mode == 1) {
 		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
+			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 			RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
 			(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
@@ -229,17 +246,17 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	ico = ZonalData->County[orig];
 	for (j=2; j <= Ini->MAX_TAZS; j++) {
 		for (m=0; m < 2; m++) {
-			if (util[j].d[m] > -MAX_EXP && util[j].d[m] < MAX_EXP)
-				props[j].d[m] = exp(util[j].d[m])/denominator;
+			if (util[j][m] > -MAX_EXP && util[j][m] < MAX_EXP)
+				props[j][m] = exp(util[j][m])/denominator;
 			else
-				props[j].d[m] = 0.0;
-			cum[i] = cum[i-1] + props[j].d[m];
+				props[j][m] = 0.0;
+			cum[i] = cum[i-1] + props[j][m];
 
 			if (debug_mode == 1) {
         		jco = ZonalData->County[j];
         		jbpm = ZonalData->bpmdist1_index[j];
 				fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-					(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j].d[m], cum[i], util[j].d[m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
+					(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 					RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
 					(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
 				for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {

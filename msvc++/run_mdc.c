@@ -44,6 +44,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	char tempString[200];
 	struct dc_coeff_data *DCcoeff;
 
+	double **util, **props;
+
 
 // Memory allocations
 	printf ("\nallocating memory for run_mdc().\n");
@@ -102,6 +104,16 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 		dist2dist[i] = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int *));
 		for (j=0; j < Ini->NUMBER_BPMDIST1+1; j++)
 			dist2dist[i][j] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
+	}
+
+
+
+	// these are used in motor_dc_props(), but allocated here so it only has to be done once, and they can be re-used on re-entry to motor_dc_props().
+    util  = (double**) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(double *));
+	props = (double**) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(double *));
+	for (i=0; i < Ini->MAX_TAZS+1; i++) {
+		util[i]  = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(double));
+		props[i] = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(double));
 	}
 
 
@@ -419,7 +431,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					debug_part = (int)((100*(count + cnt)/Ini->NUMBER_JOURNEYS) / Ini->DEBUG_PERCENT);
 					if ((((int)(100*(count + cnt)/Ini->NUMBER_JOURNEYS) % (int)Ini->DEBUG_PERCENT) == 0) || ((count + cnt) == (Ini->NUMBER_JOURNEYS - 1))) {
 						if (debug_parts[debug_part] == 0 || ((count + cnt) == (Ini->NUMBER_JOURNEYS - 1))) {
-							debug_props (0, DCcoeff, JourneyAttribs, ZonalData, OD_Utility, z_attrs, RiverData, hwy_dist, BPMDist1, msc);
+							debug_props (0, DCcoeff, JourneyAttribs, ZonalData, OD_Utility, z_attrs, RiverData, hwy_dist, BPMDist1, msc, util, props);
 							debug_parts[debug_part] = 1;
 						}
 					}
@@ -537,20 +549,22 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				m_msc_index = msc->motorized_indices[idist][jdist];
 				m_cal_est[m_msc_index][mode]++;
 
-				if (hwy_dist[orig][dest] <= 0 && Ini->ZERO_UTIL == 0) {
-					printf ("\nnon-positive highway distance skim found from %d to %d, dist = %f\nexit (-98)\n", orig, dest, hwy_dist[orig][dest]);
-					fprintf (fp_rep, "\nnon-positive highway distance skim found from %d to %d, dist = %f\nexit (-98)\n", orig, dest, hwy_dist[orig][dest]);
-					fflush (fp_rep);
-					fflush (stdout);
-					exit (-98);
-				}
-				else {
-					dist = (int)(hwy_dist[orig][dest]/Ini->TRIP_LENGTH_WIDTH);
-					if (dist >= Ini->TRIP_LENGTH_RANGES)
-						dist = Ini->TRIP_LENGTH_RANGES - 1;
-					tlfreq[dist+1][mode] ++;
-					tlfreq[0][mode] ++;
-					tldist[mode] += hwy_dist[orig][dest];
+				if ( Ini->ZERO_UTIL == 0 ) {
+					if (hwy_dist[orig][dest] <= 0) {
+						printf ("\nnon-positive highway distance skim found from %d to %d, dist = %f\nexit (-98)\n", orig, dest, hwy_dist[orig][dest]);
+						fprintf (fp_rep, "\nnon-positive highway distance skim found from %d to %d, dist = %f\nexit (-98)\n", orig, dest, hwy_dist[orig][dest]);
+						fflush (fp_rep);
+						fflush (stdout);
+						exit (-98);
+					}
+					else {
+						dist = (int)(hwy_dist[orig][dest]/Ini->TRIP_LENGTH_WIDTH);
+						if (dist >= Ini->TRIP_LENGTH_RANGES)
+							dist = Ini->TRIP_LENGTH_RANGES - 1;
+						tlfreq[dist+1][mode] ++;
+						tlfreq[0][mode] ++;
+						tldist[mode] += hwy_dist[orig][dest];
+					}
 				}
 
 				// increment running count on modal shares
@@ -564,11 +578,13 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				dist2dist[0][ZonalData->bpmdist1_index[orig]+1][ZonalData->bpmdist1_index[dest]+1]++;
 
 			
-				// don't write out MDC output if doing Sub-area analysis
-				if (Ini->CORRECT_ORDER == 1)
-					fprintf (fp3, "%d %d %d %d %d\n", k, orig, dest, purpose+1, mode+1);
-				else
-					fprintf (fp3, "%d %d %d %d %d\n", seq, orig, dest, purpose+1, mode+1);
+				// don't write out MDC output if doing Sub-area analysis or if not the last auto-calibration iteration
+				if ( fp3 != NULL ) {
+					if ( Ini->CORRECT_ORDER == 1 )
+						fprintf (fp3, "%d %d %d %d %d\n", k, orig, dest, purpose+1, mode+1);
+					else
+						fprintf (fp3, "%d %d %d %d %d\n", seq, orig, dest, purpose+1, mode+1);
+				}
 				seq++;
 
 
@@ -708,7 +724,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 //				debug_mode = 0;
 //			}
 
-			motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, 0);
+
+			motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 0);
 
 		}
 
@@ -959,11 +976,13 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-				// don't write out MDC output if doing Sub-area analysis
-				if (Ini->CORRECT_ORDER == 1)
-					fprintf (fp3, "%d %d %d %d %d\n", k, orig, dest, purpose+1, mode+1);
-				else
-					fprintf (fp3, "%d %d %d %d %d\n", seq, orig, dest, purpose+1, mode+1);
+				// don't write out MDC output if doing Sub-area analysis or if not the last auto-calibration iteration
+				if ( fp3 != NULL ) {
+					if ( Ini->CORRECT_ORDER == 1 )
+						fprintf (fp3, "%d %d %d %d %d\n", k, orig, dest, purpose+1, mode+1);
+					else
+						fprintf (fp3, "%d %d %d %d %d\n", seq, orig, dest, purpose+1, mode+1);
+				}
 				seq++;
 
 
@@ -1020,7 +1039,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
     // call it just to free the memory
-    motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, 1);
+    //motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 1);
 
 //	printf ("%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n\n",
 //		pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
@@ -1044,7 +1063,10 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	printf ("%s", tempString);
 	fprintf(fp_rep, "%s", tempString);
 
-	fclose (fp3);
+
+	
+	if (fp3 != NULL )
+		fclose (fp3);
 
 
 	if (Ini->FREEZE_MDC_OUTPUT == 1 && fp_freeze[0] != NULL) {
@@ -1138,4 +1160,13 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	HeapFree (heapHandle, 0, p_sort);
 	HeapFree (heapHandle, 0, p_start);
 //	relRAM ("run_main", Ini->NUMBER_JOURNEYS*sizeof(int) + (Ini->NUMBER_PACKETS+1)*sizeof(int));
+
+
+	for (i=0; i < Ini->MAX_TAZS+1; i++) {
+		HeapFree (heapHandle, 0, util[i]);
+		HeapFree (heapHandle, 0, props[i]);
+	}
+    HeapFree (heapHandle, 0, util);
+    HeapFree (heapHandle, 0, props);
+
 }

@@ -562,9 +562,9 @@ void run_mdc (FILE *, FILE *, FILE *, FILE **, struct msc_data *, float **, floa
 			struct walk_zone_data *, struct bpmdist1_coeff_data, struct co_dist_factors *);
 void logsum_check (int, int, int, int, double, double, double, double, float *, float *, float *);
 int pre_mode_choice (int, float, struct journey_attribs *, float **, float **, struct zone_data *, struct walk_zone_data *, struct msc_data *);
-void debug_props (int, struct dc_coeff_data *, struct journey_attribs *, struct zone_data *, float ***, float ***, struct river_crossing_data, float **, struct bpmdist1_coeff_data, struct msc_data *);
+void debug_props (int, struct dc_coeff_data *, struct journey_attribs *, struct zone_data *, float ***, float ***, struct river_crossing_data, float **, struct bpmdist1_coeff_data, struct msc_data *, double **, double **);
 void motor_dc_coeffs (int, int, struct dc_coeff_data *, struct co_dist_factors *);
-void motor_dc_props   (int, int, struct dc_coeff_data *, float ***, float *, float **, float***, struct river_crossing_data, struct zone_data *, struct bpmdist1_coeff_data, double *, float *, int, short);
+void motor_dc_props   (int, int, struct dc_coeff_data *, float ***, float *, float **, float***, struct river_crossing_data, struct zone_data *, struct bpmdist1_coeff_data, double *, float *, int,  double **, double **, short);
 float nm_dest_gamma (int, int, int);
 double nm_log_density (int, int, float, float *, int *, struct walk_zone_data *);
 int nm_dest_choice (int, struct walk_zone_data *, double *);
