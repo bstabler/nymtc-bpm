@@ -516,7 +516,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				mode = 9;
 
 
-				if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) > (Ini->MAX_PACKET - 1)) {
+				if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) >= Ini->MAX_PACKET ) {
 					printf ("\nnon-motorized dest choice\np=%d\nm=%d\nn=%d\nk=%d\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%f\ninitial size=%f\nexit (-97)\n", p, m, n, k, orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
 					fprintf (fp_rep, "\nnon-motorized dest choice\np=%d\nm=%d\nn=%d\nk=%d\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%f\ninitial size=%f\nexit (-97)\n", p, m, n, k, orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
 					fflush (stdout);
@@ -802,7 +802,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-						if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) > (Ini->MAX_PACKET - 1)) {
+						if ((dest_freq[dest] - Ini->ATTR_CONSTRAINT_FACTOR*t_attrs[purpose][dest]) >= Ini->MAX_PACKET ) {
 							//printf ("\nmotorized dest choice\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\n", p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
 							fprintf (fp_rep, "\nmotorized dest choice for count=%d\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\n", count, p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
 							//fflush (stdout);

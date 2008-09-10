@@ -364,16 +364,16 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 			if (i == 11) {
 				printf ("O/D walk-transit in-vehicle time skim values checks:\n");
 				fprintf (fp_rep, "O/D walk-transit in-vehicle time skim values checks:\n");
-				printf ("bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f\n, ferry_ivtt[11][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
-				fprintf (fp_rep, "bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f\n, ferry_ivtt[11][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				printf ("bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f, ferry_ivtt[11][5] = %.2f\n", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fprintf (fp_rep, "bus_ivtt[11][5] = %.2f, expbus_ivtt[11][5] = %.2f, rail_ivtt[11][5] = %.2f, cr_ivtt[11][5] = %.2f, ferry_ivtt[11][5] = %.2f\n", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
 			}
 			else if (i == 80) {
-				printf ("bus_ivtt[80][5] = %.2f, expbus_ivtt[80][5] = %.2f, rail_ivtt[80][5] = %.2f, cr_ivtt[80][5] = %.2f\n, ferry_ivtt[80][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
-				fprintf (fp_rep, "bus_ivtt[80][5] = %.2f, expbus_ivtt[80][5] = %.2f, rail_ivtt[80][5] = %.2f, cr_ivtt[80][5] = %.2f\n, ferry_ivtt[80][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				printf ("bus_ivtt[80][5] = %.2f, expbus_ivtt[80][5] = %.2f, rail_ivtt[80][5] = %.2f, cr_ivtt[80][5] = %.2f, ferry_ivtt[80][5] = %.2f\n", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fprintf (fp_rep, "bus_ivtt[80][5] = %.2f, expbus_ivtt[80][5] = %.2f, rail_ivtt[80][5] = %.2f, cr_ivtt[80][5] = %.2f, ferry_ivtt[80][5] = %.2f\n", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
 			}
 			else if (i == 169) {
-				printf ("bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f\n, ferry_ivtt[169][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
-				fprintf (fp_rep, "bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f\n, ferry_ivtt[169][5] = %.2f", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				printf ("bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f, ferry_ivtt[169][5] = %.2f\n", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
+				fprintf (fp_rep, "bus_ivtt[169][5] = %.2f, expbus_ivtt[169][5] = %.2f, rail_ivtt[169][5] = %.2f, cr_ivtt[169][5] = %.2f, ferry_ivtt[169][5] = %.2f\n", wtTranSkims.Bus_ivtt[5], wtTranSkims.ExpBus_ivtt[5], wtTranSkims.Rail_ivtt[5], wtTranSkims.CR_ivtt[5], wtTranSkims.Ferry_ivtt[5]);
 				fflush(stdout);
 				fflush(fp_rep);
 			}

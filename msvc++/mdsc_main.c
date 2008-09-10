@@ -215,10 +215,13 @@ MDSC with sub-area analysis version history:
 						Fixed problem Caliper introduced in motor_dc_props() where util and props arrays were not properly declared upon re-entry
 						during auto-calibration.
 
+4.1.1.9 - 20Aug2008 -   Changed check in constraining mechanism that ended program if assigned dests - size*factor > (MAX_PACKET - 1).
+						Cahnged to assigned dests - size*factor >= MAX_PACKET.
+
 */
 
-#define VERSION "4.1.1.8"
-#define LAST_MODIFIED "07aug2008"
+#define VERSION "4.1.1.9"
+#define LAST_MODIFIED "20aug2008"
 
 int __cdecl main (int argc, char *argv[])
 {
