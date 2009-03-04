@@ -216,12 +216,17 @@ MDSC with sub-area analysis version history:
 						during auto-calibration.
 
 4.1.1.9 - 20Aug2008 -   Changed check in constraining mechanism that ended program if assigned dests - size*factor > (MAX_PACKET - 1).
-						Cahnged to assigned dests - size*factor >= MAX_PACKET.
+						Changed to assigned dests - size*factor >= MAX_PACKET.
+
+4.1.1.10 - 04Mar2009 -  Changed the write statement for frozen records files 2 remove the 4 variables related to license plate rationing that were not
+						in original file format used in user benefit calculation file - autos(auto availability value), ZonalData->lpRestricted[orig],
+						ZonalData->lpRestricted[dest], nrand.  Also changed frozen records read statement for the same 4 variables.  Removed array
+						that frozen random numbers were stored in.  All changes in run_mdc.c.
 
 */
 
-#define VERSION "4.1.1.9"
-#define LAST_MODIFIED "20aug2008"
+#define VERSION "4.1.1.10"
+#define LAST_MODIFIED "04mar2009"
 
 int __cdecl main (int argc, char *argv[])
 {
