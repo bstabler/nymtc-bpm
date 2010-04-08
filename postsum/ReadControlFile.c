@@ -3,17 +3,18 @@
 #include <string.h>
 
 extern char **filenames;
+extern char *taz_file;
 extern char *report_file;
 extern char *corresp_file;
 extern char *summaryType;
+extern int *maxTaz;
 
 void read_ini_control_file (FILE *fp)
 {
 
 	char *GetStringFromINI (FILE *fp, char *Section, char *String);
+	int GetIntFromINI (FILE *fp, char *Section, char *String);
 
-
-		
 	char *temp;
 
 // read the file names to use for input data, output data and reports
@@ -62,6 +63,11 @@ void read_ini_control_file (FILE *fp)
 	else
 		strcpy (report_file, "");
 
+	if ((temp = GetStringFromINI (fp, "FILES", "TAZ_FILE")) != NULL)
+		strcpy (taz_file, temp);
+	else
+		strcpy (taz_file, "");
+
 	if ((temp = GetStringFromINI (fp, "FILES", "CORRESP_FILE")) != NULL)
 		strcpy (corresp_file, temp);
 	else
@@ -71,5 +77,6 @@ void read_ini_control_file (FILE *fp)
 		strcpy (summaryType, temp);
 	else
 		strcpy (summaryType, "");
+
 
 }

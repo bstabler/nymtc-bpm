@@ -5,7 +5,8 @@
 
 #include "Labels.h"
 
-#define TAZS 3586
+//#define MAX_TAZS 3586
+#define DEFAULT_MAX_TAZS 5000
 #define DISTRICTS 31
 #define PURPOSES 8
 #define MODES 11
@@ -15,21 +16,27 @@
 #define SAD14_REGIONS 14
 #define STOPS 4
 
+#define ORIG_DEST 2
+#define WORK_NONWORK 2
+
 #define JOURNEYS 20000000
 
 
 
 char **filenames;
+char *taz_file;
 char *report_file;
 char *corresp_file;
 char *summaryType;
+int* maxTaz;
+
 
 char **SubregionLabels;
 int numSubRegions;
 
 int main (int argc, char *argv[]) {
 
-	void read_dist_region_data (FILE *fp, char *subregion, int *taz2dist, int *taz2reg, int tazs);
+	void read_dist_region_data (FILE *fp, char *subregion, int *taz2dist, int *taz2reg, int *maxTaz);
 	void print_table (FILE *fp, int **table, char *tableHeading, char *rowHeading,
 		char *rowLabels[], char *colLabels[], int rows, int cols);
 	void read_ini_control_file (FILE *fp);
@@ -37,16 +44,17 @@ int main (int argc, char *argv[]) {
 
 
 	FILE *fp[PURPOSES+1];
+	FILE *fp_taz;
 	FILE *fp_rep;
 	FILE *fp_ini;
 	char temp[1000];
 	
-	int i, j, k;
+	int i, j, k, m;
 	int odist, ddist, oreg, dreg, majPurp, majMode, stop, numJourneys;
 	int osdist, isdist, numStops;
-	
-	int taz2dist[TAZS+1];
-	int taz2reg[TAZS+1];
+
+	int workNonworkIndex;
+
 	int majorPurpose[] = { 0, 1, 1, 1, 2, 2, 3, 3, 3 };
 	int majorMode[] = { 0, 1, 2, 2, 2, 4, 4, 5, 5, 3, 6, 6 };
 	
@@ -59,8 +67,13 @@ int main (int argc, char *argv[]) {
 	int ***table6;
 	int ***table7;
 	int ***table8;
-	
+
+	int**** tazTables;
+
 	int *seq, *orig, *dest, *purp, *mode, *oloc, *iloc;
+
+	int* taz2dist;
+	int* taz2reg;
 
 
 
@@ -68,9 +81,13 @@ int main (int argc, char *argv[]) {
 	for (i=0; i < PURPOSES+1; i++)
 		filenames[i] = (char *) calloc (256, sizeof (char));
 
+	taz_file = (char *) calloc (256, sizeof (char));
 	report_file = (char *) calloc (256, sizeof (char));
 	corresp_file = (char *) calloc (256, sizeof (char));
 	summaryType = (char *) calloc (256, sizeof (char));
+
+	maxTaz = (int*)calloc( 1, sizeof(int));
+	*maxTaz = DEFAULT_MAX_TAZS;
 
 
 
@@ -89,6 +106,13 @@ int main (int argc, char *argv[]) {
 			read_ini_control_file (fp_ini);
 		}
 	}
+
+
+
+
+
+	taz2dist = (int *) calloc( *maxTaz + 1, sizeof(int));
+	taz2reg = (int *) calloc( *maxTaz + 1, sizeof(int));
 
 
 
@@ -167,6 +191,7 @@ int main (int argc, char *argv[]) {
 
 
 
+
 	seq  = (int *) calloc (JOURNEYS, sizeof(int));
 	orig = (int *) calloc (JOURNEYS, sizeof(int));
 	dest = (int *) calloc (JOURNEYS, sizeof(int));
@@ -183,18 +208,38 @@ int main (int argc, char *argv[]) {
 		exit (-1);
 	}
 
+
+	// open output taz file
+	if ((fp_taz = fopen (taz_file, "w")) == NULL) {
+		printf ("error opening taz file for writing: %s\n", taz_file);
+		exit (-1);
+	}
+
 	
 	// open sub-region correspondence file
 	if ((fp[0] = fopen (corresp_file, "r")) == NULL) {
 		printf ("error opening TAZ/SUB-REGION correspondence file: %s\n", corresp_file);
 		exit (-1);
 	}
-	for (i=0; i <= TAZS; i++) {
+	for (i=0; i <= *maxTaz; i++) {
 		taz2dist[i] = 0;
 		taz2reg[i] = 0;
 	}
-	read_dist_region_data (fp[0], summaryType, taz2dist, taz2reg, TAZS);
+	read_dist_region_data (fp[0], summaryType, taz2dist, taz2reg, maxTaz);
 	fclose (fp[0]);
+
+
+
+	tazTables = (int ****) calloc (ORIG_DEST, sizeof(int ***));
+	for (i=0; i < ORIG_DEST; i++) {
+		tazTables[i] = (int ***) calloc (WORK_NONWORK, sizeof(int **));
+		for (j=0; j < WORK_NONWORK; j++) {
+			tazTables[i][j] = (int **) calloc (MODES+1, sizeof(int *));
+			for (k=0; k < MODES+1; k++) {
+				tazTables[i][j][k] = (int *) calloc (*maxTaz + 1, sizeof(int));
+			}
+		}
+	}
 
 
 	// summarize results from mdsc_out for each purpose
@@ -242,6 +287,7 @@ int main (int argc, char *argv[]) {
 				exit (-2);
 			}
 			
+
 
 			// get summary level values
 			odist = taz2dist[orig[k]];
@@ -364,6 +410,14 @@ int main (int argc, char *argv[]) {
 			table8[0][0][dreg] += numStops;
 			table8[0][0][0] += numStops;
 
+
+			workNonworkIndex = 0;
+			if( purp[k] > 3 )
+				workNonworkIndex = 1;
+
+			tazTables[0][workNonworkIndex][mode[k]][orig[k]]++;
+			tazTables[1][workNonworkIndex][mode[k]][dest[k]]++;
+
 		} // end loop over journeys
 
 	} // end loop over purposes
@@ -373,7 +427,41 @@ int main (int argc, char *argv[]) {
 	print_table (fp_rep, table1, "Total Paired Journeys -- Destination Districts by Purpose",
 		"Destination Districts", DistrictLabels, PurposeLabels, DISTRICTS, PURPOSES);
 
+
+
+
+
+	fprintf( fp_taz, "taz,origWorkDA,origWorkSR2,origWorkSR3,origWorkSR4,origWorkWT,origWorkDT,origWorkWC,origWorkDC,origWorkTX,origWorkNM,origWorkSB,origNonWorkDA,origNonWorkSR2,origNonWorkSR3,origNonWorkSR4,origNonWorkWT,origNonWorkDT,origNonWorkWC,origNonWorkDC,origNonWorkTX,origNonWorkNM,origNonWorkSB,destWorkDA,destWorkSR2,destWorkSR3,destWorkSR4,destWorkWT,destWorkDT,destWorkWC,destWorkDC,destWorkTX,destWorkNM,destWorkSB,destNonWorkDA,destNonWorkSR2,destNonWorkSR3,destNonWorkSR4,destNonWorkWT,destNonWorkDT,destNonWorkWC,destNonWorkDC,destNonWorkTX,destNonWorkNM,destNonWorkSB\n" );
+	for (m=1; m <= *maxTaz; m++) {
+		fprintf( fp_taz, "%d", m );
+		for (i=0; i < ORIG_DEST; i++) {
+			for (j=0; j < WORK_NONWORK; j++) {
+				for (k=1; k <= MODES; k++) {
+					fprintf( fp_taz, ",%d", tazTables[i][j][k][m] );
+				}
+			}
+		}
+		fprintf( fp_taz, "\n" );
+	}
+	fclose(fp_taz);
 	
+
+	for (i=0; i < ORIG_DEST; i++) {
+		for (j=0; j < WORK_NONWORK; j++) {
+			for (k=1; k <= MODES; k++) {
+				free( tazTables[i][j][k] );
+			}
+			free( tazTables[i][j] );
+		}
+		free( tazTables[i] );
+	}
+	free( tazTables );
+
+
+
+
+
+
 	for (i=1; i <= PURPOSES; i++) {
 		strcpy (temp, PurposeLabels[i-1]);
 		strcat (temp, " Paired Journeys -- Origin Districts by Modes");

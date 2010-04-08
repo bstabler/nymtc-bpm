@@ -14,7 +14,7 @@
 #define SAD14_REGION_LENGTH 12
 
 
-void read_dist_region_data (FILE *fp, char *summaryType, int *taz2dist, int *taz2reg, int TAZS)
+void read_dist_region_data (FILE *fp, char *summaryType, int *taz2dist, int *taz2reg, int* maxTaz)
 {
 	int zone, subregion, rec_len;
 	char InputRecord[DIST_REGION_RECORD_LENGTH+2];
@@ -22,6 +22,8 @@ void read_dist_region_data (FILE *fp, char *summaryType, int *taz2dist, int *taz
 
 	int SUBREGION_START;
 	int SUBREGION_LENGTH;
+
+	int newMaxTaz = 0;
 
 
 	// determine field position based on which summary type was passed in - SR7 or SAD14
@@ -50,7 +52,7 @@ void read_dist_region_data (FILE *fp, char *summaryType, int *taz2dist, int *taz
 			temp[ZONE_LENGTH] = '\0';
 			zone = atoi(temp);
 
-			if (zone >= 1 && zone <= TAZS) {
+			if (zone >= 1 && zone <= *maxTaz) {
 				strncpy (temp, &InputRecord[BPMDIST1_START-1], BPMDIST1_LENGTH);
 				temp[BPMDIST1_LENGTH] = '\0';
 				strcpy (bpmdist1, temp);
@@ -71,6 +73,9 @@ void read_dist_region_data (FILE *fp, char *summaryType, int *taz2dist, int *taz
 					taz2dist[zone] = 4;
 				else 
 					taz2dist[zone] = (int)(atof(bpmdist1)) + 3;
+
+				if (zone > newMaxTaz)
+					newMaxTaz = zone;
 			}
 			else {
 				printf ("invalid zone number = %d read in from district_subregion correspondence file.\n", zone);
@@ -78,4 +83,7 @@ void read_dist_region_data (FILE *fp, char *summaryType, int *taz2dist, int *taz
 			}
 		}
 	}
+
+	*maxTaz = newMaxTaz;
+
 }
