@@ -225,9 +225,10 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 // Read journey household records.  The first is a header record with date/time stamp to be written to reportfile.
 	k = 0;
 	input_journeys = 0;
-	fgets (JourneyRecord, JOURNEY_RECORD_LENGTH+1, fp);
-	haj = 1;
-	fprintf (fp_rep, "\nHAJ Journey file header record:\n%s\n\n", JourneyRecord);
+	//fgets (JourneyRecord, JOURNEY_RECORD_LENGTH+1, fp);
+	//haj = 1;
+	haj = 0;
+	//fprintf (fp_rep, "\nHAJ Journey file header record:\n%s\n\n", JourneyRecord);
 	while ((fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+1, fp)) != NULL && k < Ini->NUMBER_JOURNEYS) {
 		haj++;
 

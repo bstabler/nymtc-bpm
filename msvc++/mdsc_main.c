@@ -223,10 +223,14 @@ MDSC with sub-area analysis version history:
 						ZonalData->lpRestricted[dest], nrand.  Also changed frozen records read statement for the same 4 variables.  Removed array
 						that frozen random numbers were stored in.  All changes in run_mdc.c.
 
+4.1.1.11 - 20Jul2011 -  Removed the assumption that a header record exists in trips.out produced by HAJ.  The changes was in read_kpmg_journey_records().
+						The statements to read a header record and echo it to a report file were commented out.  The haj record counter was chnaged from intialized 
+						to 1, to initialized to 0.
+
 */
 
-#define VERSION "4.1.1.10"
-#define LAST_MODIFIED "04mar2009"
+#define VERSION "4.1.1.11"
+#define LAST_MODIFIED "20jul2011"
 
 int __cdecl main (int argc, char *argv[])
 {
