@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName />
+    <SccLocalPath />
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>.\Release\</OutDir>
+    <IntDir>.\Release\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>.\Debug\</OutDir>
+    <IntDir>.\Debug\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
+      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeaderOutputFile>.\Release\mdsc_main.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <CallingConvention>FastCall</CallingConvention>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+    </ClCompile>
+    <Midl>
+      <TypeLibraryName>.\Release\mdsc_main.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\mdsc_main.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>.\Release\mdsc_main.exe</OutputFile>
+      <AdditionalDependencies>./libs/tc_4.8/CaliperMTX.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
+      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeaderOutputFile>.\Release\mdsc_main.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <CallingConvention>FastCall</CallingConvention>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+    </ClCompile>
+    <Midl>
+      <TypeLibraryName>.\Release\mdsc_main.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Release\mdsc_main.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>.\Release\mdsc_main.exe</OutputFile>
+      <AdditionalDependencies>./libs/tc_6.0/CaliperMTX.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeaderOutputFile>.\Debug\mdsc_main.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <CallingConvention>FastCall</CallingConvention>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+    </ClCompile>
+    <Midl>
+      <TypeLibraryName>.\Debug\mdsc_main.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\mdsc_main.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>.\Debug\mdsc_main.exe</OutputFile>
+      <AdditionalDependencies>./libs/tc_4.8/CaliperMTX.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeaderOutputFile>.\Debug\mdsc_main.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <CallingConvention>FastCall</CallingConvention>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <StructMemberAlignment>4Bytes</StructMemberAlignment>
+    </ClCompile>
+    <Midl>
+      <TypeLibraryName>.\Debug\mdsc_main.tlb</TypeLibraryName>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug\mdsc_main.bsc</OutputFile>
+    </Bscmake>
+    <Link>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OutputFile>.\Debug\mdsc_main.exe</OutputFile>
+      <AdditionalDependencies>./libs/tc_6.0/CaliperMTX.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Attractions.c" />
+    <ClCompile Include="atwork_freq_util.c" />
+    <ClCompile Include="atwork_linkages.c" />
+    <ClCompile Include="atwork_mc_logsum.c" />
+    <ClCompile Include="atwork_mc_props.c" />
+    <ClCompile Include="atwork_motorized_choice.c" />
+    <ClCompile Include="atwork_od_utilities.c" />
+    <ClCompile Include="atwork_se_utilities.c" />
+    <ClCompile Include="avail_ram.c" />
+    <ClCompile Include="BalanceAttractions.c" />
+    <ClCompile Include="calibration_report.c" />
+    <ClCompile Include="check_logsum.c" />
+    <ClCompile Include="ClusterJourneys.c" />
+    <ClCompile Include="CompetitionAreas.c" />
+    <ClCompile Include="CountKPMGJourneys.c" />
+    <ClCompile Include="DebugProps.c" />
+    <ClCompile Include="discr_freq_util.c" />
+    <ClCompile Include="discr_journey_freqs.c" />
+    <ClCompile Include="discr_mc_logsum.c" />
+    <ClCompile Include="discr_mc_props.c" />
+    <ClCompile Include="discr_motorized_choice.c" />
+    <ClCompile Include="discr_od_utilities.c" />
+    <ClCompile Include="discr_se_utilities.c" />
+    <ClCompile Include="echo_ini.c" />
+    <ClCompile Include="final_reports.c" />
+    <ClCompile Include="get_input_data.c" />
+    <ClCompile Include="get_journey_data.c" />
+    <ClCompile Include="get_skims.c" />
+    <ClCompile Include="get_skims_by_row.c" />
+    <ClCompile Include="GetStopSize.c" />
+    <ClCompile Include="isort.c" />
+    <ClCompile Include="link_atwork.c" />
+    <ClCompile Include="LogDensity.c" />
+    <ClCompile Include="maint_freq_util.c" />
+    <ClCompile Include="maint_journey_freqs.c" />
+    <ClCompile Include="maint_mc_logsum.c" />
+    <ClCompile Include="maint_mc_props.c" />
+    <ClCompile Include="maint_motorized_choice.c" />
+    <ClCompile Include="maint_od_utilities.c" />
+    <ClCompile Include="maint_se_utilities.c" />
+    <ClCompile Include="mdsc_main.c" />
+    <ClCompile Include="Misc.c" />
+    <ClCompile Include="motor_dc_coeffs.c" />
+    <ClCompile Include="motor_dc_props.c" />
+    <ClCompile Include="nm_dest_choice.c" />
+    <ClCompile Include="nm_dest_gamma.c" />
+    <ClCompile Include="nm_dest_props.c" />
+    <ClCompile Include="OD_Utilities.c" />
+    <ClCompile Include="ParkingCost.c" />
+    <ClCompile Include="PreModeChoice.c" />
+    <ClCompile Include="ReadDcConstantValues.c" />
+    <ClCompile Include="ReadFlexibleDistrictIndices.c" />
+    <ClCompile Include="ReadMotorizedMcAscConstants.c" />
+    <ClCompile Include="ReadMotorizedMcAscIndices.c" />
+    <ClCompile Include="ReadMotorizedMcAscTargets.c" />
+    <ClCompile Include="ReadNonMotorizedMcAscConstants.c" />
+    <ClCompile Include="ReadNonMotorizedMcAscIndices.c" />
+    <ClCompile Include="ReadNonMotorizedMcAscTargets.c" />
+    <ClCompile Include="ReadRingDistData.c" />
+    <ClCompile Include="ReadTazDistrictsCorresp.c" />
+    <ClCompile Include="ReadAttrCorrections.c" />
+    <ClCompile Include="ReadControlFile.c" />
+    <ClCompile Include="ReadDistFactors.c" />
+    <ClCompile Include="ReadINI.c" />
+    <ClCompile Include="ReadKPMGJourneys.c" />
+    <ClCompile Include="ReadODSkims.c" />
+    <ClCompile Include="ReadRiverData.c" />
+    <ClCompile Include="ReadSchoolDists.c" />
+    <ClCompile Include="ReadSubAreaData.c" />
+    <ClCompile Include="ReadTaxiData.c" />
+    <ClCompile Include="ReadWalkZoneData.c" />
+    <ClCompile Include="ReadZonalData.c" />
+    <ClCompile Include="run_mdc.c" />
+    <ClCompile Include="school_freq_util.c" />
+    <ClCompile Include="school_journey_freqs.c" />
+    <ClCompile Include="school_mc_logsum.c" />
+    <ClCompile Include="school_mc_props.c" />
+    <ClCompile Include="school_motorized_choice.c" />
+    <ClCompile Include="school_od_utilities.c" />
+    <ClCompile Include="school_se_utilities.c" />
+    <ClCompile Include="SE_Utilities.c" />
+    <ClCompile Include="set_function_pointers.c" />
+    <ClCompile Include="SetCluster.c" />
+    <ClCompile Include="SetStopsCluster.c" />
+    <ClCompile Include="StopLocations.c" />
+    <ClCompile Include="stops.c" />
+    <ClCompile Include="StopsReports.c" />
+    <ClCompile Include="univ_freq_util.c" />
+    <ClCompile Include="univ_journey_freqs.c" />
+    <ClCompile Include="univ_mc_logsum.c" />
+    <ClCompile Include="univ_mc_props.c" />
+    <ClCompile Include="univ_motorized_choice.c" />
+    <ClCompile Include="univ_od_utilities.c" />
+    <ClCompile Include="univ_se_utilities.c" />
+    <ClCompile Include="ValidStop.c" />
+    <ClCompile Include="work_freq_util.c" />
+    <ClCompile Include="work_journey_freqs.c" />
+    <ClCompile Include="work_mc_logsum.c" />
+    <ClCompile Include="work_mc_props.c" />
+    <ClCompile Include="work_motorized_choice.c" />
+    <ClCompile Include="work_od_utilities.c" />
+    <ClCompile Include="work_se_utilities.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

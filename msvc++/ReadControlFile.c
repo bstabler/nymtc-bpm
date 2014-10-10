@@ -129,6 +129,11 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	else
 		strcpy (Ini->WORKDESTFILE, "");
 
+	if ((temp = GetStringFromINI (fp, "FILES", "M_MSCS")) != NULL)
+		strcpy (Ini->M_MSCS, temp);
+	else
+		strcpy (Ini->M_MSCS, "");
+
 	if ((temp = GetStringFromINI (fp, "FILES", "M_MSC_INDICES")) != NULL)
 		strcpy (Ini->M_MSC_INDICES, temp);
 	else
@@ -138,11 +143,6 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 		strcpy (Ini->NM_MSC_INDICES, temp);
 	else
 		strcpy (Ini->NM_MSC_INDICES, "");
-
-	if ((temp = GetStringFromINI (fp, "FILES", "M_MSCS")) != NULL)
-		strcpy (Ini->M_MSCS, temp);
-	else
-		strcpy (Ini->M_MSCS, "");
 
 	if ((temp = GetStringFromINI (fp, "FILES", "NM_MSCS")) != NULL)
 		strcpy (Ini->NM_MSCS, temp);
@@ -204,10 +204,40 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	else
 		strcpy (Ini->DEBUGFILE, "");
 
-	if ((temp = GetStringFromINI (fp, "FILES", "BPMDIST1COEFFDATA")) != NULL)
-		strcpy (Ini->BPMDIST1COEFFDATA, temp);
+	if ((temp = GetStringFromINI (fp, "FILES", "RINGDISTDATA")) != NULL)
+		strcpy (Ini->RINGDISTDATA, temp);
 	else
-		strcpy (Ini->BPMDIST1COEFFDATA, "");
+		strcpy (Ini->RINGDISTDATA, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "DESTCHOICE_CONSTANT_VALUES")) != NULL)
+		strcpy (Ini->DESTCHOICE_CONSTANT_VALUES, temp);
+	else
+		strcpy (Ini->DESTCHOICE_CONSTANT_VALUES, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "MODE_REPORT_INDICES")) != NULL)
+		strcpy (Ini->MODE_REPORT_INDICES, temp);
+	else
+		strcpy (Ini->MODE_REPORT_INDICES, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "DIST_TO_DIST_REPORT_INDICES")) != NULL)
+		strcpy (Ini->DIST_TO_DIST_REPORT_INDICES, temp);
+	else
+		strcpy (Ini->DIST_TO_DIST_REPORT_INDICES, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "COUNTY_INDICES")) != NULL)
+		strcpy (Ini->COUNTY_INDICES, temp);
+	else
+		strcpy (Ini->COUNTY_INDICES, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "COUNTY_EXTENDED_INDICES")) != NULL)
+		strcpy (Ini->COUNTY_EXTENDED_INDICES, temp);
+	else
+		strcpy (Ini->COUNTY_EXTENDED_INDICES, "");
+
+	if ((temp = GetStringFromINI (fp, "FILES", "FLEX_DISTRICT_TAZ_CORRESP")) != NULL)
+		strcpy (Ini->FLEX_DISTRICT_TAZ_CORRESP, temp);
+	else
+		strcpy (Ini->FLEX_DISTRICT_TAZ_CORRESP, "");
 
 	if ((temp = GetStringFromINI (fp, "FILES", "ATTRACTION_CORRECTIONS")) != NULL)
 		strcpy (Ini->ATTRACTION_CORRECTIONS, temp);
@@ -233,11 +263,6 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 		strcpy (Ini->ZONEDATA, temp);
 	else
 		strcpy (Ini->ZONEDATA, "");
-
-	if ((temp = GetStringFromINI (fp, "FILES", "RINGDISTDATA")) != NULL)
-		strcpy (Ini->RINGDISTDATA, temp);
-	else
-		strcpy (Ini->RINGDISTDATA, "");
 
 	if ((temp = GetStringFromINI (fp, "FILES", "RIVERDATA")) != NULL)
 		strcpy (Ini->RIVERDATA, temp);
@@ -317,11 +342,19 @@ void read_ini_control_file (FILE *fp, INIDATA Ini)
 	Ini->CALIB_INCREMENT		= GetFloatFromINI (fp, "PARAMS", "CALIB_INCREMENT");
 	Ini->CALIB_SCALE			= GetFloatFromINI (fp, "PARAMS", "CALIB_SCALE");
 	Ini->RAND_SEED				= GetIntFromINI (fp, "PARAMS", "RAND_SEED");
+	Ini->PROGRESS_INCREMENT_REPORTFILE	= GetIntFromINI (fp, "PARAMS", "PROGRESS_INCREMENT_REPORTFILE");
+	Ini->PROGRESS_INCREMENT_CONSOLE		= GetIntFromINI (fp, "PARAMS", "PROGRESS_INCREMENT_CONSOLE");
 	Ini->MAX_TAZS				= GetIntFromINI (fp, "PARAMS", "MAX_TAZS");
 	Ini->FREQ_ALTS				= GetIntFromINI (fp, "PARAMS", "FREQ_ALTS");
 	Ini->NUMBER_ALTS			= GetIntFromINI (fp, "PARAMS", "NUMBER_ALTS");
 	Ini->NUMBER_COUNTIES		= GetIntFromINI (fp, "PARAMS", "NUMBER_COUNTIES");
-	Ini->NUMBER_BPMDIST1		= GetIntFromINI (fp, "PARAMS", "NUMBER_BPMDIST1");
+	Ini->DC_CONSTANT_INDICES_FIELD_NUM			= GetIntFromINI (fp, "PARAMS", "DC_CONSTANT_INDICES_FIELD_NUM");
+	Ini->COUNTY_INDICES_FIELD_NUM				= GetIntFromINI (fp, "PARAMS", "COUNTY_INDICES_FIELD_NUM");
+	Ini->COUNTY_EXTENDED_INDICES_FIELD_NUM		= GetIntFromINI (fp, "PARAMS", "COUNTY_EXTENDED_INDICES_FIELD_NUM");
+	Ini->REPORT_DIST_TO_DIST_JOURNEYS_FIELD_NUM	= GetIntFromINI (fp, "PARAMS", "REPORT_DIST_TO_DIST_JOURNEYS_FIELD_NUM");
+	Ini->REPORT_MODE_JOURNEYS_FIELD_NUM	= GetIntFromINI (fp, "PARAMS", "REPORT_MODE_JOURNEYS_FIELD_NUM");
+	Ini->M_MC_ASC_INDEX_FIELD_NUM	= GetIntFromINI (fp, "PARAMS", "M_MC_ASC_INDEX_FIELD_NUM");
+	Ini->NM_MC_ASC_INDEX_FIELD_NUM	= GetIntFromINI (fp, "PARAMS", "NM_MC_ASC_INDEX_FIELD_NUM");
 	Ini->NUMBER_JOURNEYS		= GetIntFromINI (fp, "PARAMS", "NUMBER_JOURNEYS");
 	Ini->PURPOSE_TO_PROCESS		= GetIntFromINI (fp, "PARAMS", "PURPOSE_TO_PROCESS") - 1;
 	Ini->MAX_PACKET				= GetIntFromINI (fp, "PARAMS", "MAX_PACKET");

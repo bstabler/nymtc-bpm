@@ -2,12 +2,12 @@
 
 #include "md.h"
 
-int pre_mode_choice (int k, float gamma, struct journey_attribs *JourneyAttribs, float **z_attrs, float **t_attrs, struct zone_data *ZonalData, struct walk_zone_data *WalkZoneData, struct msc_data *msc)
+int pre_mode_choice (int k, float gamma, struct journey_attribs *JourneyAttribs, float **z_attrs, float **t_attrs, struct zone_data *ZonalData, struct walk_zone_data *WalkZoneData, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData)
 {
 
 	int j, orig, dest, walk_orig, ut_orig, autos, workers, income, purpose;
-	int person_type, at_work_mode, school_dist, return_value, nm_msc_index;
-    int idist;
+	int person_type, at_work_mode, school_dist, return_value, nm_msc_index_index, nm_msc_index_value;
+    int idist, idist_index;
 	double log_density, avail_attrs;
 
 	orig = JourneyAttribs->orig[k];
@@ -27,11 +27,12 @@ int pre_mode_choice (int k, float gamma, struct journey_attribs *JourneyAttribs,
 
 
 // next determine if the journey is motorized (1) or not (0).  If log_density is MISSING, there are no non-motorized attractions.
-//	nm_msc_index = get_nm_MSC_index (orig, ZonalData, msc);
-    idist = ZonalData->bpmdist1_index[orig];
-    nm_msc_index = msc->nm_indices[idist];
+	idist = ZonalData->nm_mc_asc_index[JourneyAttribs->orig[k]];
+	idist_index = nmMcAscData.nmMcAscIndices->indexIndices[idist];
+	nm_msc_index_value = nmMcAscData.indices[idist_index];
+	nm_msc_index_index = nmMcAscData.nmMcAscConstants->indexIndices[nm_msc_index_value];
 	if (log_density != MISSING)
-		return_value = motorized_choice[purpose] (income, autos, workers, person_type, ut_orig, walk_orig, at_work_mode, school_dist, log_density, msc->nmMSC[nm_msc_index]);
+		return_value = motorized_choice[purpose] (income, autos, workers, person_type, ut_orig, walk_orig, at_work_mode, school_dist, log_density, nmMcAscData.constants[nm_msc_index_index]);
 	else
 		return_value = 1;
 

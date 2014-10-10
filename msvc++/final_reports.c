@@ -1,22 +1,28 @@
 #include "md.h"
 
-void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int **tlfreq, double *tldist, int ***dist2dist, float **t_attrs, struct zone_data *ZonalData, int unmet_count) {
+void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int **tlfreq, double *tldist, int ***dist2dist, float **t_attrs, struct zone_data *ZonalData, struct district_definitions *districtDefinitions, int unmet_count) {
 
-	int i, j, m;
+	int i, j, n, m;
 	double TotalShare, TotalAcc, TotalDist;
+	int distValue, distIndex;
 	int *co_zones;
 	float *co_attrs;
+	char origLabel[128];
+	char destLabel[128];
+	struct district_data *districtData;
 
+	districtData = districtDefinitions->modeReportDefinitions;
 
-	co_attrs = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float));
-	co_zones = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
-//	addRAM ("final_reports", (Ini->NUMBER_BPMDIST1+1)*sizeof(float) + (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
+	co_attrs = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtData->numValues+1)*sizeof(float));
+	co_zones = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtData->numValues+1)*sizeof(int));
 
 	for (i=1; i <= Ini->MAX_TAZS; i++) {
-		co_zones[ZonalData->bpmdist1_index[i]] ++;
-		co_zones[Ini->NUMBER_BPMDIST1] ++;
-		co_attrs[ZonalData->bpmdist1_index[i]] += t_attrs[Ini->PURPOSE_TO_PROCESS][i];
-		co_attrs[Ini->NUMBER_BPMDIST1] += t_attrs[Ini->PURPOSE_TO_PROCESS][i];
+		distValue = ZonalData->mode_report_index[i];
+		distIndex = districtData->indexIndices[distValue];
+		co_zones[distIndex] ++;
+		co_zones[districtData->numValues] ++;
+		co_attrs[distIndex] += t_attrs[Ini->PURPOSE_TO_PROCESS][i];
+		co_attrs[districtData->numValues] += t_attrs[Ini->PURPOSE_TO_PROCESS][i];
 	}
 
 
@@ -30,33 +36,35 @@ void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int
 	fprintf (fp_rep, "\n\n\n\n\n");
 
 
-	fprintf (fp_rep, "\n\n\n\n\nFrequency of %s journey destination counties by mode:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
-	fprintf (fp_rep, "-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "COUNTY                     DA     SR2     SR3     SR4      WT      DT      WC      DC      TX      NM       SB    TOTAL   SIZ_VAR   DISCR   ZONES\n");
-	fprintf (fp_rep, "-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	for (i=1; i <= Ini->NUMBER_BPMDIST1; i++)
-		fprintf (fp_rep, "%-3d %-17s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d %9.0f %7.0f %7d\n",
-			i, BPMDist1Labels[i-1], mc[i][0], mc[i][1], mc[i][2], mc[i][3], mc[i][4], mc[i][5], mc[i][6], mc[i][7], mc[i][8], mc[i][9], mc[i][10],
+	fprintf (fp_rep, "\n\n\n\n\nFrequency of %s journeys to destination areas by mode:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
+	fprintf (fp_rep, "--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "MODE SUMMARY AREA                       DA     SR2     SR3     SR4      WT      DT      WC      DC      TX      NM       SB    TOTAL   SIZ_VAR   DISCR   ZONES\n");
+	fprintf (fp_rep, "--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	for (i=0; i < districtData->numValues; i++) {
+		sprintf (destLabel, "[%d]: %s", districtData->indexValues[i], districtData->labels[i]);
+		fprintf (fp_rep, "%-3d %-30s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d %9.0f %7.0f %7d\n",
+			i+1, destLabel, mc[i][0], mc[i][1], mc[i][2], mc[i][3], mc[i][4], mc[i][5], mc[i][6], mc[i][7], mc[i][8], mc[i][9], mc[i][10],
 			mc[i][0] + mc[i][1] + mc[i][2] + mc[i][3] + mc[i][4] + mc[i][5] + mc[i][6] + mc[i][7] + mc[i][8] + mc[i][9] + mc[i][10],
-			co_attrs[i-1],
-			mc[i][0] + mc[i][1] + mc[i][2] + mc[i][3] + mc[i][4] + mc[i][5] + mc[i][6] + mc[i][7] + mc[i][8] + mc[i][9] + mc[i][10] - co_attrs[i-1],
-			co_zones[i-1]);
-	fprintf (fp_rep, "-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "%3s %-17s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d %9.0f %7.0f %7d\n",
-		"", "Total", mc[0][0], mc[0][1], mc[0][2], mc[0][3], mc[0][4], mc[0][5], mc[0][6], mc[0][7], mc[0][8], mc[0][9], mc[0][10],
-		mc[0][0] + mc[0][1] + mc[0][2] + mc[0][3] + mc[0][4] + mc[0][5] + mc[0][6] + mc[0][7] + mc[0][8] + mc[0][9] + mc[0][10],
-		co_attrs[Ini->NUMBER_BPMDIST1],
-		mc[0][0] + mc[0][1] + mc[0][2] + mc[0][3] + mc[0][4] + mc[0][5] + mc[0][6] + mc[0][7] + mc[0][8] + mc[0][9] + mc[0][10] - co_attrs[Ini->NUMBER_BPMDIST1],
-		co_zones[Ini->NUMBER_BPMDIST1]);
-	fprintf (fp_rep, "-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "%3s %-17s %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %7d%%\n",
-		"", "Estimated Shares", (int)(100*mc[0][0]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][1]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][2]/Ini->NUMBER_JOURNEYS)
-		, (int)(100*mc[0][3]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][4]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][5]/Ini->NUMBER_JOURNEYS)
-		, (int)(100*mc[0][6]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][7]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][8]/Ini->NUMBER_JOURNEYS)
-		, (int)(100*mc[0][9]/Ini->NUMBER_JOURNEYS), (int)(100*mc[0][10]/Ini->NUMBER_JOURNEYS),
-		(int)(100*(mc[0][0] + mc[0][1] + mc[0][2] + mc[0][3] + mc[0][4] + mc[0][5] + mc[0][6] + mc[0][7] + mc[0][8] + mc[0][9] + mc[0][10])/Ini->NUMBER_JOURNEYS));
-	fprintf (fp_rep, "-------------------------------------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "%3s %-17s %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %7d%%\n",
+			co_attrs[i],
+			mc[i][0] + mc[i][1] + mc[i][2] + mc[i][3] + mc[i][4] + mc[i][5] + mc[i][6] + mc[i][7] + mc[i][8] + mc[i][9] + mc[i][10] - co_attrs[i],
+			co_zones[i]);
+	}
+	fprintf (fp_rep, "--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "%3s %-30s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d %9.0f %7.0f %7d\n",
+		"", "Total", mc[districtDefinitions->modeReportDefinitions->numValues][0], mc[districtDefinitions->modeReportDefinitions->numValues][1], mc[districtDefinitions->modeReportDefinitions->numValues][2], mc[districtDefinitions->modeReportDefinitions->numValues][3], mc[districtDefinitions->modeReportDefinitions->numValues][4], mc[districtDefinitions->modeReportDefinitions->numValues][5], mc[districtDefinitions->modeReportDefinitions->numValues][6], mc[districtDefinitions->modeReportDefinitions->numValues][7], mc[districtDefinitions->modeReportDefinitions->numValues][8], mc[districtDefinitions->modeReportDefinitions->numValues][9], mc[districtDefinitions->modeReportDefinitions->numValues][10],
+		mc[districtDefinitions->modeReportDefinitions->numValues][0] + mc[districtDefinitions->modeReportDefinitions->numValues][1] + mc[districtDefinitions->modeReportDefinitions->numValues][2] + mc[districtDefinitions->modeReportDefinitions->numValues][3] + mc[districtDefinitions->modeReportDefinitions->numValues][4] + mc[districtDefinitions->modeReportDefinitions->numValues][5] + mc[districtDefinitions->modeReportDefinitions->numValues][6] + mc[districtDefinitions->modeReportDefinitions->numValues][7] + mc[districtDefinitions->modeReportDefinitions->numValues][8] + mc[districtDefinitions->modeReportDefinitions->numValues][9] + mc[districtDefinitions->modeReportDefinitions->numValues][10],
+		co_attrs[districtData->numValues],
+		mc[districtDefinitions->modeReportDefinitions->numValues][0] + mc[districtDefinitions->modeReportDefinitions->numValues][1] + mc[districtDefinitions->modeReportDefinitions->numValues][2] + mc[districtDefinitions->modeReportDefinitions->numValues][3] + mc[districtDefinitions->modeReportDefinitions->numValues][4] + mc[districtDefinitions->modeReportDefinitions->numValues][5] + mc[districtDefinitions->modeReportDefinitions->numValues][6] + mc[districtDefinitions->modeReportDefinitions->numValues][7] + mc[districtDefinitions->modeReportDefinitions->numValues][8] + mc[districtDefinitions->modeReportDefinitions->numValues][9] + mc[districtDefinitions->modeReportDefinitions->numValues][10] - co_attrs[districtData->numValues],
+		co_zones[districtData->numValues]);
+	fprintf (fp_rep, "--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "%3s %-30s %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %7d%%\n",
+		"", "Estimated Shares", (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][0]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][1]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][2]/Ini->NUMBER_JOURNEYS)
+		, (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][3]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][4]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][5]/Ini->NUMBER_JOURNEYS)
+		, (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][6]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][7]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][8]/Ini->NUMBER_JOURNEYS)
+		, (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][9]/Ini->NUMBER_JOURNEYS), (int)(100*mc[districtDefinitions->modeReportDefinitions->numValues][10]/Ini->NUMBER_JOURNEYS),
+		(int)(100*(mc[districtDefinitions->modeReportDefinitions->numValues][0] + mc[districtDefinitions->modeReportDefinitions->numValues][1] + mc[districtDefinitions->modeReportDefinitions->numValues][2] + mc[districtDefinitions->modeReportDefinitions->numValues][3] + mc[districtDefinitions->modeReportDefinitions->numValues][4] + mc[districtDefinitions->modeReportDefinitions->numValues][5] + mc[districtDefinitions->modeReportDefinitions->numValues][6] + mc[districtDefinitions->modeReportDefinitions->numValues][7] + mc[districtDefinitions->modeReportDefinitions->numValues][8] + mc[districtDefinitions->modeReportDefinitions->numValues][9] + mc[districtDefinitions->modeReportDefinitions->numValues][10])/Ini->NUMBER_JOURNEYS));
+	fprintf (fp_rep, "--------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "%3s %-30s %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %6d%% %7d%%\n",
 		"", "Aggregate Props", (int)(100*shares[0]/Ini->NUMBER_JOURNEYS), (int)(100*shares[1]/Ini->NUMBER_JOURNEYS), (int)(100*shares[2]/Ini->NUMBER_JOURNEYS)
 		, (int)(100*shares[3]/Ini->NUMBER_JOURNEYS), (int)(100*shares[4]/Ini->NUMBER_JOURNEYS), (int)(100*shares[5]/Ini->NUMBER_JOURNEYS)
 		, (int)(100*shares[6]/Ini->NUMBER_JOURNEYS), (int)(100*shares[7]/Ini->NUMBER_JOURNEYS), (int)(100*shares[8]/Ini->NUMBER_JOURNEYS)
@@ -71,27 +79,30 @@ void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int
 	TotalAcc = 0.0;
 	for (i=0; i < Ini->NUMBER_ALTS; i++) {
 		TotalAcc += acc_freq[0][i];
-		if (mc[0][i] > 0.0)
-			shares[i] = 100.0*acc_freq[0][i]/mc[0][i];
+		if (mc[districtDefinitions->modeReportDefinitions->numValues][i] > 0.0)
+			shares[i] = 100.0*acc_freq[0][i]/mc[districtDefinitions->modeReportDefinitions->numValues][i];
 		else
 			shares[i] = 0.0;
 	}
 	TotalShare = 100.0*TotalAcc/Ini->NUMBER_JOURNEYS;
 
-	fprintf (fp_rep, "\n\n\n\n\nFrequency of %s accessible journey destination counties by mode:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
-	fprintf (fp_rep, "----------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "COUNTY                     DA     SR2     SR3     SR4      WT      DT      WC      DC      TX      NM      SB    TOTAL\n");
-	fprintf (fp_rep, "----------------------------------------------------------------------------------------------------------------------\n");
-	for (i=1; i <= Ini->NUMBER_BPMDIST1; i++)
-		fprintf (fp_rep, "%-3d %-17s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d\n",
-			i, BPMDist1Labels[i-1], acc_freq[i][0], acc_freq[i][1], acc_freq[i][2], acc_freq[i][3], acc_freq[i][4], acc_freq[i][5], acc_freq[i][6], acc_freq[i][7], acc_freq[i][8], acc_freq[i][9], acc_freq[i][10],
+	fprintf (fp_rep, "\n\n\n\n\nFrequency of %s accessible journey destinations to areas by mode:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
+	fprintf (fp_rep, "-----------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "MODE SUMMARY AREA                       DA     SR2     SR3     SR4      WT      DT      WC      DC      TX      NM      SB    TOTAL\n");
+	fprintf (fp_rep, "-----------------------------------------------------------------------------------------------------------------------------------\n");
+	for (n=0; n < districtData->numValues; n++) {
+		i = n + 1;
+		sprintf (destLabel, "[%d]: %s", districtData->indexValues[n], districtData->labels[n]);
+		fprintf (fp_rep, "%-3d %-30s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d\n",
+			i, destLabel, acc_freq[i][0], acc_freq[i][1], acc_freq[i][2], acc_freq[i][3], acc_freq[i][4], acc_freq[i][5], acc_freq[i][6], acc_freq[i][7], acc_freq[i][8], acc_freq[i][9], acc_freq[i][10],
 			acc_freq[i][0] + acc_freq[i][1] + acc_freq[i][2] + acc_freq[i][3] + acc_freq[i][4] + acc_freq[i][5] + acc_freq[i][6] + acc_freq[i][7] + acc_freq[i][8] + acc_freq[i][9] + acc_freq[i][10]);
-	fprintf (fp_rep, "----------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "%3s %-17s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d\n",
+	}
+	fprintf (fp_rep, "-----------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "%3s %-30s %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %7d %8d\n",
 		"", "Total", acc_freq[0][0], acc_freq[0][1], acc_freq[0][2], acc_freq[0][3], acc_freq[0][4], acc_freq[0][5], acc_freq[0][6], acc_freq[0][7], acc_freq[0][8], acc_freq[0][9],  acc_freq[0][10], 
 		acc_freq[0][0] + acc_freq[0][1] + acc_freq[0][2] + acc_freq[0][3] + acc_freq[0][4] + acc_freq[0][5] + acc_freq[0][6] + acc_freq[0][7] + acc_freq[0][8] + acc_freq[0][9] + acc_freq[0][10]);
-	fprintf (fp_rep, "----------------------------------------------------------------------------------------------------------------------\n");
-	fprintf (fp_rep, "%3s %-17s %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %7.1f%%\n",
+	fprintf (fp_rep, "-----------------------------------------------------------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "%3s %-30s %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %6.1f%% %7.1f%%\n",
 		"", "Pct Accessible", shares[0], shares[1], shares[2], shares[3], shares[4], shares[5], shares[6], shares[7], shares[8], shares[9], shares[10], TotalShare);
 
 
@@ -131,24 +142,26 @@ void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int
 
 
 
-
+	districtData = districtDefinitions->distToDistReportDefinitions;
 	
 	if (strcmp(Ini->CO_CO_REPORTFILE, "") || strcmp(Ini->SUBAREA_CO_CO_REPORTFILE, "")) {
 		fprintf (fp_rep2, "\n\n\n\n\n%s Journey District to District by Mode Frequency Distributions:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
-		fprintf (fp_rep2, "-----------------------------------------------\n");
-		fprintf (fp_rep2, "ORIG DISTRICT   DEST DISTRICT   MODE   JOURNEYS\n");
-		fprintf (fp_rep2, "-----------------------------------------------\n");
+		fprintf (fp_rep2, "-------------------------------------------------------------------------------\n");
+		fprintf (fp_rep2, "                 ORIG DISTRICT                  DEST DISTRICT   MODE   JOURNEYS\n");
+		fprintf (fp_rep2, "-------------------------------------------------------------------------------\n");
 		TotalDist = 0.0;
 		for (m=1; m <= Ini->NUMBER_ALTS; m++) {
-			for (i=1; i <= Ini->NUMBER_BPMDIST1; i++) {
-				for (j=1; j <= Ini->NUMBER_BPMDIST1; j++) {
-					fprintf (fp_rep2, "%13d %15d %6d %10d\n", i-1, j-1, m, dist2dist[m][i][j]);
+			for (i=0; i < districtData->numValues; i++) {
+				sprintf (origLabel, "[%d]: %s", districtData->indexValues[i], districtData->labels[i]);
+				for (j=0; j < districtData->numValues; j++) {
+					sprintf (destLabel, "[%d]: %s", districtData->indexValues[j], districtData->labels[j]);
+					fprintf (fp_rep2, "%30s %30s %6d %10d\n", origLabel, destLabel, m, dist2dist[m][i][j]);
 					TotalDist += dist2dist[0][i][j];
 				}
 			}
 		}
 		fprintf (fp_rep2, "------------------------------------------------\n");
-		fprintf (fp_rep2, "%13s %15s %6s %10.0f\n", "Total", "", "", TotalDist);
+		fprintf (fp_rep2, "%30s %30s %6s %10.0f\n", "Total", "", "", TotalDist);
 		fflush (fp_rep2);
 		fclose (fp_rep2);
 	}
@@ -156,19 +169,21 @@ void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int
 	
 
 
-	fprintf (fp_rep, "\n\n\n\n\n%s Journey District to District by Mode Frequency Distributions:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
-	fprintf (fp_rep, "----------------------------------------------\n");
-	fprintf (fp_rep, "ORIG DISTRICT   DEST DISTRICT   TOTAL JOURNEYS\n");
-	fprintf (fp_rep, "----------------------------------------------\n");
+	fprintf (fp_rep, "\n\n\n\n\n%s Journey District to District Frequency Distributions:\n\n", PurposeLabels[Ini->PURPOSE_TO_PROCESS]);
+	fprintf (fp_rep, "------------------------------------------------------------------------------\n");
+	fprintf (fp_rep, "                 ORIG DISTRICT                  DEST DISTRICT   TOTAL JOURNEYS\n");
+	fprintf (fp_rep, "------------------------------------------------------------------------------\n");
 	TotalDist = 0.0;
-	for (i=1; i <= Ini->NUMBER_BPMDIST1; i++) {
-		for (j=1; j <= Ini->NUMBER_BPMDIST1; j++) {
-			fprintf (fp_rep, "%13d %15d %16d\n", i-1, j-1, dist2dist[0][i][j]);
+	for (i=0; i < districtData->numValues; i++) {
+		sprintf (origLabel, "[%d]: %s", districtData->indexValues[i], districtData->labels[i]);
+		for (j=0; j < districtData->numValues; j++) {
+			sprintf (destLabel, "[%d]: %s", districtData->indexValues[j], districtData->labels[j]);
+			fprintf (fp_rep, "%30s %30s %16d\n", origLabel, destLabel, dist2dist[0][i][j]);
 			TotalDist += dist2dist[0][i][j];
 		}
 	}
 	fprintf (fp_rep, "----------------------------------------------\n");
-	fprintf (fp_rep, "%13s %15s %16.0f\n", "Total", "", TotalDist);
+	fprintf (fp_rep, "%30s %30s %16.0f\n", "Total", "", TotalDist);
 
 
 
@@ -186,5 +201,5 @@ void final_reports (FILE *fp_rep2, int **mc, double *shares, int **acc_freq, int
 
 	HeapFree (heapHandle, 0, co_attrs);
 	HeapFree (heapHandle, 0, co_zones);
-//	relRAM ("final_reports", (Ini->NUMBER_BPMDIST1+1)*sizeof(float) + (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
+
 }

@@ -1,12 +1,12 @@
 #include "md.h"
 
-void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct msc_data *msc,
+void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData,
 			  float **m_cal_est, float **nm_cal_est,
 			  float **hwy_dist, float ***OD_Utility, int **TotProds,
 			  struct journey_attribs *JourneyAttribs, struct zone_data *ZonalData,
 			  struct river_crossing_data RiverData, struct taxi_data *TaxiData,
-			  struct walk_zone_data *WalkZoneData, struct bpmdist1_coeff_data BPMDist1,
-			  struct co_dist_factors *DistFactors)
+			  struct walk_zone_data *WalkZoneData, struct dc_constant_data *dcConstants,
+			  struct district_definitions *districtDefinitions, struct co_dist_factors *DistFactors)
 {
 
 	FILE *fp;
@@ -18,7 +18,8 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	int i, j, k, m, n, p, r, seq, walk[2];
 	int hh, pnum, haj;
 	int acc, orig, dest, purpose, income, autos, ut_orig, mode, person_type, atwork_mode, da_work;
-	int m_msc_index, nm_msc_index;
+	int origDist, destDist, origDistIndex, destDistIndex;
+	int m_msc_index_value, m_msc_index_index, nm_msc_index_value, nm_msc_index_index;
 	int unmet_count, last_k, count, cnt, dist;
 	int debug_part, *debug_parts, debug_mode=0;
 	int se_flag, od_flag;
@@ -27,7 +28,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	int **tlfreq, ***dist2dist;
 	int *p_sort, *p_start, *p_order, *rand_nos;
 	int *frozenDest, *frozenAcc, *frozenMode, *frozenAtWorkMode;
-	int idist, jdist;
+	int idist, jdist, idist_index, jdist_index;
 	int count1, count2, rcount;
 	int fileIndex;
 	float gamma;
@@ -84,12 +85,12 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	for (i=0; i < Ini->MAX_TAZS+1; i++)
 		Logsum[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(float));
 
-	mc = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int *));
-	for (i=0; i <= Ini->NUMBER_BPMDIST1; i++)
+	mc = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtDefinitions->modeReportDefinitions->numValues+1)*sizeof(int *));
+	for (i=0; i <= districtDefinitions->modeReportDefinitions->numValues; i++)
 		mc[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(int));
 
-	acc_freq = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int *));
-	for (i=0; i <= Ini->NUMBER_BPMDIST1; i++)
+	acc_freq = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtDefinitions->modeReportDefinitions->numValues+1)*sizeof(int *));
+	for (i=0; i <= districtDefinitions->modeReportDefinitions->numValues; i++)
 		acc_freq[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(int));
 
 	tlfreq = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->TRIP_LENGTH_RANGES+2)*sizeof(int *));
@@ -98,9 +99,9 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 	dist2dist = (int ***) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(int **));
 	for (i=0; i < Ini->NUMBER_ALTS+1; i++) {
-		dist2dist[i] = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int *));
-		for (j=0; j < Ini->NUMBER_BPMDIST1+1; j++)
-			dist2dist[i][j] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
+		dist2dist[i] = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, districtDefinitions->distToDistReportDefinitions->numValues*sizeof(int *));
+		for (j=0; j < districtDefinitions->distToDistReportDefinitions->numValues; j++)
+			dist2dist[i][j] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, districtDefinitions->distToDistReportDefinitions->numValues*sizeof(int));
 	}
 
 
@@ -427,14 +428,14 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					debug_part = (int)((100*(count + cnt)/Ini->NUMBER_JOURNEYS) / Ini->DEBUG_PERCENT);
 					if ((((int)(100*(count + cnt)/Ini->NUMBER_JOURNEYS) % (int)Ini->DEBUG_PERCENT) == 0) || ((count + cnt) == (Ini->NUMBER_JOURNEYS - 1))) {
 						if (debug_parts[debug_part] == 0 || ((count + cnt) == (Ini->NUMBER_JOURNEYS - 1))) {
-							debug_props (0, DCcoeff, JourneyAttribs, ZonalData, OD_Utility, z_attrs, RiverData, hwy_dist, BPMDist1, msc, util, props);
+							debug_props (0, DCcoeff, JourneyAttribs, ZonalData, OD_Utility, z_attrs, RiverData, hwy_dist, dcConstants, mMcAscData, nmMcAscData, util, props);
 							debug_parts[debug_part] = 1;
 						}
 					}
 				}
 
 				// pre-mode choice
-				motorized[cnt] = pre_mode_choice (k, gamma, JourneyAttribs, z_attrs[2], t_attrs, ZonalData, WalkZoneData, msc);
+				motorized[cnt] = pre_mode_choice (k, gamma, JourneyAttribs, z_attrs[2], t_attrs, ZonalData, WalkZoneData, mMcAscData, nmMcAscData);
 				cnt++;
 			}
 
@@ -534,16 +535,20 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				Total[acc] --;
 				Total[2] --;
 
-//					nm_msc_index = get_nm_MSC_index (orig, ZonalData, msc);
-				idist = ZonalData->bpmdist1_index[orig];
-				nm_msc_index = msc->nm_indices[idist];
-				nm_cal_est[nm_msc_index][0]++;
-				nm_cal_est[nm_msc_index][1]++;
-//					m_msc_index = get_motorized_MSC_index (orig, dest, ZonalData, msc);
-				idist = ZonalData->bpmdist1_index[orig];
-				jdist = ZonalData->bpmdist1_index[dest];
-				m_msc_index = msc->motorized_indices[idist][jdist];
-				m_cal_est[m_msc_index][mode]++;
+				idist = ZonalData->nm_mc_asc_index[orig];
+				idist_index = nmMcAscData.nmMcAscIndices->indexIndices[idist];
+				nm_msc_index_value = nmMcAscData.indices[idist_index];
+				nm_msc_index_index = nmMcAscData.nmMcAscConstants->indexIndices[nm_msc_index_value];
+				nm_cal_est[nm_msc_index_index][0]++;
+				nm_cal_est[nm_msc_index_index][1]++;
+
+				idist = ZonalData->m_mc_asc_index[orig];
+				idist_index = mMcAscData.mMcAscIndices->indexIndices[idist];
+				jdist = ZonalData->m_mc_asc_index[dest];
+				jdist_index = mMcAscData.mMcAscIndices->indexIndices[jdist];
+				m_msc_index_value = mMcAscData.indices[idist_index][jdist_index];
+				m_msc_index_index = mMcAscData.mMcAscConstants->indexIndices[m_msc_index_value];
+				m_cal_est[m_msc_index_index][mode]++;
 
 				if ( Ini->ZERO_UTIL == 0 ) {
 					if (hwy_dist[orig][dest] <= 0) {
@@ -564,14 +569,20 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				}
 
 				// increment running count on modal shares
-				mc[0][mode]++;
-				mc[ZonalData->bpmdist1_index[dest]+1][mode]++;
+				mc[districtDefinitions->modeReportDefinitions->numValues][mode]++;
+				idist = ZonalData->mode_report_index[dest];
+				idist_index = districtDefinitions->modeReportDefinitions->indexIndices[idist];
+				mc[idist_index][mode]++;
 				acc_freq[0][mode] += acc;
-				acc_freq[ZonalData->bpmdist1_index[dest]+1][mode] += acc;;
+				acc_freq[idist_index][mode] += acc;;
 				shares[9] += 1.0;
 
-				dist2dist[mode+1][ZonalData->bpmdist1_index[orig]+1][ZonalData->bpmdist1_index[dest]+1]++;
-				dist2dist[0][ZonalData->bpmdist1_index[orig]+1][ZonalData->bpmdist1_index[dest]+1]++;
+				origDist = ZonalData->dist_to_dist_report_index[orig];
+				origDistIndex = districtDefinitions->distToDistReportDefinitions->indexIndices[origDist];
+				destDist = ZonalData->dist_to_dist_report_index[dest];
+				destDistIndex = districtDefinitions->distToDistReportDefinitions->indexIndices[destDist];
+				dist2dist[mode+1][origDistIndex][destDistIndex]++;
+				dist2dist[0][origDistIndex][destDistIndex]++;
 
 			
 				// don't write out MDC output if doing Sub-area analysis or if not the last auto-calibration iteration
@@ -607,20 +618,22 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-
+				
 				if (count % PROGRESS_INCREMENT1 == 0) {
 					printf ("%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\r",
-						pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
-						pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
-						pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
+					//printf ("\nnon-motorized dest choice\np=%d\nm=%d\nn=%d\nk=%d\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%f\ninitial size=%f\nexit (-97)\n", p, m, n, k, orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest]);
+					//printf ("%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n",
+						pct(mc[districtDefinitions->modeReportDefinitions->numValues][0], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][1], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][2], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][3], count),
+						pct(mc[districtDefinitions->modeReportDefinitions->numValues][4], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][5], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][6], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][7], count),
+						pct(mc[districtDefinitions->modeReportDefinitions->numValues][8], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][9], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][10], count),
 						count, Ini->NUMBER_JOURNEYS);
 				}
 				if (count % PROGRESS_INCREMENT == 0) {
 					if (strcmp(Ini->RUNNING_MODE_SHARES, "") && Calibrating == 0) {
 						fprintf (fp_rep3, "%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n",
-							pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
-							pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
-							pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
+							pct(mc[districtDefinitions->modeReportDefinitions->numValues][0], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][1], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][2], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][3], count),
+							pct(mc[districtDefinitions->modeReportDefinitions->numValues][4], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][5], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][6], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][7], count),
+							pct(mc[districtDefinitions->modeReportDefinitions->numValues][8], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][9], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][10], count),
 							count, Ini->NUMBER_JOURNEYS);
 						fflush (fp_rep3);
 					}
@@ -679,10 +692,13 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				// calculate motorized mode choice logsums for each destination (with walk access at dest and without)
 				if (se_flag < Ini->NUMBER_ALTS && od_flag < Ini->NUMBER_ALTS - 2) {
 					walk[1] = 0;
-					// m_msc_index = get_motorized_MSC_index (orig, j, ZonalData, msc);
-            		idist = ZonalData->bpmdist1_index[orig];
-            		jdist = ZonalData->bpmdist1_index[j];
-					m_msc_index = msc->motorized_indices[idist][jdist];
+
+					idist = ZonalData->m_mc_asc_index[orig];
+					idist_index = mMcAscData.mMcAscIndices->indexIndices[idist];
+					jdist = ZonalData->m_mc_asc_index[j];
+					jdist_index = mMcAscData.mMcAscIndices->indexIndices[jdist];
+					m_msc_index_value = mMcAscData.indices[idist_index][jdist_index];
+					m_msc_index_index = mMcAscData.mMcAscConstants->indexIndices[m_msc_index_value];
 
 					// if a packet we want to explore, change k to negative to trigger debug info in mc_logsum[] function.
 //					if ( j == 2438 && ( p == 139020 || p == 139069 || p == 139073 ) )
@@ -691,7 +707,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					if ( k == 2980115 )
 							k *= -1;
 
-					mc_logsum[purpose] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, da_work, ODutil, SEutil, (float *)msc->MSC[m_msc_index], Logsum[j]);
+					mc_logsum[purpose] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, da_work, ODutil, SEutil, (float *)mMcAscData.constants[m_msc_index_index], Logsum[j]);
 					walk[1] = 1;
 				}
 				else {
@@ -723,7 +739,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 //			}
 
 
-			motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 0);
+			motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, dcConstants, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 0);
 
 		}
 
@@ -880,11 +896,13 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 				}
 				if (se_flag < Ini->NUMBER_ALTS && od_flag < Ini->NUMBER_ALTS - 2) {
 					walk[1] = acc;
-					//m_msc_index = get_motorized_MSC_index (orig, dest, ZonalData, msc);
-                	idist = ZonalData->bpmdist1_index[orig];
-                	jdist = ZonalData->bpmdist1_index[dest];
-					m_msc_index = msc->motorized_indices[idist][jdist];
-					mc_props[purpose] (k, AvailModes, person_type, autos, walk, da_work, ODutil, SEutil, Prob, (float *)msc->MSC[m_msc_index], TotalUtility);
+					idist = ZonalData->m_mc_asc_index[orig];
+					idist_index = mMcAscData.mMcAscIndices->indexIndices[idist];
+					jdist = ZonalData->m_mc_asc_index[dest];
+					jdist_index = mMcAscData.mMcAscIndices->indexIndices[jdist];
+					m_msc_index_value = mMcAscData.indices[idist_index][jdist_index];
+					m_msc_index_index = mMcAscData.mMcAscConstants->indexIndices[m_msc_index_value];
+					mc_props[purpose] (k, AvailModes, person_type, autos, walk, da_work, ODutil, SEutil, Prob, (float *)mMcAscData.constants[m_msc_index_index], TotalUtility);
 				}
 				else {
 					//printf ("no modes available for journey=%d , packet=%d, from %d to %d\n", k, p, orig, dest);
@@ -945,17 +963,21 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-				m_cal_est[m_msc_index][mode]++;
-//				nm_msc_index = get_nm_MSC_index (orig, ZonalData, msc);
-				idist = ZonalData->bpmdist1_index[orig];
-				nm_msc_index = msc->nm_indices[idist];
-				nm_cal_est[nm_msc_index][1]++;
+				m_cal_est[m_msc_index_index][mode]++;
+
+				idist = ZonalData->nm_mc_asc_index[orig];
+				idist_index = nmMcAscData.nmMcAscIndices->indexIndices[idist];
+				nm_msc_index_value = nmMcAscData.indices[idist_index];
+				nm_msc_index_index = nmMcAscData.nmMcAscConstants->indexIndices[nm_msc_index_value];
+				nm_cal_est[nm_msc_index_index][1]++;
 
 
-				mc[0][mode]++;
-				mc[ZonalData->bpmdist1_index[dest]+1][mode]++;
+				mc[districtDefinitions->modeReportDefinitions->numValues][mode]++;
+				idist = ZonalData->mode_report_index[dest];
+				idist_index = districtDefinitions->modeReportDefinitions->indexIndices[idist];
+				mc[idist_index][mode]++;
 				acc_freq[0][mode] += acc;
-				acc_freq[ZonalData->bpmdist1_index[dest]+1][mode] += acc;
+				acc_freq[ZonalData->mode_report_index[dest]][mode] += acc;
 
 				dist = (int)(hwy_dist[orig][dest]/Ini->TRIP_LENGTH_WIDTH);
 				if (dist >= Ini->TRIP_LENGTH_RANGES)
@@ -969,8 +991,12 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 					tldist[mode] += hwy_dist[orig][dest];
 				}
 
-				dist2dist[mode+1][ZonalData->bpmdist1_index[orig]+1][ZonalData->bpmdist1_index[dest]+1]++;
-				dist2dist[0][ZonalData->bpmdist1_index[orig]+1][ZonalData->bpmdist1_index[dest]+1]++;
+				origDist = ZonalData->dist_to_dist_report_index[orig];
+				origDistIndex = districtDefinitions->distToDistReportDefinitions->indexIndices[origDist];
+				destDist = ZonalData->dist_to_dist_report_index[dest];
+				destDistIndex = districtDefinitions->distToDistReportDefinitions->indexIndices[destDist];
+				dist2dist[mode+1][origDistIndex][destDistIndex]++;
+				dist2dist[0][origDistIndex][destDistIndex]++;
 
 
 
@@ -1007,21 +1033,23 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-
 				if (count % PROGRESS_INCREMENT1 == 0) {
+					//if ( count >= 2000 && count < 3000 )
+					//	printf ("\nmotorized dest choice\ncount=%d\np=%d\nk=%d\nm=%d\nn=%d\ni=%d\ndc_cum[i]=%f\norig=%d\ndest=%d\nacc=%d\nnon-acc size=%f\nacc size=%f\nsize=%f\ndest_freq=%d\ninitial size=%f\nexit (-99)\nnrand=%.8f\n", count, p, k, m, n, i, dc_cum[i], orig, dest, acc, z_attrs[0][purpose][dest], z_attrs[1][purpose][dest], z_attrs[2][purpose][dest], dest_freq[dest], t_attrs[purpose][dest], nrand);
+					//printf ("%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n",
 					printf ("%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\r",
-						pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
-						pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
-						pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
+						pct(mc[districtDefinitions->modeReportDefinitions->numValues][0], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][1], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][2], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][3], count),
+						pct(mc[districtDefinitions->modeReportDefinitions->numValues][4], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][5], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][6], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][7], count),
+						pct(mc[districtDefinitions->modeReportDefinitions->numValues][8], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][9], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][10], count),
 						count, Ini->NUMBER_JOURNEYS);
 				}
 
 				if (count % PROGRESS_INCREMENT == 0) {
 					if (strcmp(Ini->RUNNING_MODE_SHARES, "") && Calibrating == 0) {
 						fprintf (fp_rep3, "%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n",
-							pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
-							pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
-							pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
+							pct(mc[districtDefinitions->modeReportDefinitions->numValues][0], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][1], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][2], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][3], count),
+							pct(mc[districtDefinitions->modeReportDefinitions->numValues][4], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][5], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][6], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][7], count),
+							pct(mc[districtDefinitions->modeReportDefinitions->numValues][8], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][9], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][10], count),
 							count, Ini->NUMBER_JOURNEYS);
 						fflush (fp_rep3);
 					}
@@ -1038,22 +1066,11 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 
 
-    // call it just to free the memory
-    //motor_dc_props (orig, purpose, DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 1);
-
-//	printf ("%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n\n",
-//		pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
-//		pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
-//		pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
-//		count, Ini->NUMBER_JOURNEYS);
-//	fflush (stdout);
-
-
 	if (strcmp(Ini->RUNNING_MODE_SHARES, "") && Calibrating == 0) {
 		fprintf (fp_rep3, "%3d %3d %3d %3d %3d %3d %3d %3d %3d %3d %3d     %7d  of %7d\n",
-			pct(mc[0][0], count), pct(mc[0][1], count), pct(mc[0][2], count), pct(mc[0][3], count),
-			pct(mc[0][4], count), pct(mc[0][5], count), pct(mc[0][6], count), pct(mc[0][7], count),
-			pct(mc[0][8], count), pct(mc[0][9], count), pct(mc[0][10], count),
+			pct(mc[districtDefinitions->modeReportDefinitions->numValues][0], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][1], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][2], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][3], count),
+			pct(mc[districtDefinitions->modeReportDefinitions->numValues][4], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][5], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][6], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][7], count),
+			pct(mc[districtDefinitions->modeReportDefinitions->numValues][8], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][9], count), pct(mc[districtDefinitions->modeReportDefinitions->numValues][10], count),
 			count, Ini->NUMBER_JOURNEYS);
 		fflush (fp_rep3);
 	}
@@ -1082,7 +1099,7 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 
 // produce final reports
 	if (Calibrating == 0)
-		final_reports (fp_rep2, mc, shares, acc_freq, tlfreq, tldist, dist2dist, t_attrs, ZonalData, unmet_count);
+		final_reports (fp_rep2, mc, shares, acc_freq, tlfreq, tldist, dist2dist, t_attrs, ZonalData, districtDefinitions, unmet_count);
 
 
 
@@ -1094,26 +1111,27 @@ void run_mdc (FILE *fp3, FILE *fp_rep2, FILE *fp_rep3, FILE *fp_work[], struct m
 	}
 	HeapFree (heapHandle, 0, z_attrs);
 
+	for (i=0; i < (Ini->MAX_TAZS+1); i++)
+		HeapFree (heapHandle, 0, Logsum[i]);
+	HeapFree (heapHandle, 0, Logsum);
+
 	for (i=0; i < PURPOSES; i++)
 		HeapFree (heapHandle, 0, t_attrs[i]);
 	HeapFree (heapHandle, 0, t_attrs);
 
 	for (i=0; i < Ini->NUMBER_ALTS+1; i++) {
-		for (j=0; j < Ini->NUMBER_BPMDIST1+1; j++)
+		for (j=0; j < districtDefinitions->distToDistReportDefinitions->numValues; j++)
 			HeapFree (heapHandle, 0, dist2dist[i][j]);
 		HeapFree (heapHandle, 0, dist2dist[i]);
 	}
 	HeapFree (heapHandle, 0, dist2dist);
 
-	for (i=0; i < Ini->MAX_TAZS+1; i++)
-		HeapFree (heapHandle, 0, Logsum[i]);
-	HeapFree (heapHandle, 0, Logsum);
-
-	for (i=0; i <= Ini->NUMBER_BPMDIST1; i++)
+	for (i=0; i <= districtDefinitions->modeReportDefinitions->numValues; i++)
 		HeapFree (heapHandle, 0, mc[i]);
 	HeapFree (heapHandle, 0, mc);
 
-	for (i=0; i <= Ini->NUMBER_BPMDIST1; i++)
+
+	for (i=0; i <= districtDefinitions->modeReportDefinitions->numValues; i++)
 		HeapFree (heapHandle, 0, acc_freq[i]);
 	HeapFree (heapHandle, 0, acc_freq);
 

@@ -51,11 +51,11 @@ void count_kpmg_journey_records (FILE *fp)
 
 	// Read journey file header record.
 	k = 0;
-	fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+1, fp);
+	fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+5, fp);
 	haj = 1;
 
 	// Read journey file data records.
-	while ((fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+1, fp)) != NULL && k < Ini->NUMBER_JOURNEYS) {
+	while ((fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+5, fp)) != NULL && k < Ini->NUMBER_JOURNEYS) {
 		haj++;
 
 n++;        
@@ -83,7 +83,7 @@ n++;
 			for (i=0; i < hh_jrnys; i++) {
 				if (k < Ini->NUMBER_JOURNEYS) {
 
-					fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+2, fp);
+					fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+5, fp);
 n++;        
 
 					strncpy (temp, &JourneyRecord[JRNY_TYPE_START-1], JRNY_TYPE_LENGTH);

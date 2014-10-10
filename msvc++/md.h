@@ -10,7 +10,8 @@
 
 // Constant definitions
 #define MB 1024*1024
-#define HEAPSIZE 1400*MB
+//#define HEAPSIZE 1400*MB
+#define HEAPSIZE 8000*MB
 
 #define LRECL 1024
 #define TC_OKAY 0
@@ -24,8 +25,12 @@
 #define URBAN_TYPES 4
 #define LATITUDE_PER_FEET 2.7
 #define LONGITUDE_PER_FEET 3.6
-#define PROGRESS_INCREMENT 1000
+
+// can be overwridden by Ini->PROGRESS_INCREMENT_REPORTFILE
+#define PROGRESS_INCREMENT 10000
+// can be overwridden by Ini->PROGRESS_INCREMENT_REPORTFILE
 #define PROGRESS_INCREMENT1 10000
+
 #define STATUE_OF_LIBERTY_TAZ 141
 
 #define MAX_FROZEN_RECORDS 8000000
@@ -44,61 +49,61 @@
 
 
 
-#define HWY_DIST		"\\jim\\nymtc\\data\\binary\\op_hwy_dist.binary"
-#define HWY_TIME		"\\jim\\nymtc\\data\\binary\\op_hwy_time.binary"
-#define HWY_TOLL		"\\jim\\nymtc\\data\\binary\\op_hwy_toll.binary"
+#define HWY_DIST		"op_hwy_dist.binary"
+#define HWY_TIME		"op_hwy_time.binary"
+#define HWY_TOLL		"op_hwy_toll.binary"
 
-#define WT_FARE			"\\jim\\nymtc\\data\\binary\\op_wt_fare.binary"
-#define WT_FIRST_WAIT	"\\jim\\nymtc\\data\\binary\\op_wt_first_wait.binary"
-#define WT_XFR_WAIT		"\\jim\\nymtc\\data\\binary\\op_wt_xfr_wait.binary"
-#define WT_XFRS			"\\jim\\nymtc\\data\\binary\\op_wt_xfrs.binary"
-#define WT_BUS_IVTT		"\\jim\\nymtc\\data\\binary\\op_wt_bus_ivtt.binary"
-#define WT_EXPBUS_IVTT	"\\jim\\nymtc\\data\\binary\\op_wt_expbus_ivtt.binary"
-#define WT_RAIL_IVTT	"\\jim\\nymtc\\data\\binary\\op_wt_rail_ivtt.binary"
-#define WT_CR_IVTT		"\\jim\\nymtc\\data\\binary\\op_wt_cr_ivtt.binary"
-#define WT_FERRY_IVTT	"\\jim\\nymtc\\data\\binary\\op_wt_ferry_ivtt.binary"
-#define WT_ACC_OVTT		"\\jim\\nymtc\\data\\binary\\op_wt_acc_ovtt.binary"
-#define WT_XFR_OVTT		"\\jim\\nymtc\\data\\binary\\op_wt_xfr_ovtt.binary"
-#define WT_DR_ACC		"\\jim\\nymtc\\data\\binary\\op_wt_dr_acc.binary"
+#define WT_FARE			"op_wt_fare.binary"
+#define WT_FIRST_WAIT	"op_wt_first_wait.binary"
+#define WT_XFR_WAIT		"op_wt_xfr_wait.binary"
+#define WT_XFRS			"op_wt_xfrs.binary"
+#define WT_BUS_IVTT		"op_wt_bus_ivtt.binary"
+#define WT_EXPBUS_IVTT	"op_wt_expbus_ivtt.binary"
+#define WT_RAIL_IVTT	"op_wt_rail_ivtt.binary"
+#define WT_CR_IVTT		"op_wt_cr_ivtt.binary"
+#define WT_FERRY_IVTT	"op_wt_ferry_ivtt.binary"
+#define WT_ACC_OVTT		"op_wt_acc_ovtt.binary"
+#define WT_XFR_OVTT		"op_wt_xfr_ovtt.binary"
+#define WT_DR_ACC		"op_wt_dr_acc.binary"
 
-#define DT_FARE			"\\jim\\nymtc\\data\\binary\\op_dt_fare.binary"
-#define DT_FIRST_WAIT	"\\jim\\nymtc\\data\\binary\\op_dt_first_wait.binary"
-#define DT_XFR_WAIT		"\\jim\\nymtc\\data\\binary\\op_dt_xfr_wait.binary"
-#define DT_XFRS			"\\jim\\nymtc\\data\\binary\\op_dt_xfrs.binary"
-#define DT_BUS_IVTT		"\\jim\\nymtc\\data\\binary\\op_dt_bus_ivtt.binary"
-#define DT_EXPBUS_IVTT	"\\jim\\nymtc\\data\\binary\\op_dt_expbus_ivtt.binary"
-#define DT_RAIL_IVTT	"\\jim\\nymtc\\data\\binary\\op_dt_rail_ivtt.binary"
-#define DT_CR_IVTT		"\\jim\\nymtc\\data\\binary\\op_dt_cr_ivtt.binary"
-#define DT_FERRY_IVTT	"\\jim\\nymtc\\data\\binary\\op_dt_ferry_ivtt.binary"
-#define DT_ACC_OVTT		"\\jim\\nymtc\\data\\binary\\op_dt_acc_ovtt.binary"
-#define DT_XFR_OVTT		"\\jim\\nymtc\\data\\binary\\op_dt_xfr_ovtt.binary"
-#define DT_DR_ACC		"\\jim\\nymtc\\data\\binary\\op_dt_dr_acc.binary"
+#define DT_FARE			"op_dt_fare.binary"
+#define DT_FIRST_WAIT	"op_dt_first_wait.binary"
+#define DT_XFR_WAIT		"op_dt_xfr_wait.binary"
+#define DT_XFRS			"op_dt_xfrs.binary"
+#define DT_BUS_IVTT		"op_dt_bus_ivtt.binary"
+#define DT_EXPBUS_IVTT	"op_dt_expbus_ivtt.binary"
+#define DT_RAIL_IVTT	"op_dt_rail_ivtt.binary"
+#define DT_CR_IVTT		"op_dt_cr_ivtt.binary"
+#define DT_FERRY_IVTT	"op_dt_ferry_ivtt.binary"
+#define DT_ACC_OVTT		"op_dt_acc_ovtt.binary"
+#define DT_XFR_OVTT		"op_dt_xfr_ovtt.binary"
+#define DT_DR_ACC		"op_dt_dr_acc.binary"
 
-#define WC_FARE			"\\jim\\nymtc\\data\\binary\\op_wc_fare.binary"
-#define WC_FIRST_WAIT	"\\jim\\nymtc\\data\\binary\\op_wc_first_wait.binary"
-#define WC_XFR_WAIT		"\\jim\\nymtc\\data\\binary\\op_wc_xfr_wait.binary"
-#define WC_XFRS			"\\jim\\nymtc\\data\\binary\\op_wc_xfrs.binary"
-#define WC_BUS_IVTT		"\\jim\\nymtc\\data\\binary\\op_wc_bus_ivtt.binary"
-#define WC_EXPBUS_IVTT	"\\jim\\nymtc\\data\\binary\\op_wc_expbus_ivtt.binary"
-#define WC_RAIL_IVTT	"\\jim\\nymtc\\data\\binary\\op_wc_rail_ivtt.binary"
-#define WC_CR_IVTT		"\\jim\\nymtc\\data\\binary\\op_wc_cr_ivtt.binary"
-#define WC_FERRY_IVTT	"\\jim\\nymtc\\data\\binary\\op_wc_ferry_ivtt.binary"
-#define WC_ACC_OVTT		"\\jim\\nymtc\\data\\binary\\op_wc_acc_ovtt.binary"
-#define WC_XFR_OVTT		"\\jim\\nymtc\\data\\binary\\op_wc_xfr_ovtt.binary"
-#define WC_DR_ACC		"\\jim\\nymtc\\data\\binary\\op_wc_dr_acc.binary"
+#define WC_FARE			"op_wc_fare.binary"
+#define WC_FIRST_WAIT	"op_wc_first_wait.binary"
+#define WC_XFR_WAIT		"op_wc_xfr_wait.binary"
+#define WC_XFRS			"op_wc_xfrs.binary"
+#define WC_BUS_IVTT		"op_wc_bus_ivtt.binary"
+#define WC_EXPBUS_IVTT	"op_wc_expbus_ivtt.binary"
+#define WC_RAIL_IVTT	"op_wc_rail_ivtt.binary"
+#define WC_CR_IVTT		"op_wc_cr_ivtt.binary"
+#define WC_FERRY_IVTT	"op_wc_ferry_ivtt.binary"
+#define WC_ACC_OVTT		"op_wc_acc_ovtt.binary"
+#define WC_XFR_OVTT		"op_wc_xfr_ovtt.binary"
+#define WC_DR_ACC		"op_wc_dr_acc.binary"
 
-#define DC_FARE			"\\jim\\nymtc\\data\\binary\\op_dc_fare.binary"
-#define DC_FIRST_WAIT	"\\jim\\nymtc\\data\\binary\\op_dc_first_wait.binary"
-#define DC_XFR_WAIT		"\\jim\\nymtc\\data\\binary\\op_dc_xfr_wait.binary"
-#define DC_XFRS			"\\jim\\nymtc\\data\\binary\\op_dc_xfrs.binary"
-#define DC_BUS_IVTT		"\\jim\\nymtc\\data\\binary\\op_dc_bus_ivtt.binary"
-#define DC_EXPBUS_IVTT	"\\jim\\nymtc\\data\\binary\\op_dc_expbus_ivtt.binary"
-#define DC_RAIL_IVTT	"\\jim\\nymtc\\data\\binary\\op_dc_rail_ivtt.binary"
-#define DC_CR_IVTT		"\\jim\\nymtc\\data\\binary\\op_dc_cr_ivtt.binary"
-#define DC_FERRY_IVTT	"\\jim\\nymtc\\data\\binary\\op_dc_ferry_ivtt.binary"
-#define DC_ACC_OVTT		"\\jim\\nymtc\\data\\binary\\op_dc_acc_ovtt.binary"
-#define DC_XFR_OVTT		"\\jim\\nymtc\\data\\binary\\op_dc_xfr_ovtt.binary"
-#define DC_DR_ACC		"\\jim\\nymtc\\data\\binary\\op_dc_dr_acc.binary"
+#define DC_FARE			"op_dc_fare.binary"
+#define DC_FIRST_WAIT	"op_dc_first_wait.binary"
+#define DC_XFR_WAIT		"op_dc_xfr_wait.binary"
+#define DC_XFRS			"op_dc_xfrs.binary"
+#define DC_BUS_IVTT		"op_dc_bus_ivtt.binary"
+#define DC_EXPBUS_IVTT	"op_dc_expbus_ivtt.binary"
+#define DC_RAIL_IVTT	"op_dc_rail_ivtt.binary"
+#define DC_CR_IVTT		"op_dc_cr_ivtt.binary"
+#define DC_FERRY_IVTT	"op_dc_ferry_ivtt.binary"
+#define DC_ACC_OVTT		"op_dc_acc_ovtt.binary"
+#define DC_XFR_OVTT		"op_dc_xfr_ovtt.binary"
+#define DC_DR_ACC		"op_dc_dr_acc.binary"
 
 
 
@@ -115,7 +120,9 @@ int tc_status;
 extern char *PurposeLabels[];
 extern char *ModeLabel[];
 extern char *ErrorCodes[];
-extern char *BPMDist1Labels[];
+extern char *CountyLabels[];
+extern char *CountyExtendedLabels[];
+extern char *DcConstantLabels[];
 extern char *PreModeLabels[];
 extern char *UrbanTypeLabels[];
 extern float MISSING;
@@ -177,7 +184,13 @@ struct IniData {
 	char DEBUGFILE[256];
 	char ZONEDATA[256];
 	char SCHOOLDISTDATA[256];
-	char BPMDIST1COEFFDATA[256];
+	char FLEX_DISTRICT_TAZ_CORRESP[256];
+	char DESTCHOICE_CONSTANT_INDICES[256];
+	char DESTCHOICE_CONSTANT_VALUES[256];
+	char COUNTY_INDICES[256];
+	char COUNTY_EXTENDED_INDICES[256];
+	char DIST_TO_DIST_REPORT_INDICES[256];
+	char MODE_REPORT_INDICES[256];
 	char RINGDISTDATA[256];
 	char WALKZONEDATA[256];
 	char ATTRACTION_CORRECTIONS[256];
@@ -220,13 +233,21 @@ struct IniData {
 	float CALIB_INCREMENT;
 	float CALIB_SCALE;
 	int RAND_SEED;
+	int PROGRESS_INCREMENT_REPORTFILE;	
+	int PROGRESS_INCREMENT_CONSOLE;
 	int MAX_TAZS;
 	int FREQ_ALTS;
 	int NUMBER_ALTS;
 	int NUMBER_COUNTIES;
 	int ORIGINAL_JOURNEYS;
 	int NUMBER_JOURNEYS;
-	int NUMBER_BPMDIST1;
+	int COUNTY_INDICES_FIELD_NUM;
+	int COUNTY_EXTENDED_INDICES_FIELD_NUM;
+	int DC_CONSTANT_INDICES_FIELD_NUM;
+	int REPORT_DIST_TO_DIST_JOURNEYS_FIELD_NUM;
+	int REPORT_MODE_JOURNEYS_FIELD_NUM;
+	int M_MC_ASC_INDEX_FIELD_NUM;
+	int NM_MC_ASC_INDEX_FIELD_NUM;
 	int MAX_WORK_JOURNEYS;
 	int PURPOSE_TO_PROCESS;
 	int MAX_PACKET;
@@ -318,7 +339,9 @@ struct river_crossing_data {
 
 struct zone_data {
 // zonal attributes
-	int *AreaType, *UrbanType, *County, *ring, *bpmdist1_index, *SchoolDist, *lpRestricted;
+		int *bpmdist1_index;
+	int *county_index, *county_extended_index, *dc_constant_index, *dist_to_dist_report_index, *mode_report_index, *m_mc_asc_index, *nm_mc_asc_index;
+	int *AreaType, *UrbanType, *County, *ring, *SchoolDist, *lpRestricted;
 	int *OrigSubAreaIB, *DestSubAreaIB, *OrigSubAreaOB, *DestSubAreaOB;
 	float *TotEmp, *LandArea, *HHPop, *HHNum, *UnvEnrol, *K12ETot, *empden, *PctFreePark, *NW_PctFreePark;
 	float *RetEmp, *OffEmp, *PctAcc, *dist, *wPctIncNonMan, *nwPctIncNonMan, *wPctIncMan, *nwPctIncMan;
@@ -378,26 +401,56 @@ struct cluster_parts {
 	int at_work_mode, person_type, aa, ak;
 };
 
-struct bpmdist1_coeff_data {
-	float *intra_county, **co_co_coeffs;
+struct district_data {
 	char **labels;
+	int *indexValues;
+	int *indexIndices;
+	int numValues;
+	int maxValue;
 };
 
-struct co_dist_factors {
+struct dc_constant_data {
+	float **inter_district_constants;
+	struct district_data *dcConstantIndices;
+};
+
+struct m_mc_asc_data {
+	int **indices;
+	float **constants;
+	float **targets;
+	float* regionalShareTargets;
+	struct district_data *mMcAscIndices;
+	struct district_data *mMcAscConstants;
+	struct district_data *mMcAscTargets;
+};
+
+struct nm_mc_asc_data {
+	int *indices;
+	float *constants;
+	float *targets;
+	float regionalShareTargets;
+	struct district_data *nmMcAscIndices;
+	struct district_data *nmMcAscConstants;
+	struct district_data *nmMcAscTargets;
+};
+
+struct district_definitions {
+	struct district_data *countyDefinitions;
+	struct district_data *countyExtendedDefinitions;
+	struct district_data *distToDistReportDefinitions;
+	struct district_data *modeReportDefinitions;
+};
+
+struct dc_trip_length_distribution_factors {
 	double coeff, exp;
 };
 
+	struct co_dist_factors {
+		double coeff, exp;
+	};
+
 struct dc_coeff_data {
 	double alpha, beta, gamma[3], delta, theta;
-};
-
-struct msc_data {
-	int nm_max_index, motorized_max_index;
-	int *nm_indices, **motorized_indices;
-	int *nm_index_used, *motorized_index_used;
-	char **nm_labels, **motorized_labels;
-	float *nm_targets, **motorized_targets;
-	float *nmMSC, **MSC;
 };
 
 // Function Prototypes:
@@ -414,19 +467,23 @@ void read_taxi_data (FILE *, struct taxi_data *);
 void read_zone_data (FILE *, struct zone_data *);
 void read_river_data (FILE *, struct river_crossing_data);
 void read_walk_zone_data (FILE *, struct walk_zone_data *);
-void read_bpmdist1_coeffs (FILE *, struct bpmdist1_coeff_data);
 void read_school_district_data (FILE *, struct zone_data *);
 void read_kpmg_journey_records (FILE *, FILE **, struct zone_data *, struct journey_attribs *, int **);
 int getNumAutosRestricted (int hhAutoOwnership);
 void read_ring_dist_data (FILE *, struct zone_data *);
 void read_attr_corrections (FILE *, double *);
 void read_dist_factors (FILE *, struct co_dist_factors *);
-void read_motorized_MSCs (FILE *, struct msc_data *);
-void read_motorized_MSC_indices (FILE *, struct msc_data *);
-void read_motorized_targets (FILE *, struct msc_data *);
-void read_nm_MSCs (FILE *, struct msc_data *);
-void read_nm_MSC_indices (FILE *, struct msc_data *);
-void read_nm_targets (FILE *, struct msc_data *);
+void read_bpmdist1_coeffs (FILE *, struct bpmdist1_coeff_data);
+void read_dc_constant_values (FILE *fp, struct dc_constant_data*);
+void read_nm_mc_asc_values (FILE *fp, struct nm_mc_asc_data *);
+void read_flexible_district_definitions (FILE *fp, struct district_data *);
+void read_flexible_district_corresp (FILE *fp, struct dc_constant_data *, struct zone_data *);
+void read_motorized_ASC_indices (FILE *fp, struct m_mc_asc_data *);
+void read_motorized_ASC_constants (FILE *, struct m_mc_asc_data *);
+void read_motorized_ASC_targets (FILE *, struct m_mc_asc_data *);
+void read_non_motorized_ASC_indices (FILE *fp, struct nm_mc_asc_data *);
+void read_non_motorized_ASC_constants (FILE *, struct nm_mc_asc_data *);
+void read_non_motorized_ASC_targets (FILE *, struct nm_mc_asc_data *);
 void read_subarea_data (FILE *fp, struct zone_data *ZonalData);
 void OD_Utilities (int, struct zone_data *, struct taxi_data *, int **, float ***, float ***);
 void work_da_od_util  (int, int, float *, float *, float *, struct zone_data *, int **, float *);
@@ -537,8 +594,6 @@ float atwork_tx_se_util (struct socec_data *);
 void set_function_pointers ();
 void GetSkims (char *, int, int, short, MATRIX, int, float **);
 void GetSkimsByRow (int, short, MATRIX, int, float *);
-int get_motorized_MSC_index (int, int, struct zone_data *, struct msc_data *);
-int get_nm_MSC_index (int, struct zone_data *, struct msc_data *);
 void get_avail_dests (FILE *, int **);
 void work_attractions (FILE *, struct zone_data *, float **);
 void balance_attractions (double *, float ***, float **, int **, struct zone_data *);
@@ -550,21 +605,22 @@ float nw_parking_cost (int, int, struct zone_data *, int **);
 void percent_free_parking (struct zone_data *);
 void write_free_parking (FILE* fp, struct zone_data *ZonalData);
 void parking_cost_index_lookup_table (int **);
-void final_reports (FILE *, int **, double *, int **, int **, double *, int ***, float **, struct zone_data *, int);
-void calibration_report (int, FILE *, struct msc_data *, float*, int *, float **, float **, float *, float **, float);
+void final_reports (FILE *, int **, double *, int **, int **, double *, int ***, float **, struct zone_data *, struct district_definitions *, int);
+void calibration_report (int, FILE *, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData, float*, float **, float **, float *, float **, float);
 void count_kpmg_journey_records (FILE *fp);
 void get_input_data (FILE **, FILE **, FILE **, FILE **, FILE *[], int **,
 			struct taxi_data *, struct zone_data *, struct river_crossing_data *,
-			struct walk_zone_data **, struct bpmdist1_coeff_data *, struct co_dist_factors *, struct msc_data **);
+			struct walk_zone_data **, struct dc_constant_data *, struct m_mc_asc_data *, struct nm_mc_asc_data *,
+			struct district_definitions *districtDefinitions, struct co_dist_factors *);
 void get_journey_data (FILE **fp_work, struct zone_data *ZonalData, struct journey_attribs *JourneyAttribs, int **TotProds);
-void run_mdc (FILE *, FILE *, FILE *, FILE **, struct msc_data *, float **, float **, float **, float ***, int **,
+void run_mdc (FILE *, FILE *, FILE *, FILE **, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData, float **, float **, float **, float ***, int **,
 			struct journey_attribs *, struct zone_data *, struct river_crossing_data, struct taxi_data *,
-			struct walk_zone_data *, struct bpmdist1_coeff_data, struct co_dist_factors *);
+			struct walk_zone_data *, struct dc_constant_data *, struct district_definitions *districtDefinitions, struct co_dist_factors *);
 void logsum_check (int, int, int, int, double, double, double, double, float *, float *, float *);
-int pre_mode_choice (int, float, struct journey_attribs *, float **, float **, struct zone_data *, struct walk_zone_data *, struct msc_data *);
-void debug_props (int, struct dc_coeff_data *, struct journey_attribs *, struct zone_data *, float ***, float ***, struct river_crossing_data, float **, struct bpmdist1_coeff_data, struct msc_data *, double **, double **);
+int pre_mode_choice (int, float, struct journey_attribs *, float **, float **, struct zone_data *, struct walk_zone_data *, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData);
+void debug_props (int, struct dc_coeff_data *, struct journey_attribs *, struct zone_data *, float ***, float ***, struct river_crossing_data, float **, struct dc_constant_data *, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData, double **, double **);
 void motor_dc_coeffs (int, int, struct dc_coeff_data *, struct co_dist_factors *);
-void motor_dc_props   (int, int, struct dc_coeff_data *, float ***, float *, float **, float***, struct river_crossing_data, struct zone_data *, struct bpmdist1_coeff_data, double *, float *, int,  double **, double **, short);
+void motor_dc_props   (int, int, struct dc_coeff_data *, float ***, float *, float **, float***, struct river_crossing_data, struct zone_data *, struct dc_constant_data *, double *, float *, int,  double **, double **, short);
 float nm_dest_gamma (int, int, int);
 double nm_log_density (int, int, float, float *, int *, struct walk_zone_data *);
 int nm_dest_choice (int, struct walk_zone_data *, double *);
@@ -614,8 +670,8 @@ void atwork_freq_util (int i, double obDensity, double ibDensity, int *orig, int
 
 void stop_location_avail (int orig, int dest, int mode, struct zone_data *ZonalData, float **hwy_dist, float **wt_ivt, float **dt_ivt,
 						  float **wc_ivt, float **dc_ivt, int *near_orig, int *near_dest, int *midway);
-void stops (FILE *fp3, int *orig, int *dest, int *mode, struct journey_attribs *, struct zone_data *ZonalData, struct river_crossing_data RiverData);
-void stops_reports (int *ob_mode_freqs, int *ib_mode_freqs, int *obib_mode_freqs, int *none_mode_freqs, int **ob_area_freqs, int **ib_area_freqs, int **obib_area_freqs, int **none_area_freqs, int *ob_district_freqs, int *ib_district_freqs, double *ob_district_size, double *ib_district_size);
+void stops (FILE *fp3, int *orig, int *dest, int *mode, struct journey_attribs *, struct zone_data *ZonalData, struct river_crossing_data RiverData, struct district_definitions);
+void stops_reports (int *ob_mode_freqs, int *ib_mode_freqs, int *obib_mode_freqs, int *none_mode_freqs, int **ob_area_freqs, int **ib_area_freqs, int **obib_area_freqs, int **none_area_freqs, int *ob_district_freqs, int *ib_district_freqs, double *ob_district_size, double *ib_district_size, struct district_definitions);
 void get_stop_size (double **ob_stop_size, double **ib_stop_size, struct zone_data *ZonalData);
 void read_od_skims (float ***hwy_dist_util, float ***hwy_dist, float ***hwy_time, float ***wt_ivt, float ***dt_ivt, float ***wc_ivt, float ***dc_ivt, struct zone_data *ZonalData);
 int set_stops_cluster (int orig, int dest, int mode);

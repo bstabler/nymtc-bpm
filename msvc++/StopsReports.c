@@ -1,6 +1,6 @@
 #include "md.h"
 
-void stops_reports (int *ob_mode_freqs, int *ib_mode_freqs, int *obib_mode_freqs, int *none_mode_freqs, int **ob_area_freqs, int **ib_area_freqs, int **obib_area_freqs, int **none_area_freqs, int *ob_district_freqs, int *ib_district_freqs, double *ob_district_size, double *ib_district_size)
+void stops_reports (int *ob_mode_freqs, int *ib_mode_freqs, int *obib_mode_freqs, int *none_mode_freqs, int **ob_area_freqs, int **ib_area_freqs, int **obib_area_freqs, int **none_area_freqs, int *ob_district_freqs, int *ib_district_freqs, double *ob_district_size, double *ib_district_size, struct district_definitions districtDefinitions)
 {
 
 	int i, j;
@@ -147,8 +147,8 @@ void stops_reports (int *ob_mode_freqs, int *ib_mode_freqs, int *obib_mode_freqs
 	ib_total_freqs = 0;
 	ob_total_size = 0.0;
 	ib_total_size = 0.0;
-	for (i=0; i < Ini->NUMBER_BPMDIST1; i++) {
-		fprintf (fp_rep, "%3d  %-18s %14d %14.0f %14.4f %14d %14.0f %14.4f\n", i, BPMDist1Labels[i],
+	for (i=0; i < districtDefinitions.countyExtendedDefinitions->numValues; i++) {
+		fprintf (fp_rep, "%3d  %-18s %14d %14.0f %14.4f %14d %14.0f %14.4f\n", districtDefinitions.countyExtendedDefinitions->indexValues[i], districtDefinitions.countyExtendedDefinitions->labels[i],
 			ob_district_freqs[i], ob_district_size[i], (ob_district_size[i] > 0.0 ? ob_district_freqs[i]/ob_district_size[i] : 0.0),
 			ib_district_freqs[i], ib_district_size[i], (ib_district_size[i] > 0.0 ? ib_district_freqs[i]/ib_district_size[i] : 0.0));
 		ob_total_freqs += ob_district_freqs[i];

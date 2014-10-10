@@ -16,29 +16,27 @@
 
 void read_dist_factors (FILE *fp, struct co_dist_factors *DistFactors)
 {
-	int co, rec_len;
+	int co;
 	char InputRecord[RECORD_LENGTH+2];
 	char temp[LRECL];
 
 
 // Read attraction correction factor records.
-	fgets(InputRecord, RECORD_LENGTH+2, fp);										// ignore header record
-	while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
-		InputRecord[RECORD_LENGTH] = '\0';
-		rec_len = (int)strlen(InputRecord);
-		if (rec_len == RECORD_LENGTH) {
-			strncpy (temp, &InputRecord[CO_START-1], CO_LENGTH);
-			temp[CO_LENGTH] = '\0';
-			co = atoi(temp);
+	fgets(InputRecord, RECORD_LENGTH+5, fp);										// ignore header record
+	while ((fgets(InputRecord, RECORD_LENGTH+5, fp)) != NULL) {
 
-			strncpy (temp, &InputRecord[COEFF_START-1], COEFF_LENGTH);
-			temp[COEFF_LENGTH] = '\0';
-			DistFactors[co].coeff = atof(temp);
+		strncpy (temp, &InputRecord[CO_START-1], CO_LENGTH);
+		temp[CO_LENGTH] = '\0';
+		co = atoi(temp);
 
-			strncpy (temp, &InputRecord[EXP_START-1], EXP_LENGTH);
-			temp[EXP_LENGTH] = '\0';
-			DistFactors[co].exp = atof(temp);
-		}
+		strncpy (temp, &InputRecord[COEFF_START-1], COEFF_LENGTH);
+		temp[COEFF_LENGTH] = '\0';
+		DistFactors[co].coeff = atof(temp);
+
+		strncpy (temp, &InputRecord[EXP_START-1], EXP_LENGTH);
+		temp[EXP_LENGTH] = '\0';
+		DistFactors[co].exp = atof(temp);
+
 	}
 }
 

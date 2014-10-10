@@ -2,7 +2,7 @@
 
 
 // zonal parking percent and cost over-rides data input file formats
-#define RECORD_LENGTH					120
+#define RECORD_LENGTH					200
 #define TAZ_START						  1
 #define TAZ_LENGTH						  5
 #define W_PCT_FREE_START				  6
@@ -28,21 +28,26 @@
 extern float wParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 extern float nwParkingCostArray[] = { 250, 750, 1250, 1700, 2250, 2750, 3250, 3700, 4250, 4750 };
 
-
 void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, FILE *fp_work[],
 	int **ranprkcst, struct taxi_data *TaxiData, struct zone_data *ZonalData,
 	struct river_crossing_data *RiverData, struct walk_zone_data **WalkZoneData,
-	struct bpmdist1_coeff_data *BPMDist1, struct co_dist_factors *DistFactors, struct msc_data **msc)
+	struct dc_constant_data *DcConstantIndices,
+	struct m_mc_asc_data *mMcAscData, struct nm_mc_asc_data *nmMcAscData,
+	struct district_definitions *districtDefinitions,
+	struct co_dist_factors *DistFactors)
 {
 
 	FILE *fp;
 	int i, rec_len;
 
-	char InputRecord[RECORD_LENGTH];
-	char temp[RECORD_LENGTH];
-	char value[RECORD_LENGTH];
+	char *InputRecord;
+	char *temp;
+	char *value;
 	float tempValue;
 
+	InputRecord = (char *)malloc( RECORD_LENGTH * sizeof(char) );
+	temp = (char *)malloc( RECORD_LENGTH * sizeof(char) );
+	value = (char *)malloc( RECORD_LENGTH * sizeof(char) );
 
 // if work purpose open file work destinations file for output; if at-work, open all 3 work destination files for input.
 	if (Ini->PURPOSE_TO_PROCESS < 3) {
@@ -175,32 +180,108 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	}
 
 
-// allocate memory for mode specific constants data structure
-	(*msc) = (struct msc_data *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 1*sizeof(struct msc_data));
 
-	(*msc)->motorized_indices = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+2)*sizeof(int *));
-	for (i=0; i < Ini->NUMBER_BPMDIST1+2; i++)
-		(*msc)->motorized_indices[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+2)*sizeof(int));
 
-	(*msc)->motorized_index_used = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(int));
-
-	(*msc)->motorized_labels = (char **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(char *));
-	(*msc)->motorized_targets = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(float *));
-	(*msc)->MSC = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(float *));
-	for (i=0; i < (int)pow(Ini->NUMBER_BPMDIST1+2,2); i++) {
-		(*msc)->motorized_labels[i] = (char *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 64*sizeof(char));
-		(*msc)->motorized_targets[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_ALTS*sizeof(float));
-		(*msc)->MSC[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_ALTS*sizeof(float));
+// open and read motorized mode choice ASC indices file
+	printf ("reading mode choice ASC indices, constants, targets.\n");
+	if (strcmp(Ini->M_MSC_INDICES, "")) {
+		if ((fp = fopen(Ini->M_MSC_INDICES, "rt")) == NULL)
+			ExitWithCode(52);
 	}
+	else
+		ExitWithCode (53);
+	read_motorized_ASC_indices (fp, mMcAscData);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->M_MSC_INDICES);
+	fclose (fp);
 
-	(*msc)->nm_indices = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(int));
-	(*msc)->nm_index_used = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(int));
-	(*msc)->nm_targets = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(float));
-	(*msc)->nmMSC = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(float));
+	if (strcmp(Ini->M_MSCS, "")) {
+		if ((fp = fopen(Ini->M_MSCS, "rt")) == NULL)
+			ExitWithCode(107);
+	}
+	else
+		ExitWithCode (108);
+	read_motorized_ASC_constants (fp, mMcAscData);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->M_MSCS);
+	fclose (fp);
 
-	(*msc)->nm_labels = (char **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(char *));
-	for (i=0; i < 2*(Ini->NUMBER_BPMDIST1+2); i++)
-		(*msc)->nm_labels[i] = (char *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 64*sizeof(char));
+	if (strcmp(Ini->M_TARGETS, "")) {
+		if ((fp = fopen(Ini->M_TARGETS, "rt")) == NULL)
+			ExitWithCode(111);
+	}
+	else
+		ExitWithCode (112);
+	read_motorized_ASC_targets (fp, mMcAscData);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->M_TARGETS);
+	fclose (fp);
+
+
+
+// open and read non-motorized mode choice ASC indices file
+	if (strcmp(Ini->NM_MSC_INDICES, "")) {
+		if ((fp = fopen(Ini->NM_MSC_INDICES, "rt")) == NULL)
+			ExitWithCode(105);
+	}
+	else
+		ExitWithCode (106);
+	read_non_motorized_ASC_indices (fp, nmMcAscData);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->NM_MSC_INDICES);
+	fclose (fp);
+
+	if (strcmp(Ini->NM_MSCS, "")) {
+		if ((fp = fopen(Ini->NM_MSCS, "rt")) == NULL)
+			ExitWithCode(109);
+	}
+	else
+		ExitWithCode (110);
+	read_non_motorized_ASC_constants (fp, nmMcAscData);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->NM_MSCS);
+	fclose (fp);
+
+	if (strcmp(Ini->NM_TARGETS, "")) {
+		if ((fp = fopen(Ini->NM_TARGETS, "rt")) == NULL)
+			ExitWithCode(113);
+	}
+	else
+		ExitWithCode (114);
+	read_non_motorized_ASC_targets (fp, nmMcAscData);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->NM_TARGETS);
+	fclose (fp);
+
+
+
+// allocate memory for mode specific constants data structure
+//	(*msc) = (struct msc_data *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 1*sizeof(struct msc_data));
+//
+//
+//	(*msc)->motorized_indices = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+2)*sizeof(int *));
+//	for (i=0; i < Ini->NUMBER_BPMDIST1+2; i++)
+//		(*msc)->motorized_indices[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+2)*sizeof(int));
+//
+//	(*msc)->motorized_index_used = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(int));
+//
+//	(*msc)->motorized_labels = (char **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(char *));
+//	(*msc)->motorized_targets = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(float *));
+//	(*msc)->MSC = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, ((int)pow(Ini->NUMBER_BPMDIST1+2,2))*sizeof(float *));
+//	for (i=0; i < (int)pow(Ini->NUMBER_BPMDIST1+2,2); i++) {
+//		(*msc)->motorized_labels[i] = (char *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 64*sizeof(char));
+//		(*msc)->motorized_targets[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_ALTS*sizeof(float));
+//		(*msc)->MSC[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, Ini->NUMBER_ALTS*sizeof(float));
+//	}
+//
+//	(*msc)->nm_indices = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(int));
+//	(*msc)->nm_index_used = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(int));
+//	(*msc)->nm_targets = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(float));
+//	(*msc)->nmMSC = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(float));/
+//
+//	(*msc)->nm_labels = (char **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*(Ini->NUMBER_BPMDIST1+2)*sizeof(char *));
+//	for (i=0; i < 2*(Ini->NUMBER_BPMDIST1+2); i++)
+//		(*msc)->nm_labels[i] = (char *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 64*sizeof(char));
 
 
 //	addRAM ("get_input_data", 1*sizeof(struct msc_data)
@@ -215,87 +296,87 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 
 
 // read motorized mode specific constants index table
-	printf ("reading motorized MSC indices.\n");
-	if (strcmp(Ini->M_MSC_INDICES, "")) {
-		if ((fp = fopen(Ini->M_MSC_INDICES, "rt")) == NULL)
-			ExitWithCode(52);
-	}
-	else
-		ExitWithCode (53);
-	read_motorized_MSC_indices (fp, *msc);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->M_MSC_INDICES);
-	fclose (fp);
-
-
+//	printf ("reading motorized MSC indices.\n");
+//	if (strcmp(Ini->M_MSC_INDICES, "")) {
+//		if ((fp = fopen(Ini->M_MSC_INDICES, "rt")) == NULL)
+//			ExitWithCode(52);
+//	}
+//	else
+//		ExitWithCode (53);
+//	read_motorized_MSC_indices (fp, *msc);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->M_MSC_INDICES);
+//	fclose (fp);
+//
+//
 // read motorized mode specific constants
-	printf ("reading motorized MSC values.\n");
-	if (strcmp(Ini->M_MSCS, "")) {
-		if ((fp = fopen(Ini->M_MSCS, "rt")) == NULL)
-			ExitWithCode(107);
-	}
-	else
-		ExitWithCode (108);
-	read_motorized_MSCs (fp, *msc);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->M_MSCS);
-	fclose (fp);
-
-
+//	printf ("reading motorized MSC values.\n");
+//	if (strcmp(Ini->M_MSCS, "")) {
+//		if ((fp = fopen(Ini->M_MSCS, "rt")) == NULL)
+//			ExitWithCode(107);
+//	}
+//	else
+//		ExitWithCode (108);
+//	read_motorized_MSCs (fp, *msc);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->M_MSCS);
+//	fclose (fp);
+//
+//
 // read motorized targets
-	printf ("reading motorized MSC targets.\n");
-	if (strcmp(Ini->M_TARGETS, "")) {
-		if ((fp = fopen(Ini->M_TARGETS, "rt")) == NULL)
-			ExitWithCode(111);
-	}
-	else
-		ExitWithCode (112);
-	read_motorized_targets (fp, *msc);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->M_TARGETS);
-	fclose (fp);
-
-
+//	printf ("reading motorized MSC targets.\n");
+//	if (strcmp(Ini->M_TARGETS, "")) {
+//		if ((fp = fopen(Ini->M_TARGETS, "rt")) == NULL)
+//			ExitWithCode(111);
+//	}
+//	else
+//		ExitWithCode (112);
+//	read_motorized_targets (fp, *msc);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->M_TARGETS);
+//	fclose (fp);
+//
+//
 // read non-motorized mode specific constants index table
-	printf ("reading non-motorized MSC indices.\n");
-	if (strcmp(Ini->NM_MSC_INDICES, "")) {
-		if ((fp = fopen(Ini->NM_MSC_INDICES, "rt")) == NULL)
-			ExitWithCode(105);
-	}
-	else
-		ExitWithCode (106);
-	read_nm_MSC_indices (fp, *msc);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->NM_MSC_INDICES);
-	fclose (fp);
-
-
+//	printf ("reading non-motorized MSC indices.\n");
+//	if (strcmp(Ini->NM_MSC_INDICES, "")) {
+//		if ((fp = fopen(Ini->NM_MSC_INDICES, "rt")) == NULL)
+//			ExitWithCode(105);
+//	}
+//	else
+//		ExitWithCode (106);
+//	read_nm_MSC_indices (fp, *msc);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->NM_MSC_INDICES);
+//	fclose (fp);
+//
+//
 // read non-motorized mode specific constants
-	printf ("reading non-motorized MSC values.\n");
-	if (strcmp(Ini->NM_MSCS, "")) {
-		if ((fp = fopen(Ini->NM_MSCS, "rt")) == NULL)
-			ExitWithCode(109);
-	}
-	else
-		ExitWithCode (110);
-	read_nm_MSCs (fp, *msc);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->NM_MSCS);
-	fclose (fp);
-
-
+//	printf ("reading non-motorized MSC values.\n");
+//	if (strcmp(Ini->NM_MSCS, "")) {
+//		if ((fp = fopen(Ini->NM_MSCS, "rt")) == NULL)
+//			ExitWithCode(109);
+//	}
+//	else
+//		ExitWithCode (110);
+//	read_nm_MSCs (fp, *msc);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->NM_MSCS);
+//	fclose (fp);
+//
+//
 // read non-motorized targets
-	printf ("reading non-motorized MSC targets.\n");
-	if (strcmp(Ini->NM_TARGETS, "")) {
-		if ((fp = fopen(Ini->NM_TARGETS, "rt")) == NULL)
-			ExitWithCode(113);
-	}
-	else
-		ExitWithCode (114);
-	read_nm_targets (fp, *msc);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->NM_TARGETS);
-	fclose (fp);
+//	printf ("reading non-motorized MSC targets.\n");
+//	if (strcmp(Ini->NM_TARGETS, "")) {
+//		if ((fp = fopen(Ini->NM_TARGETS, "rt")) == NULL)
+//			ExitWithCode(113);
+//	}
+//	else
+//		ExitWithCode (114);
+//	read_nm_targets (fp, *msc);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->NM_TARGETS);
+//	fclose (fp);
 
 
 // read input file of origin county based distance scale factors for motorized destination choice
@@ -339,7 +420,6 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 		ExitWithCode (29);
 	ZonalData->ring = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 	ZonalData->dist = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(float));
-	ZonalData->bpmdist1_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 	ZonalData->lpRestricted = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 //	addRAM ("get_input_data", 2*(Ini->MAX_TAZS+1)*sizeof(int) + 1*(Ini->MAX_TAZS+1)*sizeof(float));
 	read_ring_dist_data (fp, ZonalData);
@@ -354,6 +434,13 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 	}
 	else
 		ExitWithCode (27);
+	ZonalData->county_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->county_extended_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->dc_constant_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->m_mc_asc_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->nm_mc_asc_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->dist_to_dist_report_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
+	ZonalData->mode_report_index = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 	ZonalData->AreaType			= (int *)   HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 	ZonalData->UrbanType		= (int *)   HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
 	ZonalData->County			= (int *)   HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int));
@@ -431,26 +518,110 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 
 
 // open and read intra-county and to-Manhattan dummy variable coefficients file
-	printf ("reading county correspondance data.\n");
-	if (strcmp(Ini->BPMDIST1COEFFDATA, "")) {
-		if ((fp = fopen(Ini->BPMDIST1COEFFDATA, "rt")) == NULL)
-			ExitWithCode(23);
-	}
-	else
-		ExitWithCode (31);
-	BPMDist1->intra_county = (float *)  HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float));
-	BPMDist1->co_co_coeffs = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float *));
-	BPMDist1->labels	   = (char**)   HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(char *));
-	for (i=0; i < Ini->NUMBER_BPMDIST1 + 1; i++)
-		BPMDist1->co_co_coeffs[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float));
-	read_bpmdist1_coeffs (fp, *BPMDist1);
-	rewind (fp);
-	echo_ini (fp, fp_rep, Ini->BPMDIST1COEFFDATA);
-	fclose (fp);
+//	printf ("reading county correspondance data.\n");
+//	if (strcmp(Ini->BPMDIST1COEFFDATA, "")) {
+//		if ((fp = fopen(Ini->BPMDIST1COEFFDATA, "rt")) == NULL)
+//			ExitWithCode(23);
+//	}
+//	else
+//		ExitWithCode (31);
+//	BPMDist1->intra_county = (float *)  HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float));
+//	BPMDist1->co_co_coeffs = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float *));
+//	BPMDist1->labels	   = (char**)   HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(char *));
+//	for (i=0; i < Ini->NUMBER_BPMDIST1 + 1; i++)
+//		BPMDist1->co_co_coeffs[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float));
+//	read_bpmdist1_coeffs (fp, *BPMDist1);
+//	rewind (fp);
+//	echo_ini (fp, fp_rep, Ini->BPMDIST1COEFFDATA);
+//	fclose (fp);
 //	addRAM ("get_input_data", (Ini->NUMBER_BPMDIST1+1)*sizeof(float)
 //							+ 3*(Ini->NUMBER_BPMDIST1+1)*(Ini->NUMBER_BPMDIST1+1)*sizeof(float)
 //							+ (Ini->NUMBER_BPMDIST1+1)*sizeof(char *));
 
+
+// open and read destination choice constant indices/labels file
+	printf ("reading destination choice constant indices/labels.\n");
+	if (strcmp(Ini->DESTCHOICE_CONSTANT_VALUES, "")) {
+		if ((fp = fopen(Ini->DESTCHOICE_CONSTANT_VALUES, "rt")) == NULL)
+			ExitWithCode(154);
+	}
+	else
+		ExitWithCode (155);
+	read_dc_constant_values (fp, DcConstantIndices);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->DESTCHOICE_CONSTANT_VALUES);
+	fclose (fp);
+
+
+
+// open and read district to district journeys report indices/labels file
+	printf ("reading district to district journeys report indices/labels.\n");
+	if (strcmp(Ini->DIST_TO_DIST_REPORT_INDICES, "")) {
+		if ((fp = fopen(Ini->DIST_TO_DIST_REPORT_INDICES, "rt")) == NULL)
+			ExitWithCode(157);
+	}
+	else
+		ExitWithCode (158);
+	read_flexible_district_definitions (fp, districtDefinitions->distToDistReportDefinitions);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->DIST_TO_DIST_REPORT_INDICES);
+	fclose (fp);
+
+
+// open and read mode journeys report indices/labels file
+	printf ("reading mode journeys report indices/labels.\n");
+	if (strcmp(Ini->MODE_REPORT_INDICES, "")) {
+		if ((fp = fopen(Ini->MODE_REPORT_INDICES, "rt")) == NULL)
+			ExitWithCode(163);
+	}
+	else
+		ExitWithCode (164);
+	read_flexible_district_definitions (fp, districtDefinitions->modeReportDefinitions);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->MODE_REPORT_INDICES);
+	fclose (fp);
+
+
+// open and read county indices/labels file
+	printf ("reading county indices/labels.\n");
+	if (strcmp(Ini->COUNTY_INDICES, "")) {
+		if ((fp = fopen(Ini->COUNTY_INDICES, "rt")) == NULL)
+			ExitWithCode(159);
+	}
+	else
+		ExitWithCode (160);
+	read_flexible_district_definitions (fp, districtDefinitions->countyDefinitions);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->COUNTY_INDICES);
+	fclose (fp);
+
+
+// open and read county extended indices/labels file
+	printf ("reading county extended indices/labels.\n");
+	if (strcmp(Ini->COUNTY_EXTENDED_INDICES, "")) {
+		if ((fp = fopen(Ini->COUNTY_EXTENDED_INDICES, "rt")) == NULL)
+			ExitWithCode(161);
+	}
+	else
+		ExitWithCode (162);
+	read_flexible_district_definitions (fp, districtDefinitions->countyExtendedDefinitions);
+	rewind (fp);
+	echo_ini (fp, fp_rep, Ini->COUNTY_EXTENDED_INDICES);
+	fclose (fp);
+
+
+// open and read flexible district/taz correspondence file
+	printf ("reading flexible district/taz correspondence file.\n");
+	if (strcmp(Ini->FLEX_DISTRICT_TAZ_CORRESP, "")) {
+		if ((fp = fopen(Ini->FLEX_DISTRICT_TAZ_CORRESP, "rt")) == NULL)
+			ExitWithCode(165);
+	}
+	else
+		ExitWithCode (166);
+	read_flexible_district_corresp ( fp, DcConstantIndices, ZonalData );
+	rewind (fp);
+	//echo_ini (fp, fp_rep, Ini->FLEX_DISTRICT_TAZ_CORRESP);
+	fclose (fp);
 
 
 // open and read taxi text data file
@@ -500,33 +671,31 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 
 		fgets(InputRecord, RECORD_LENGTH, fp);		// ignore header record
 
-		while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
-			InputRecord[RECORD_LENGTH] = '\0';
+		while ((fgets(InputRecord, RECORD_LENGTH, fp)) != NULL) {
+
 			rec_len = (int)strlen(InputRecord);
 
-			if (rec_len == RECORD_LENGTH) {
+			// read index
+			strncpy (temp, &InputRecord[COST_INDEX_START-1], COST_INDEX_LENGTH);
+			temp[COST_INDEX_LENGTH] = '\0';
+			i = atoi(temp);
 
-				// read index
-				strncpy (temp, &InputRecord[COST_INDEX_START-1], COST_INDEX_LENGTH);
-				temp[COST_INDEX_LENGTH] = '\0';
-				i = atoi(temp);
+			// read work journey parking cost in cents
+			strncpy (temp, &InputRecord[W_COST_VALUE_START-1], W_COST_VALUE_LENGTH);
+			temp[W_COST_VALUE_LENGTH] = '\0';
+			tempValue = (float)atof(temp);
 
-				// read work journey parking cost in cents
-				strncpy (temp, &InputRecord[W_COST_VALUE_START-1], W_COST_VALUE_LENGTH);
-				temp[W_COST_VALUE_LENGTH] = '\0';
-				tempValue = (float)atof(temp);
+			// assume indices are 1,...,10.
+			Ini->wParkingCostArray[i-1] = tempValue;
 
-				// assume indices are 1,...,10.
-				Ini->wParkingCostArray[i-1] = tempValue;
+			// read non-work journey parking cost in cents
+			strncpy (temp, &InputRecord[NW_COST_VALUE_START-1], NW_COST_VALUE_LENGTH);
+			temp[NW_COST_VALUE_LENGTH] = '\0';
+			tempValue = (float)atof(temp);
 
-				// read non-work journey parking cost in cents
-				strncpy (temp, &InputRecord[NW_COST_VALUE_START-1], NW_COST_VALUE_LENGTH);
-				temp[NW_COST_VALUE_LENGTH] = '\0';
-				tempValue = (float)atof(temp);
+			// assume indices are 1,...,10.
+			Ini->nwParkingCostArray[i-1] = tempValue;
 
-				// assume indices are 1,...,10.
-				Ini->nwParkingCostArray[i-1] = tempValue;
-			}
 		}
 		
 		fclose (fp);
@@ -632,5 +801,9 @@ void get_input_data (FILE **fp3, FILE **fp_cal, FILE **fp_rep2, FILE **fp_rep3, 
 
 	}
 
+	free ( InputRecord );
+	free ( temp );
+	free ( value );
 
+	printf ("get_input_data() finished.\n");
 }

@@ -28,7 +28,7 @@
 #define ATWORK_TRAN_GAMMA				-4.1160
 
 
-void stops (FILE *fp, int *orig, int *dest, int *mode,	struct journey_attribs *JourneyAttribs, struct zone_data *ZonalData, struct river_crossing_data RiverData)
+void stops (FILE *fp, int *orig, int *dest, int *mode,	struct journey_attribs *JourneyAttribs, struct zone_data *ZonalData, struct river_crossing_data RiverData, struct district_definitions districtDefinitions)
 {
 
 	FILE *fp1, *fp2, *fp3, *fp4;
@@ -80,10 +80,10 @@ void stops (FILE *fp, int *orig, int *dest, int *mode,	struct journey_attribs *J
 	obib_mode_freqs = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(int));
 	none_mode_freqs = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(int));
 
-	ob_district_freqs = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
-	ib_district_freqs = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(int));
-	ob_district_size = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(double));
-	ib_district_size = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(double));
+	ob_district_freqs = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtDefinitions.countyExtendedDefinitions->numValues+1)*sizeof(int));
+	ib_district_freqs = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtDefinitions.countyExtendedDefinitions->numValues+1)*sizeof(int));
+	ob_district_size = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtDefinitions.countyExtendedDefinitions->numValues+1)*sizeof(double));
+	ib_district_size = (double *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (districtDefinitions.countyExtendedDefinitions->numValues+1)*sizeof(double));
 
 	ob_area_freqs = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (4+1)*sizeof(int *));
 	ib_area_freqs = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (4+1)*sizeof(int *));
@@ -686,18 +686,18 @@ void stops (FILE *fp, int *orig, int *dest, int *mode,	struct journey_attribs *J
 			if (obLocChoice != 0 && ibLocChoice == 0) {
 				ob_mode_freqs[mode[i]] ++;
 				ob_area_freqs[ZonalData->UrbanType[orig[i]]][ZonalData->UrbanType[dest[i]]] ++;
-				ob_district_freqs[ZonalData->bpmdist1_index[abs(obLocChoice)]] ++;
+				ob_district_freqs[ZonalData->county_extended_index[abs(obLocChoice)]] ++;
 			}
 			else if (obLocChoice == 0 && ibLocChoice != 0) {
 				ib_mode_freqs[mode[i]] ++;
 				ib_area_freqs[ZonalData->UrbanType[orig[i]]][ZonalData->UrbanType[dest[i]]] ++;
-				ib_district_freqs[ZonalData->bpmdist1_index[abs(ibLocChoice)]] ++;
+				ib_district_freqs[ZonalData->county_extended_index[abs(ibLocChoice)]] ++;
 			}
 			else if (obLocChoice != 0 && ibLocChoice != 0) {
 				obib_mode_freqs[mode[i]] ++;
 				obib_area_freqs[ZonalData->UrbanType[orig[i]]][ZonalData->UrbanType[dest[i]]] ++;
-				ob_district_freqs[ZonalData->bpmdist1_index[abs(obLocChoice)]] ++;
-				ib_district_freqs[ZonalData->bpmdist1_index[abs(ibLocChoice)]] ++;
+				ob_district_freqs[ZonalData->county_extended_index[abs(obLocChoice)]] ++;
+				ib_district_freqs[ZonalData->county_extended_index[abs(ibLocChoice)]] ++;
 			}
 			else if (obLocChoice == 0 && ibLocChoice == 0) {
 				none_mode_freqs[mode[i]] ++;
@@ -768,8 +768,8 @@ void stops (FILE *fp, int *orig, int *dest, int *mode,	struct journey_attribs *J
 
 	// calculate inbound and outbound size by BPMDIST1
 	for (k=1; k <= Ini->MAX_TAZS; k++) {
-		ob_district_size[ZonalData->bpmdist1_index[k]] += ob_stop_size[k];
-		ib_district_size[ZonalData->bpmdist1_index[k]] += ib_stop_size[k];
+		ob_district_size[ZonalData->county_extended_index[k]] += ob_stop_size[k];
+		ib_district_size[ZonalData->county_extended_index[k]] += ib_stop_size[k];
 	}
 
 
@@ -777,7 +777,7 @@ void stops (FILE *fp, int *orig, int *dest, int *mode,	struct journey_attribs *J
 	printf ("printing stop freq and stop loc summary reports.\n");
 	stops_reports (ob_mode_freqs, ib_mode_freqs, obib_mode_freqs, none_mode_freqs,
 		ob_area_freqs, ib_area_freqs, obib_area_freqs, none_area_freqs,
-		ob_district_freqs, ib_district_freqs, ob_district_size, ib_district_size);
+		ob_district_freqs, ib_district_freqs, ob_district_size, ib_district_size, districtDefinitions);
 
 
 

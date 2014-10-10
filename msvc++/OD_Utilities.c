@@ -212,6 +212,12 @@ void OD_Utilities (int purpose, struct zone_data *ZonalData, struct taxi_data *T
 			fflush(stdout);
 			fflush(fp_rep);
 		}
+		else if (i == 2158) {
+			printf ("hwy_dist[2158][3385] = %.2f, hwy_time[2158][3385] = %.2f\n", hwy_dist[3385], hwy_time[3385]);
+			fprintf (fp_rep, "hwy_dist[2158][3385] = %.2f, hwy_time[2158][3385] = %.2f\n", hwy_dist[3385], hwy_time[3385]);
+			fflush(stdout);
+			fflush(fp_rep);
+		}
 
 
 

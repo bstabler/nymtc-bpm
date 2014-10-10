@@ -88,7 +88,7 @@
 #define  UA_TX		  5.050109
 #define  THETA151	  0.910038
 #define  THETA152	  0.502606
-#define  THETA151_X_THETA152 .457391
+#define  THETA151_X_THETA152 THETA151*THETA152
 
 // not included in models:
 #define  PARKING_COST 0.0

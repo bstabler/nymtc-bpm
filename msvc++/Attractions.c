@@ -60,8 +60,8 @@ void work_attractions (FILE *fp, struct zone_data *ZonalData, float **Attraction
 
 // Now split total work journeys per zone into work journeys by income group per zone
 // Read percent zonal work attractions by income group records.
-	fgets(InputRecord, PCT_RECORD_LENGTH+2, fp);							// ignore header record
-	while ((fgets(InputRecord, PCT_RECORD_LENGTH+2, fp)) != NULL) {
+	fgets(InputRecord, PCT_RECORD_LENGTH+5, fp);							// ignore header record
+	while ((fgets(InputRecord, PCT_RECORD_LENGTH+5, fp)) != NULL) {
 
 		strncpy (temp, &InputRecord[PCT_ZONE_START-1], PCT_ZONE_LENGTH);
 		temp[PCT_ZONE_LENGTH] = '\0';

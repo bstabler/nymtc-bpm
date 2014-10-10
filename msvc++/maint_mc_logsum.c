@@ -136,7 +136,11 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 	if (Avail[4]) {
 		wt  = OD_Utility[4] + SE_Utility[4] + ASC[4];
 		if (wt < -MAX_EXP || wt > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating wt for journey #%d\n", journey);
+			printf ("Avail[4]=%d, wt=%.4e, OD_Utility[4]=%.4e, SE_Utility[4]=%.4e, ASC[4]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[4], wt, OD_Utility[4], SE_Utility[4], ASC[4], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating wt for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[4]=%d, wt=%.4e, OD_Utility[4]=%.4e, SE_Utility[4]=%.4e, ASC[4]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[4], wt, OD_Utility[4], SE_Utility[4], ASC[4], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wt);
@@ -144,7 +148,11 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 	if (Avail[5]) {
 		dt  = OD_Utility[5] + SE_Utility[5] + ASC[5];
 		if (dt < -MAX_EXP || dt > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating dt for journey #%d\n", journey);
+			printf ("Avail[5]=%d, dt=%.4e, OD_Utility[5]=%.4e, SE_Utility[5]=%.4e, ASC[5]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[5], dt, OD_Utility[5], SE_Utility[5], ASC[5], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating dt for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[5]=%d, dt=%.4e, OD_Utility[5]=%.4e, SE_Utility[5]=%.4e, ASC[5]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[5], dt, OD_Utility[5], SE_Utility[5], ASC[5], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dt);
@@ -157,7 +165,11 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 	if (Avail[6]) {
 		wc  = OD_Utility[6] + SE_Utility[6] + ASC[6];
 		if (wc < -MAX_EXP || wc > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating wc for journey #%d\n", journey);
+			printf ("Avail[6]=%d, wc=%.4e, OD_Utility[6]=%.4e, SE_Utility[6]=%.4e, ASC[6]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[6], wc, OD_Utility[6], SE_Utility[6], ASC[6], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating wc for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[6]=%d, wc=%.4e, OD_Utility[6]=%.4e, SE_Utility[6]=%.4e, ASC[6]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[6], wc, OD_Utility[6], SE_Utility[6], ASC[6], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(wc);
@@ -165,7 +177,11 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 	if (Avail[7]) {
 		dc  = OD_Utility[7] + SE_Utility[7] + ASC[7];
 		if (dc < -MAX_EXP || dc > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating dc for journey #%d\n", journey);
+			printf ("Avail[7]=%d, dc=%.4e, OD_Utility[7]=%.4e, SE_Utility[7]=%.4e, ASC[7]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[7], dc, OD_Utility[7], SE_Utility[7], ASC[7], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating dc for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[7]=%d, dc=%.4e, OD_Utility[7]=%.4e, SE_Utility[7]=%.4e, ASC[7]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[7], dc, OD_Utility[7], SE_Utility[7], ASC[7], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(dc);
@@ -186,21 +202,33 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 	SumExp	= 0.0;
 	if (Avail[1]) {
 		if (sr2_2 < -MAX_EXP || sr2_2 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating sr2_2 for journey #%d\n", journey);
+			printf ("Avail[1]=%d, sr2_2=%.4e, OD_Utility[1]=%.4e, SE_Utility[1]=%.4e, ASC[1]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[1], sr2_2, OD_Utility[1], SE_Utility[1], ASC[1], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating sr2_2 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[1]=%d, sr2_2=%.4e, OD_Utility[1]=%.4e, SE_Utility[1]=%.4e, ASC[1]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[1], sr2_2, OD_Utility[1], SE_Utility[1], ASC[1], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr2_2);
 	}	
 	if (Avail[2]) {
 		if (sr3_2 < -MAX_EXP || sr3_2 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating sr3_2 for journey #%d\n", journey);
+			printf ("Avail[2]=%d, sr3_2=%.4e, OD_Utility[2]=%.4e, SE_Utility[2]=%.4e, ASC[2]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[2], sr3_2, OD_Utility[2], SE_Utility[2], ASC[2], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating sr3_2 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[2]=%d, sr3_2=%.4e, OD_Utility[2]=%.4e, SE_Utility[2]=%.4e, ASC[2]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[2], sr3_2, OD_Utility[2], SE_Utility[2], ASC[2], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr3_2);
 	}	
 	if (Avail[3]) {
 		if (sr4_2 < -MAX_EXP || sr4_2 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating sr4_2 for journey #%d\n", journey);
+			printf ("Avail[3]=%d, sr4_2=%.4e, OD_Utility[3]=%.4e, SE_Utility[3]=%.4e, ASC[3]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[3], sr4_2, OD_Utility[3], SE_Utility[3], ASC[3], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating sr4_2 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[3]=%d, sr4_2=%.4e, OD_Utility[3]=%.4e, SE_Utility[3]=%.4e, ASC[3]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[3], sr4_2, OD_Utility[3], SE_Utility[3], ASC[3], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(sr4_2);
@@ -208,14 +236,26 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
     no_walk_SumExp = SumExp;
 	if (Avail[4] || Avail[5]) {
 		if (tr_2 < -MAX_EXP || tr_2 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating tr_2 for journey #%d\n", journey);
+			printf ("Avail[4]=%d, tr_2=%.4e, OD_Utility[4]=%.4e, SE_Utility[4]=%.4e, ASC[4]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[4], tr_2, OD_Utility[4], SE_Utility[4], ASC[4], SumExp, no_walk_SumExp, MAX_EXP );
+			printf ("Avail[5]=%d, tr_2=%.4e, OD_Utility[5]=%.4e, SE_Utility[5]=%.4e, ASC[5]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[5], tr_2, OD_Utility[5], SE_Utility[5], ASC[5], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating tr_2 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[4]=%d, tr_2=%.4e, OD_Utility[4]=%.4e, SE_Utility[4]=%.4e, ASC[4]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[4], tr_2, OD_Utility[4], SE_Utility[4], ASC[4], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[5]=%d, tr_2=%.4e, OD_Utility[5]=%.4e, SE_Utility[5]=%.4e, ASC[5]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[5], tr_2, OD_Utility[5], SE_Utility[5], ASC[5], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(tr_2);
 	}	
 	if (Avail[6] || Avail[7]) {
 		if (cr_2 < -MAX_EXP || cr_2 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating cr_2 for journey #%d\n", journey);
+			printf ("Avail[6]=%d, cr_2=%.4e, OD_Utility[6]=%.4e, SE_Utility[6]=%.4e, ASC[6]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[6], cr_2, OD_Utility[6], SE_Utility[6], ASC[6], SumExp, no_walk_SumExp, MAX_EXP );
+			printf ("Avail[7]=%d, cr_2=%.4e, OD_Utility[7]=%.4e, SE_Utility[7]=%.4e, ASC[7]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[7], cr_2, OD_Utility[7], SE_Utility[7], ASC[7], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating cr_2 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[6]=%d, cr_2=%.4e, OD_Utility[6]=%.4e, SE_Utility[6]=%.4e, ASC[6]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[6], cr_2, OD_Utility[6], SE_Utility[6], ASC[6], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[7]=%d, cr_2=%.4e, OD_Utility[7]=%.4e, SE_Utility[7]=%.4e, ASC[7]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[7], cr_2, OD_Utility[7], SE_Utility[7], ASC[7], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(cr_2);
@@ -234,7 +274,11 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 	SumExp = 0.0;
 	if (Avail[0]) {
 		if (da_3 < -MAX_EXP || da_3 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating da_3 for journey #%d\n", journey);
+			printf ("Avail[0]=%d, da_3=%.4e, OD_Utility[0]=%.4e, SE_Utility[0]=%.4e, ASC[0]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[0], da_3, OD_Utility[0], SE_Utility[0], ASC[0], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating da_3 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[0]=%d, da_3=%.4e, OD_Utility[0]=%.4e, SE_Utility[0]=%.4e, ASC[0]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[0], da_3, OD_Utility[0], SE_Utility[0], ASC[0], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		SumExp += exp(da_3);
@@ -242,21 +286,47 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
     no_walk_SumExp = SumExp;
 	if (Avail[1] || Avail[2] || Avail[3]) {
 		if (no_walk_srtr_3 < -MAX_EXP || no_walk_srtr_3 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ( "\nerror in maint_mc_logsum() calculating no_walk_srtr_3 for journey #%d\n", journey);
+			printf ( "Avail[1]=%d, no_walk_srtr_3=%.4e, OD_Utility[1]=%.4e, SE_Utility[1]=%.4e, ASC[1]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[1], no_walk_srtr_3, OD_Utility[1], SE_Utility[1], ASC[1], SumExp, MAX_EXP );
+			printf ( "Avail[2]=%d, no_walk_srtr_3=%.4e, OD_Utility[2]=%.4e, SE_Utility[2]=%.4e, ASC[2]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[2], no_walk_srtr_3, OD_Utility[2], SE_Utility[2], ASC[2], SumExp, MAX_EXP );
+			printf ( "Avail[3]=%d, no_walk_srtr_3=%.4e, OD_Utility[3]=%.4e, SE_Utility[3]=%.4e, ASC[3]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[3], no_walk_srtr_3, OD_Utility[3], SE_Utility[3], ASC[3], SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating no_walk_srtr_3 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[1]=%d, no_walk_srtr_3=%.4e, OD_Utility[1]=%.4e, SE_Utility[1]=%.4e, ASC[1]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[1], no_walk_srtr_3, OD_Utility[1], SE_Utility[1], ASC[1], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[2]=%d, no_walk_srtr_3=%.4e, OD_Utility[2]=%.4e, SE_Utility[2]=%.4e, ASC[2]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[2], no_walk_srtr_3, OD_Utility[2], SE_Utility[2], ASC[2], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[3]=%d, no_walk_srtr_3=%.4e, OD_Utility[3]=%.4e, SE_Utility[3]=%.4e, ASC[3]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[3], no_walk_srtr_3, OD_Utility[3], SE_Utility[3], ASC[3], SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		no_walk_SumExp += exp(no_walk_srtr_3);
 	}
 	if (Avail[1] || Avail[2] || Avail[3] || Avail[4] || Avail[5] || Avail[6] || Avail[7]) {
 		if (srtr_3 < -MAX_EXP || srtr_3 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
-			ExitWithCode(6);
+			printf ( "\nerror in maint_mc_logsum() calculating srtr_3 for journey #%d\n", journey);
+			printf ( "Avail[1]=%d, srtr_3=%.4e, OD_Utility[1]=%.4e, SE_Utility[1]=%.4e, ASC[1]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[1], srtr_3, OD_Utility[1], SE_Utility[1], ASC[1], SumExp, MAX_EXP );
+			printf ( "Avail[2]=%d, srtr_3=%.4e, OD_Utility[2]=%.4e, SE_Utility[2]=%.4e, ASC[2]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[2], srtr_3, OD_Utility[2], SE_Utility[2], ASC[2], SumExp, MAX_EXP );
+			printf ( "Avail[3]=%d, srtr_3=%.4e, OD_Utility[3]=%.4e, SE_Utility[3]=%.4e, ASC[3]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[3], srtr_3, OD_Utility[3], SE_Utility[3], ASC[3], SumExp, MAX_EXP );
+			printf ( "Avail[4]=%d, srtr_3=%.4e, OD_Utility[4]=%.4e, SE_Utility[4]=%.4e, ASC[4]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[4], srtr_3, OD_Utility[4], SE_Utility[4], ASC[4], SumExp, MAX_EXP );
+			printf ( "Avail[5]=%d, srtr_3=%.4e, OD_Utility[5]=%.4e, SE_Utility[5]=%.4e, ASC[5]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[5], srtr_3, OD_Utility[5], SE_Utility[5], ASC[5], SumExp, MAX_EXP );
+			printf ( "Avail[6]=%d, srtr_3=%.4e, OD_Utility[6]=%.4e, SE_Utility[6]=%.4e, ASC[6]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[6], srtr_3, OD_Utility[6], SE_Utility[6], ASC[6], SumExp, MAX_EXP );
+			printf ( "Avail[7]=%d, srtr_3=%.4e, OD_Utility[7]=%.4e, SE_Utility[7]=%.4e, ASC[7]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[7], srtr_3, OD_Utility[7], SE_Utility[7], ASC[7], SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating srtr_3 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[1]=%d, srtr_3=%.4e, OD_Utility[1]=%.4e, SE_Utility[1]=%.4e, ASC[1]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[1], srtr_3, OD_Utility[1], SE_Utility[1], ASC[1], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[2]=%d, srtr_3=%.4e, OD_Utility[2]=%.4e, SE_Utility[2]=%.4e, ASC[2]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[2], srtr_3, OD_Utility[2], SE_Utility[2], ASC[2], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[3]=%d, srtr_3=%.4e, OD_Utility[3]=%.4e, SE_Utility[3]=%.4e, ASC[3]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[3], srtr_3, OD_Utility[3], SE_Utility[3], ASC[3], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[4]=%d, srtr_3=%.4e, OD_Utility[4]=%.4e, SE_Utility[4]=%.4e, ASC[4]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[4], srtr_3, OD_Utility[4], SE_Utility[4], ASC[4], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[5]=%d, srtr_3=%.4e, OD_Utility[5]=%.4e, SE_Utility[5]=%.4e, ASC[5]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[5], srtr_3, OD_Utility[5], SE_Utility[5], ASC[5], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[6]=%d, srtr_3=%.4e, OD_Utility[6]=%.4e, SE_Utility[6]=%.4e, ASC[6]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[6], srtr_3, OD_Utility[6], SE_Utility[6], ASC[6], SumExp, MAX_EXP );
+			fprintf (fp_rep, "Avail[7]=%d, srtr_3=%.4e, OD_Utility[7]=%.4e, SE_Utility[7]=%.4e, ASC[7]=.6e, SumExp=%.4e, MAX_EXP=%f\n", Avail[7], srtr_3, OD_Utility[7], SE_Utility[7], ASC[7], SumExp, MAX_EXP );
 		}
 		SumExp += exp(srtr_3);
 	}
 	if (Avail[8]) {
 		if (tx_3 < -MAX_EXP || tx_3 > MAX_EXP) {
-			printf ("\nprocessing journey #%d\n", journey);
+			printf ("\nerror in maint_mc_logsum() calculating tx_3 for journey #%d\n", journey);
+			printf ("Avail[8]=%d, tx_3=%.4e, OD_Utility[8]=%.4e, SE_Utility[8]=%.4e, ASC[8]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[8], tx_3, OD_Utility[8], SE_Utility[8], ASC[8], SumExp, no_walk_SumExp, MAX_EXP );
+			fprintf (fp_rep, "\nerror in maint_mc_logsum() calculating tx_3 for journey #%d\n", journey);
+			fprintf (fp_rep, "Avail[8]=%d, tx_3=%.4e, OD_Utility[8]=%.4e, SE_Utility[8]=%.4e, ASC[8]=.6e, SumExp=%.4e, no_walk_SumExp=%.4e, MAX_EXP=%f\n", Avail[8], tx_3, OD_Utility[8], SE_Utility[8], ASC[8], SumExp, no_walk_SumExp, MAX_EXP );
+			fflush(fp_rep);
 			ExitWithCode(6);
 		}
 		dval= exp(tx_3);
@@ -264,7 +334,7 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
 		SumExp += dval;
 	}
 	if (no_walk_SumExp > 0.0) {
-		return_values[0] = (float)log(no_walk_SumExp);
+		return_values[0] = log(no_walk_SumExp);
         no_walk_ok = TRUE;
     }
 	else {
@@ -273,7 +343,7 @@ void maint_mc_logsum (int journey, int orig, int dest, int *Avail, int person_ty
     }
 
 	if (SumExp > 0.0) {
-		return_values[1] = (float)log(SumExp);
+		return_values[1] = log(SumExp);
         walk_ok = TRUE;
     }
 	else {

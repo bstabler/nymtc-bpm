@@ -43,17 +43,17 @@ void stop_location_avail (int orig, int dest, int mode, struct zone_data *ZonalD
 	int k;
 	float o_ivt_limit, d_ivt_limit, walk_time_ik, walk_time_kj;
 	double stop_radius, stop_dev;
-    int *bpmdist1_index;
-    int bpmdist1_index_orig, bpmdist1_index_dest;
+    int *county_extended;
+    int county_extended_orig, county_extended_dest;
     float *hwy_dist_orig;
     float *wt_ivt_orig;
     float *dt_ivt_orig;
     float *wc_ivt_orig;
     float *dc_ivt_orig;
 
-    bpmdist1_index = ZonalData->bpmdist1_index;
-    bpmdist1_index_orig = bpmdist1_index[orig];
-    bpmdist1_index_dest = bpmdist1_index[dest];
+	county_extended = ZonalData->county_extended_index;
+    county_extended_orig = county_extended[orig];
+    county_extended_dest = county_extended[dest];
 
     hwy_dist_orig = hwy_dist[orig];
     wt_ivt_orig = wt_ivt[orig];
@@ -106,7 +106,7 @@ void stop_location_avail (int orig, int dest, int mode, struct zone_data *ZonalD
 		near_dest[k] = 0;
 		midway[k] = 0;
 
-		if (ValidStop(bpmdist1_index_orig, bpmdist1_index_dest, bpmdist1_index[k])) {
+		if (ValidStop(county_extended_orig, county_extended_dest, county_extended[k])) {
 
 			walk_time_ik = (float)(60.0*hwy_dist_orig[k]/Ini->WALK_SPEED);
 			walk_time_kj = (float)(60.0*hwy_dist[k][dest]/Ini->WALK_SPEED);

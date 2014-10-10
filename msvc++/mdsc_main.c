@@ -227,18 +227,31 @@ MDSC with sub-area analysis version history:
 						The statements to read a header record and echo it to a report file were commented out.  The haj record counter was chnaged from intialized 
 						to 1, to initialized to 0.
 
+4.1.1.12 - 02Dec2013 -  Built 64 bit version.  Resovled precision problem that triggered check logsum error message.
+
+4.2.1.1  - 29Jul2014 -  Added capability to specify aggregation districts for reporting dist/district flows and modal summary reports; district to district
+						dstination choice utility constants by user specified districts;  Mode choice ASCs by iuser specified areas.
+
+4.2.1.2  - 09Oct2014 -  Changed error messages to report more about component utilities for logsum calculations to try to identify errors reported from last version
+						when executed on NYMTC machine - no similar error on PB machines.
+
+4.2.1.3  - 10Oct2014 -  Changed PROGRESS_INCREMENT (report file) and PROGRESS_INCREMENT1 (console) back to 10000 each.  Added optional controls that if specified,
+						overwrite the defaults, so that one may specify in the control file to have the update increment be 1 journey, or 100000 journeys, for
+						either the report file or the console, as desired.
+
 */
 
-#define VERSION "4.1.1.11"
-#define LAST_MODIFIED "20jul2011"
+#define VERSION "4.2.1.3"
+#define LAST_MODIFIED "10Oct2014"
 
 int __cdecl main (int argc, char *argv[])
 {
 	FILE *fp, *fp3, *fp_rep2, *fp_rep3, *fp_work[6], *fp_cal;
-	int i, j, k, iter, total_journeys, nm_MSC_index;
+	int i, j, k, iter, total_journeys;
+	int nm_msc_index_index, nm_msc_index_value, nm_MSC_index;
 	int **ranprkcst, **TotProds, *NMTots;
 	int *origList, *destList, *modeList, orig, dest, mode;
-	int idist;
+	int idist, idist_index;
 	float cal_scale, *Mode_Obs;
 	float ***OD_Utility;
 	float **hwy_dist, **cal_obs_scaled, **cal_est_scaled;
@@ -249,16 +262,36 @@ int __cdecl main (int argc, char *argv[])
 	struct river_crossing_data RiverData;
 	struct journey_attribs JourneyAttribs;
 	struct walk_zone_data *WalkZoneData;
-	struct bpmdist1_coeff_data BPMDist1;
+	struct dc_constant_data DcConstantIndices;
+	struct m_mc_asc_data mMcAscData;
+	struct nm_mc_asc_data nmMcAscData;
 	struct co_dist_factors *DistFactors;
-	struct msc_data *msc;
 	char PROGRAM[100];
 	char tempString[200];
 	char *temp;
 
+	struct district_data countyDefinitions;
+	struct district_data countyExtendedDefinitions;
+	struct district_data distToDistReportDefinitions;
+	struct district_data modeReportDefinitions;
+	struct district_data dcConstantDefinitions;
+	struct district_data mMcAscIndices;
+	struct district_data mMcAscConstants;
+	struct district_data mMcAscTargets;
+	struct district_data nmMcAscIndices;
+	struct district_data nmMcAscConstants;
+	struct district_data nmMcAscTargets;
+	struct district_definitions districtDefinitions;
+
 	HANDLE od_util_heap;
     
 	start = clock();
+
+
+	strcpy (PROGRAM, "mdsc_main");
+	strcat (PROGRAM, VERSION);
+	strcat (PROGRAM, ".exe");
+	printf ("%s  --  version %s, last modified %s\n\n", PROGRAM, VERSION, LAST_MODIFIED);
 
 
 	if (argc == 2) {
@@ -268,12 +301,6 @@ int __cdecl main (int argc, char *argv[])
 	else {
 	  ExitWithCode(14);
 	}
-
-
-	strcpy (PROGRAM, "mdsc_main");
-	strcat (PROGRAM, VERSION);
-	strcat (PROGRAM, ".exe");
-	printf ("%s  --  version %s, last modified %s\n\n", PROGRAM, VERSION, LAST_MODIFIED);
 
 
 	Memory = 0;
@@ -309,6 +336,15 @@ int __cdecl main (int argc, char *argv[])
 		}
 
 	}
+
+
+	// let PROGRESS_INCREMENT_REPORTFILE be the default value if no value was specified in control file.
+	if (Ini->PROGRESS_INCREMENT_REPORTFILE == 0xffffffff)
+		Ini->PROGRESS_INCREMENT_REPORTFILE = PROGRESS_INCREMENT;
+
+	// let PROGRESS_INCREMENT_CONSOLE be the default value if no value was specified in control file.
+	if (Ini->PROGRESS_INCREMENT_CONSOLE == 0xffffffff)
+		Ini->PROGRESS_INCREMENT_CONSOLE = PROGRESS_INCREMENT1;
 
 
 
@@ -408,43 +444,6 @@ int __cdecl main (int argc, char *argv[])
 
 
 
-// Memory allocations
-	m_cal_obs = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (int)pow(Ini->NUMBER_BPMDIST1+1,2)*sizeof(float *));
-	for (i=0; i < pow(Ini->NUMBER_BPMDIST1+1,2); i++)
-		m_cal_obs[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
-
-	m_cal_est = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (int)pow(Ini->NUMBER_BPMDIST1+1,2)*sizeof(float *));
-	for (i=0; i < pow(Ini->NUMBER_BPMDIST1+1,2); i++)
-		m_cal_est[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
-
-	nm_cal_obs = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float));
-
-	nm_cal_est = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+1)*sizeof(float *));
-	for (i=0; i < Ini->NUMBER_BPMDIST1+1; i++)
-		nm_cal_est[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(float));
-
-	cal_obs_scaled = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (int)pow(Ini->NUMBER_BPMDIST1+1,2)*sizeof(float *));
-	for (i=0; i < pow(Ini->NUMBER_BPMDIST1+1,2); i++)
-		cal_obs_scaled[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
-
-	cal_est_scaled = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (int)pow(Ini->NUMBER_BPMDIST1+1,2)*sizeof(float *));
-	for (i=0; i < pow(Ini->NUMBER_BPMDIST1+1,2); i++)
-		cal_est_scaled[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
-
-	Mode_Obs = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS + 1)*sizeof(float));
-	NMTots = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_BPMDIST1+2)*sizeof(int));
-
-	ranprkcst = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, DENSITY_RANGES*sizeof (int *));
-	for (i=0; i < DENSITY_RANGES; i++)
-		ranprkcst[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, RANDOM_NUMBERS*sizeof (int));
-
-	TotProds = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int *));
-	for (i=0; i < Ini->MAX_TAZS+1; i++)
-		TotProds[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, PURPOSES*sizeof(int));
-
-	DistFactors = (struct co_dist_factors *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_COUNTIES+1)*sizeof(struct co_dist_factors));
-
-
 //	addRAM ("mdsc_main 1", 4*((int)pow(Ini->NUMBER_BPMDIST1+1,2))*(Ini->NUMBER_ALTS+1)*sizeof(float)
 //						+ (Ini->NUMBER_BPMDIST1+1)*sizeof(float)
 //						+ (Ini->NUMBER_BPMDIST1+1)*2*sizeof(float)
@@ -454,13 +453,64 @@ int __cdecl main (int argc, char *argv[])
 //						+ (Ini->MAX_TAZS+1)*PURPOSES*sizeof(int)
 //						+ (Ini->NUMBER_COUNTIES+1)*sizeof(struct co_dist_factors));
 	
-	
+
+	districtDefinitions.countyDefinitions = &countyDefinitions;
+	districtDefinitions.countyExtendedDefinitions = &countyExtendedDefinitions;
+	districtDefinitions.distToDistReportDefinitions = &distToDistReportDefinitions;
+	districtDefinitions.modeReportDefinitions = &modeReportDefinitions;
+	DcConstantIndices.dcConstantIndices = &dcConstantDefinitions;
+	mMcAscData.mMcAscIndices = &mMcAscIndices;
+	mMcAscData.mMcAscConstants = &mMcAscConstants;
+	mMcAscData.mMcAscTargets = &mMcAscTargets;
+	nmMcAscData.nmMcAscIndices = &nmMcAscIndices;
+	nmMcAscData.nmMcAscConstants = &nmMcAscConstants;
+	nmMcAscData.nmMcAscTargets = &nmMcAscTargets;
+
+
+	ranprkcst = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, DENSITY_RANGES*sizeof (int *));
+	for (i=0; i < DENSITY_RANGES; i++)
+		ranprkcst[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, RANDOM_NUMBERS*sizeof (int));
+
+	DistFactors = (struct co_dist_factors *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_COUNTIES+1)*sizeof(struct co_dist_factors));
+
+
 
 // read and process all the input data files other than skims data
 	get_input_data (&fp3, &fp_cal, &fp_rep2, &fp_rep3, fp_work, ranprkcst,
-		&TaxiData, &ZonalData, &RiverData, &WalkZoneData, &BPMDist1, DistFactors, &msc);
+		&TaxiData, &ZonalData, &RiverData, &WalkZoneData, &DcConstantIndices, &mMcAscData, &nmMcAscData, &districtDefinitions, DistFactors);
 	printf ("done reading input data files.\n");
 
+
+
+// Memory allocations
+	m_cal_obs = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (mMcAscData.mMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < (mMcAscData.mMcAscConstants->numValues+1); i++)
+		m_cal_obs[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
+
+	m_cal_est = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (mMcAscData.mMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < (mMcAscData.mMcAscConstants->numValues+1); i++)
+		m_cal_est[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
+
+	nm_cal_obs = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nmMcAscData.nmMcAscConstants->numValues+1)*sizeof(float));
+
+	nm_cal_est = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nmMcAscData.nmMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < (nmMcAscData.nmMcAscConstants->numValues+1); i++)
+		nm_cal_est[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(float));
+
+	cal_obs_scaled = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (mMcAscData.mMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < (mMcAscData.mMcAscConstants->numValues+1); i++)
+		cal_obs_scaled[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
+
+	cal_est_scaled = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (mMcAscData.mMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < (mMcAscData.mMcAscConstants->numValues+1); i++)
+		cal_est_scaled[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
+
+	Mode_Obs = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS + 1)*sizeof(float));
+	NMTots = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nmMcAscData.nmMcAscConstants->numValues+1)*sizeof(int));
+
+	TotProds = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->MAX_TAZS+1)*sizeof(int *));
+	for (i=0; i < Ini->MAX_TAZS+1; i++)
+		TotProds[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, PURPOSES*sizeof(int));
 
 
 // calculate the areas of competition if subarea analysis is selected
@@ -489,8 +539,9 @@ int __cdecl main (int argc, char *argv[])
 
 			// allocate memory for highway distance array
 			hwy_dist = (float **) calloc(Ini->MAX_TAZS+1, sizeof(float *));
-			for (i=0; i < Ini->MAX_TAZS+1; i++)
+			for (i=0; i < Ini->MAX_TAZS+1; i++) {
 				hwy_dist[i] = (float *) calloc(Ini->MAX_TAZS+1, sizeof(float));
+			}
 		}
 		else {
 			od_util_heap = HeapCreate (0, 2048, 0);
@@ -521,26 +572,26 @@ int __cdecl main (int argc, char *argv[])
 
 
 // compute observed motorized modal proportions from input motorized target shares
-	for (i=0; i < msc->motorized_max_index; i++) {
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
 		m_cal_obs[i][Ini->NUMBER_ALTS] = 0.0;
 		for (j=0; j < Ini->NUMBER_ALTS; j++) {
-			m_cal_obs[i][j] = (float)(msc->motorized_targets[i][j]/100.0);
-			m_cal_obs[i][Ini->NUMBER_ALTS] += msc->motorized_targets[i][j];
+			m_cal_obs[i][j] = (float)(mMcAscData.targets[i][j]/100.0);
+			m_cal_obs[i][Ini->NUMBER_ALTS] += mMcAscData.targets[i][j];
 		}
-		m_cal_obs[i][Ini->NUMBER_ALTS] /= (float)(msc->motorized_targets[i][j]/100.0);
+		m_cal_obs[i][Ini->NUMBER_ALTS] /= (float)(mMcAscData.targets[i][j]/100.0);
 	}
 
 
 
 // compute observed non-motorized modal proportions from input non-motorized target shares
-	for (i=0; i <= msc->nm_max_index; i++)
-		nm_cal_obs[i] = (float)(msc->nm_targets[i]/100.0);
-
+	for (i=0; i < nmMcAscData.nmMcAscConstants->numValues; i++)
+		nm_cal_obs[i] = (float)(nmMcAscData.targets[i]/100.0);
+	nm_cal_obs[nmMcAscData.nmMcAscConstants->numValues] = nmMcAscData.regionalShareTargets/100.0;
 
 
 // compute observed regional modal shares from regioanl targets
 	for (j=0; j < Ini->NUMBER_ALTS; j++)
-		Mode_Obs[j] = msc->motorized_targets[msc->motorized_max_index][j]/(float)100.0;
+		Mode_Obs[j] = mMcAscData.regionalShareTargets[j]/(float)100.0;
 
 
 
@@ -562,22 +613,22 @@ int __cdecl main (int argc, char *argv[])
 			Ini->NUMBER_JOURNEYS = total_journeys;
 	
 		// initialize estimated motorized shares matrix
-		for (i=0; i <= msc->motorized_max_index; i++) {
+		for (i=0; i <= mMcAscData.mMcAscConstants->numValues; i++) {
 			for (j=0; j <= Ini->NUMBER_ALTS; j++)
 				m_cal_est[i][j] = 0.0;
 		}
 
 		// initialize estimated non-motorized shares and non-motorized productions vectors
-		for (i=0; i <= msc->nm_max_index; i++) {
+		for (i=0; i <= nmMcAscData.nmMcAscConstants->numValues; i++) {
 			NMTots[i] = 0;
 			for (j=0; j < 2; j++)
 				nm_cal_est[i][j] = 0.0;
 		}
 
 		// run the simultaneous mode and destination choice model
-		run_mdc (NULL, NULL, NULL, fp_work, msc, m_cal_est, nm_cal_est,
+		run_mdc (NULL, NULL, NULL, fp_work, mMcAscData, nmMcAscData, m_cal_est, nm_cal_est,
 				hwy_dist, OD_Utility, TotProds, &JourneyAttribs, &ZonalData,
-				RiverData, &TaxiData, WalkZoneData, BPMDist1, DistFactors);
+				RiverData, &TaxiData, WalkZoneData, &DcConstantIndices, &districtDefinitions, DistFactors);
 
 
 //#
@@ -592,25 +643,25 @@ int __cdecl main (int argc, char *argv[])
 		// total up the number of productions by non-motorized geographic stratum for use in computing pre-mode shares
 		// do this after run_mdc() so that at-work linkages have already been made.
 		for (k=0; k < Ini->NUMBER_JOURNEYS; k++) {
-//			nm_MSC_index = get_nm_MSC_index (JourneyAttribs.orig[k], &ZonalData, msc);
-        	idist = ZonalData.bpmdist1_index[JourneyAttribs.orig[k]];
-        	nm_MSC_index = msc->nm_indices[idist];
-
-			NMTots[nm_MSC_index]++;
+			idist = ZonalData.nm_mc_asc_index[JourneyAttribs.orig[k]];
+			idist_index = nmMcAscData.nmMcAscIndices->indexIndices[idist];
+			nm_msc_index_value = nmMcAscData.indices[idist_index];
+			nm_msc_index_index = nmMcAscData.nmMcAscConstants->indexIndices[nm_msc_index_value];
+			NMTots[nm_msc_index_index]++;
 		}
 
 		// convert estimated journey frequencies into mode shares by MSC strata, compare to observed shares,
 		// and report for both motorized modes and non-motorized pre-mode choice.
-		calibration_report (iter, fp_cal, msc, Mode_Obs, NMTots, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
+		calibration_report (iter, fp_cal, mMcAscData, nmMcAscData, Mode_Obs, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
 
 
 		// compute new non-motorized MSCs
 		//		note: non-motorized MSCs are origin district based as opposed to O/D district based for motorized.
 		//            Therefore, m_cal_est[i][9] has the frequency of nm journeys by motorized stratum i,
 		//            and nm_cal_est[i] has the frequency of nm journeys by non-motorized stratum i.
-		for (i=0; i < msc->nm_max_index; i++) {
-			if (msc->nm_targets[i] < 0.00001) {
-				msc->nmMSC[i] = MISSING;
+		for (i=0; i < nmMcAscData.nmMcAscConstants->numValues; i++) {
+			if (nmMcAscData.targets[i] < 0.00001) {
+				nmMcAscData.constants[i] = MISSING;
 			}
 			else {
 				if (nm_cal_est[i][0] > 0.0 && nm_cal_obs[i] < 1.0)
@@ -623,14 +674,14 @@ int __cdecl main (int argc, char *argv[])
 				else if (share_ratio > MAX_CALIB_RATIO)
 					share_ratio = MAX_CALIB_RATIO;
 				
-				msc->nmMSC[i] += (float)log(share_ratio)*cal_scale;
+				nmMcAscData.constants[i] += (float)log(share_ratio)*cal_scale;
 			}
 		}
 
 
 		// compute new motorized shares without consideration of non-motorized journeys; that is,
 		// using proportions of motorized journeys.
-		for (i=0; i < msc->motorized_max_index; i++) {
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
 			for (j=0; j < Ini->NUMBER_ALTS; j++) {
 				if (j != 9) {
 					if (m_cal_obs[i][9] < 1.0)
@@ -648,11 +699,11 @@ int __cdecl main (int argc, char *argv[])
 
 				
 		// use these new motorized only shares to compute new motorized MSCs
-		for (i=0; i < msc->motorized_max_index; i++) {
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
 			for (j=0; j < Ini->NUMBER_ALTS; j++) {
 				if (j != 9) {
 					if (cal_obs_scaled[i][j] < 0.00001) {
-						msc->MSC[i][j] = MISSING;
+						mMcAscData.constants[i][j] = MISSING;
 					}
 					else {
 						if (cal_est_scaled[i][j] > 0.0)
@@ -665,7 +716,7 @@ int __cdecl main (int argc, char *argv[])
 						else if (share_ratio > MAX_CALIB_RATIO)
 							share_ratio = MAX_CALIB_RATIO;
 
-						msc->MSC[i][j] += (float)log(share_ratio)*cal_scale;
+						mMcAscData.constants[i][j] += (float)log(share_ratio)*cal_scale;
 					}
 				}
 			}
@@ -678,13 +729,13 @@ int __cdecl main (int argc, char *argv[])
 	Ini->NUMBER_JOURNEYS = total_journeys;
 
 	// initialize estimated motorized shares matrix
-	for (i=0; i <= msc->motorized_max_index; i++) {
+	for (i=0; i <= mMcAscData.mMcAscConstants->numValues; i++) {
 		for (j=0; j <= Ini->NUMBER_ALTS; j++)
 			m_cal_est[i][j] = 0.0;
 	}
 
 	// initialize estimated non-motorized shares and non-motorized productions vectors
-	for (i=0; i <= msc->nm_max_index; i++) {
+	for (i=0; i <= nmMcAscData.nmMcAscConstants->numValues; i++) {
 		NMTots[i] = 0;
 		for (j=0; j < 2; j++)
 			nm_cal_est[i][j] = 0.0;
@@ -692,9 +743,9 @@ int __cdecl main (int argc, char *argv[])
 
 	srand (Ini->RAND_SEED);
 
-	run_mdc (fp3, fp_rep2, fp_rep3, fp_work, msc, m_cal_est, nm_cal_est,
+	run_mdc (fp3, fp_rep2, fp_rep3, fp_work, mMcAscData, nmMcAscData, m_cal_est, nm_cal_est,
 		hwy_dist, OD_Utility, TotProds, &JourneyAttribs, &ZonalData,
-		RiverData, &TaxiData, WalkZoneData, BPMDist1, DistFactors);
+		RiverData, &TaxiData, WalkZoneData, &DcConstantIndices, &districtDefinitions, DistFactors);
 
 //#
 		sprintf (tempString, "finished with run_mdc()\n", i);
@@ -707,38 +758,39 @@ int __cdecl main (int argc, char *argv[])
 
 	// total up the number of productions by non-motorized geographic stratum for use in computing pre-mode shares
 	for (k=0; k < Ini->NUMBER_JOURNEYS; k++) {
-//		nm_MSC_index = get_nm_MSC_index (JourneyAttribs.orig[k], &ZonalData, msc);
-      	idist = ZonalData.bpmdist1_index[JourneyAttribs.orig[k]];
-       	nm_MSC_index = msc->nm_indices[idist];
-		NMTots[nm_MSC_index]++;
+			idist = ZonalData.nm_mc_asc_index[JourneyAttribs.orig[k]];
+			idist_index = nmMcAscData.nmMcAscIndices->indexIndices[idist];
+			nm_msc_index_value = nmMcAscData.indices[idist_index];
+			nm_msc_index_index = nmMcAscData.nmMcAscConstants->indexIndices[nm_msc_index_value];
+			NMTots[nm_msc_index_index]++;
 	}
 
 	// use cal_est_scaled[][] to temporarily save m_cal_est[][] and cat_obs_scaled[][0] to save nm_cal_est[]
 	// so that calibration_report can be called twice to write the same report to two different files.
-	for (i=0; i < msc->motorized_max_index; i++)
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++)
 		for (j=0; j <= Ini->NUMBER_ALTS; j++)
 			cal_est_scaled[i][j] = m_cal_est[i][j];
 
-	for (i=0; i < msc->nm_max_index; i++)
+	for (i=0; i < nmMcAscData.nmMcAscConstants->numValues; i++)
 		for (j=0; j < 2; j++)
 			cal_obs_scaled[i][j] = nm_cal_est[i][j];
 
 
 
-	calibration_report (iter, fp_rep, msc, Mode_Obs, NMTots, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
+	calibration_report (iter, fp_rep, mMcAscData, nmMcAscData, Mode_Obs, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
 
 	// restore vales and generate report a second time
 	if (fp_cal != NULL && Ini->MAX_CALIB_ITERS > 0) {
 
-		for (i=0; i < msc->motorized_max_index; i++)
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++)
 			for (j=0; j <= Ini->NUMBER_ALTS; j++)
 				m_cal_est[i][j] = cal_est_scaled[i][j];
 
-		for (i=0; i < msc->nm_max_index; i++)
+		for (i=0; i < nmMcAscData.nmMcAscConstants->numValues; i++)
 			for (j=0; j < 2; j++)
 				nm_cal_est[i][j] = cal_obs_scaled[i][j];
 	
-		calibration_report (iter, fp_cal, msc, Mode_Obs, NMTots, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
+		calibration_report (iter, fp_cal, mMcAscData, nmMcAscData, Mode_Obs, m_cal_obs, m_cal_est, nm_cal_obs, nm_cal_est, cal_scale);
 	}
 
 
@@ -865,7 +917,7 @@ int __cdecl main (int argc, char *argv[])
 	fflush (stdout);
 	fflush (fp_rep);
 
-	stops (fp3, origList, destList, modeList, &JourneyAttribs, &ZonalData, RiverData);
+	stops (fp3, origList, destList, modeList, &JourneyAttribs, &ZonalData, RiverData, districtDefinitions);
 
 
 	HeapFree (heapHandle, 0, origList);

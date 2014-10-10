@@ -3,19 +3,18 @@
 
 void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float ***ODutil, float *SEutil,
 					 float **Logsum, float ***z_attrs, struct river_crossing_data RiverData,
-					 struct zone_data *ZonalData, struct bpmdist1_coeff_data BPMDist1,
+					 struct zone_data *ZonalData, struct dc_constant_data *dcConstants,
 					 double *cum, float *hwydist, int debug_mode, double **util, double **props, short only_free)
 {
 
 	FILE *fp;
-	int i, j, k, m, ico, jco, ibpm, jbpm, IntraCounty;
+	int i, j, k, m, ico, jco, IntraCounty, origIndex, destIndex;
 //	double dist_scale, denominator, **util, **props;
 	double dist_scale, denominator, delta_IntraCounty;
     double gamma0, gamma1, gamma2;
     double gamma0River, gamma1River, gamma2River, util_val;
 	static int AlreadyOpen=0, allocated = 0;
     int *RiverData_east, *RiverData_hudson, *RiverData_minor;
-    float *BPMDist1_co_co_coeffs, BPMDist1_intra_county;
 
 
 //  07aug2008:
@@ -81,7 +80,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 
 // first calculate destination/access choice utilities
 	denominator = 0.0;
-	ibpm = ZonalData->bpmdist1_index[orig];
+	origIndex = dcConstants->dcConstantIndices->indexIndices[ZonalData->dc_constant_index[orig]];
 	ico = ZonalData->County[orig];
     gamma0 = DCcoeff->gamma[0];
     gamma1 = DCcoeff->gamma[1];
@@ -89,12 +88,10 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	RiverData_east   = RiverData.east[ico];
 	RiverData_hudson = RiverData.hudson[ico];
 	RiverData_minor  = RiverData.minor[ico];
-    BPMDist1_intra_county = BPMDist1.intra_county[ibpm];
-    BPMDist1_co_co_coeffs = BPMDist1.co_co_coeffs[ibpm];
 
 	for (j=1; j <= Ini->MAX_TAZS; j++) {
 		if (z_attrs[2][purpose][j] > 0.0) {
-			jbpm = ZonalData->bpmdist1_index[j];
+			destIndex = dcConstants->dcConstantIndices->indexIndices[ZonalData->dc_constant_index[j]];
 			jco = ZonalData->County[j];
 			if (purpose == 3)					// use intra-school district for school journeys, otherwise intra-county
 				IntraCounty = (ZonalData->SchoolDist[orig] == ZonalData->SchoolDist[j]);
@@ -105,10 +102,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 				gamma0River = gamma0*RiverData_east[jco];
 				gamma1River = gamma1*RiverData_hudson[jco];
 				gamma2River = gamma2*RiverData_minor[jco];
-				if (ibpm == jbpm)
-					util_val = BPMDist1_intra_county;	
-				else
-					util_val = BPMDist1_co_co_coeffs[jbpm];
+				util_val = dcConstants->inter_district_constants[origIndex][destIndex];
 				dist_scale = 0.0;
 				if (hwydist[j] > 0.0) {
 					dist_scale = DCcoeff->alpha*pow(hwydist[j],DCcoeff->theta);
@@ -166,7 +160,7 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 			fp = fopen (Ini->DEBUGFILE, "a");
 
 
-		fprintf (fp, "data dictionary\n\nPercent of journeys processed\norig\nj (dest)\npurpose\nm (walk acc)\nico (orig county)\njco (dest county)\nibpm (orig county with Manhattan sub-areas)\njbpm (dest county with Manhattan sub-areas)\nod distance\nprops[j][m] (proportions)\ncum[i] (cumulative proportions)\nutil[j][m]\nz_attrs[m][purpose][j]\nLogsum[j][m]\nRiverData.east[ico][jco]\nRiverData.hudson[ico][jco]\nRiverData.minor[ico][jco]\n(ico == jco)\n\n");
+		fprintf (fp, "data dictionary\n\nPercent of journeys processed\norig\nj (dest)\npurpose\nm (walk acc)\nico (orig county)\njco (dest county)\noConst (orig dc constant index)\ndConst (dest dc constant index)\nod distance\nprops[j][m] (proportions)\ncum[i] (cumulative proportions)\nutil[j][m]\nz_attrs[m][purpose][j]\nLogsum[j][m]\nRiverData.east[ico][jco]\nRiverData.hudson[ico][jco]\nRiverData.minor[ico][jco]\n(ico == jco)\n\n");
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++)
 			fprintf (fp, "%s od based utility\n", ModeLabel[k]);
 		fprintf (fp, "\n");
@@ -197,12 +191,12 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	m = 0;
 	ico = ZonalData->County[orig];
 	jco = ZonalData->County[j];
-	jbpm = ZonalData->bpmdist1_index[j];
+	destIndex = dcConstants->dcConstantIndices->indexIndices[ZonalData->dc_constant_index[j]];
 	if (debug_mode == 1) {
 		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
+			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, origIndex, destIndex, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 			RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
-			(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
+			(origIndex == destIndex), (ZonalData->county_extended_index[j] == 1), (ZonalData->county_extended_index[j] == 2), (ZonalData->county_extended_index[j] == 3), (ZonalData->county_extended_index[j] == 4));
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
 			if (Ini->ZERO_UTIL == 0)
 				fprintf (fp, " %16.8e", ODutil[k][orig][j]);
@@ -225,12 +219,12 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 	m = 1;
 	ico = ZonalData->County[orig];
 	jco = ZonalData->County[j];
-	jbpm = ZonalData->bpmdist1_index[j];
+	destIndex = dcConstants->dcConstantIndices->indexIndices[ZonalData->dc_constant_index[j]];
 	if (debug_mode == 1) {
 		fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
+			(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, origIndex, destIndex, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 			RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
-			(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
+			(origIndex == destIndex), (ZonalData->county_extended_index[j] == 1), (ZonalData->county_extended_index[j] == 2), (ZonalData->county_extended_index[j] == 3), (ZonalData->county_extended_index[j] == 4));
 		for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
 			if (Ini->ZERO_UTIL == 0)
 				fprintf (fp, " %16.8e", ODutil[k][orig][j]);
@@ -254,11 +248,11 @@ void motor_dc_props (int orig, int purpose, struct dc_coeff_data *DCcoeff, float
 
 			if (debug_mode == 1) {
         		jco = ZonalData->County[j];
-        		jbpm = ZonalData->bpmdist1_index[j];
+				destIndex = dcConstants->dcConstantIndices->indexIndices[ZonalData->dc_constant_index[j]];
 				fprintf (fp, "%5d%% %5d %5d %3d %3d %3d %3d %3d %3d %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %16.8e %3d %3d %3d %3d %3d %3d %3d",
-					(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, ibpm, jbpm, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
+					(AlreadyOpen - 1)*Ini->DEBUG_PERCENT, orig, j, purpose + 1, m, ico, jco, origIndex, destIndex, hwydist[j], props[j][m], cum[i], util[j][m], z_attrs[0][purpose][j], z_attrs[1][purpose][j], z_attrs[2][purpose][j], Logsum[j][m],
 					RiverData.east[ico][jco], RiverData.hudson[ico][jco], RiverData.minor[ico][jco], (ico == jco),
-					(ibpm == jbpm), (jbpm == 0), (jbpm == 1), (jbpm == 2), (jbpm == 3));
+					(origIndex == destIndex), (ZonalData->county_extended_index[j] == 1), (ZonalData->county_extended_index[j] == 2), (ZonalData->county_extended_index[j] == 3), (ZonalData->county_extended_index[j] == 4));
 				for (k=0; k < Ini->NUMBER_ALTS - 2; k++) {
 					if (Ini->ZERO_UTIL == 0)
 						fprintf (fp, " %16.8e", ODutil[k][orig][j]);

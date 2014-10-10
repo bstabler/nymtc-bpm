@@ -229,7 +229,7 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 	//haj = 1;
 	haj = 0;
 	//fprintf (fp_rep, "\nHAJ Journey file header record:\n%s\n\n", JourneyRecord);
-	while ((fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+1, fp)) != NULL && k < Ini->NUMBER_JOURNEYS) {
+	while ((fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+5, fp)) != NULL && k < Ini->NUMBER_JOURNEYS) {
 		haj++;
 
 		strncpy (temp, &JourneyRecord[OTAZ_START-1], OTAZ_LENGTH);
@@ -293,7 +293,7 @@ void read_kpmg_journey_records (FILE *fp, FILE *fp_work[], struct zone_data *Zon
 			for (i=0; i < hh_jrnys; i++) {
 				if (k < Ini->NUMBER_JOURNEYS) {
 
-					fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+2, fp);
+					fgets(JourneyRecord, JOURNEY_RECORD_LENGTH+5, fp);
 					haj++;
 
 					strncpy (temp, &JourneyRecord[PERSNO_START-1], PERSNO_LENGTH);

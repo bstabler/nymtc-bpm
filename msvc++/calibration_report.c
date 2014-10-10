@@ -1,6 +1,6 @@
 #include "md.h"
 
-void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mode_Obs, int *NMTots,
+void calibration_report (int iter, FILE *fp_cal, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData, float *Mode_Obs,
 						 float **m_cal_obs, float **m_cal_est, float *nm_cal_obs, float **nm_cal_est, float cal_scale) {
 
 	int i, j;
@@ -11,32 +11,26 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 	char temp1[1000], temp2[1000];
 
 
-	m_re = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (msc->motorized_max_index+1)*sizeof(int *));
-	for (i=0; i < msc->motorized_max_index + 1; i++)
+	m_re = (int **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (mMcAscData.mMcAscConstants->numValues+1)*sizeof(int *));
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues + 1; i++)
 		m_re[i] = (int *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(int));
 
-	m_EstFreq = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (msc->motorized_max_index+1)*sizeof(float *));
-	for (i=0; i < msc->motorized_max_index + 1; i++)
+	m_EstFreq = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (mMcAscData.mMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues + 1; i++)
 		m_EstFreq[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
 
-	m_EstTots = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, msc->motorized_max_index*sizeof(float));
+	m_EstTots = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, mMcAscData.mMcAscConstants->numValues*sizeof(float));
 
-	nm_EstFreq = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (msc->nm_max_index+1)*sizeof(float *));
-	for (i=0; i < msc->nm_max_index + 1; i++)
+	nm_EstFreq = (float **) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (nmMcAscData.nmMcAscConstants->numValues+1)*sizeof(float *));
+	for (i=0; i < nmMcAscData.nmMcAscConstants->numValues + 1; i++)
 		nm_EstFreq[i] = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, 2*sizeof(float));
 
 	Mode_Est = (float *) HeapAlloc (heapHandle, HEAP_ZERO_MEMORY, (Ini->NUMBER_ALTS+1)*sizeof(float));
 
-//	addRAM ("calibration_report", (msc->motorized_max_index+1)*(Ini->NUMBER_ALTS+1)*sizeof(int)
-//								+ (msc->motorized_max_index+1)*(Ini->NUMBER_ALTS+1)*sizeof(float)
-//								+ (msc->motorized_max_index)*sizeof(float)
-//								+ (msc->nm_max_index+1)*2*sizeof(float)
-//								+ (Ini->NUMBER_ALTS + 1)*sizeof(float));
-//
 
 
 	// sum up estimated motorized journeys to calculate mode shares by each motorized mode choice stratum
-	for (i=0; i < msc->motorized_max_index; i++) {
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
 		for (j=0; j < Ini->NUMBER_ALTS; j++) {
 			m_EstFreq[i][j] = m_cal_est[i][j];
 			m_EstTots[i] += m_cal_est[i][j];
@@ -46,7 +40,7 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 	}
 
 	// compute motorized mode shares and relative errors
-	for (i=0; i < msc->motorized_max_index; i++) {
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
 
 		if (m_cal_obs[i][Ini->NUMBER_ALTS] > 0.0) {
 			if (m_cal_est[i][Ini->NUMBER_ALTS] == 0.0)
@@ -79,20 +73,20 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 			Mode_Est[j] /= m_TotalEst;
 		if (Mode_Obs[j] > 0.0) {
 			if (Mode_Est[j] == 0.0)
-				m_re[msc->motorized_max_index][j] = 0;
+				m_re[mMcAscData.mMcAscConstants->numValues][j] = 0;
 			else
-				m_re[msc->motorized_max_index][j] = (int)(100.0*(Mode_Est[j] - Mode_Obs[j])/Mode_Obs[j]);
+				m_re[mMcAscData.mMcAscConstants->numValues][j] = (int)(100.0*(Mode_Est[j] - Mode_Obs[j])/Mode_Obs[j]);
 		}
 	}
 
 
 
 	// convert non-motorized journey frequency into shares by pre-mode choice stratum
-	nm_EstFreq[msc->nm_max_index][0] = 0.0;
-	nm_EstFreq[msc->nm_max_index][1] = 0.0;
-	for (i=0; i < msc->nm_max_index; i++) {
-		nm_EstFreq[msc->nm_max_index][0] += nm_cal_est[i][0];
-		nm_EstFreq[msc->nm_max_index][1] += nm_cal_est[i][1];
+	nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][0] = 0.0;
+	nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][1] = 0.0;
+	for (i=0; i < nmMcAscData.nmMcAscConstants->numValues; i++) {
+		nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][0] += nm_cal_est[i][0];
+		nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][1] += nm_cal_est[i][1];
 
 		if (nm_cal_est[i][1] > 0.0)
 			nm_cal_est[i][0] /= nm_cal_est[i][1];
@@ -116,17 +110,15 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "INDEX                 DESCRIPTION        DA       SR2       SR3       SR4        WT        DT        WC        DC        TX        NM        SB\n");
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
-		for (i=0; i < msc->motorized_max_index; i++) {
-			if (msc->motorized_index_used[i] == 1) {
-				fprintf (fp_cal, "%-5d %27s", i, msc->motorized_labels[i]);
-				for (j=0; j < Ini->NUMBER_ALTS; j++) {
-					if (msc->MSC[i][j] != MISSING)
-						fprintf (fp_cal, " %9.5f", msc->MSC[i][j]);
-					else
-						fprintf (fp_cal, " %9s", "-99999");
-				}
-				fprintf (fp_cal, "\n");
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
+			fprintf (fp_cal, "%-5d %27s", mMcAscData.mMcAscConstants->indexValues[i], mMcAscData.mMcAscConstants->labels[i]);
+			for (j=0; j < Ini->NUMBER_ALTS; j++) {
+				if (mMcAscData.constants[i][j] != MISSING)
+					fprintf (fp_cal, " %9.5f", mMcAscData.constants[i][j]);
+				else
+					fprintf (fp_cal, " %9s", "-99999");
 			}
+			fprintf (fp_cal, "\n");
 		}
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n\n\n\n");
 
@@ -135,13 +127,11 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "INDEX                 DESCRIPTION        DA       SR2       SR3       SR4        WT        DT        WC        DC        TX        NM        SB\n");
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
-		for (i=0; i < msc->motorized_max_index; i++) {
-			if (msc->motorized_index_used[i] == 1) {
-				fprintf (fp_cal, "%-5d %27s", i, msc->motorized_labels[i]);
-				for (j=0; j < Ini->NUMBER_ALTS; j++)
-					fprintf (fp_cal, " %9.1f", 100.0*m_cal_obs[i][j]);
-				fprintf (fp_cal, "\n");
-			}
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
+			fprintf (fp_cal, "%-5d %27s", mMcAscData.mMcAscConstants->indexValues[i], mMcAscData.mMcAscConstants->labels[i]);
+			for (j=0; j < Ini->NUMBER_ALTS; j++)
+				fprintf (fp_cal, " %9.1f", 100.0*m_cal_obs[i][j]);
+			fprintf (fp_cal, "\n");
 		}
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "%-33s", "REGIONAL OBSERVED MODE SHARES");
@@ -155,13 +145,11 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "INDEX                 DESCRIPTION        DA       SR2       SR3       SR4        WT        DT        WC        DC        TX        NM        SB\n");
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
-		for (i=0; i < msc->motorized_max_index; i++) {
-			if (msc->motorized_index_used[i] == 1) {
-				fprintf (fp_cal, "%-5d %27s", i, msc->motorized_labels[i]);
-				for (j=0; j < Ini->NUMBER_ALTS; j++)
-					fprintf (fp_cal, " %9.1f", 100.0*m_cal_est[i][j]);
-				fprintf (fp_cal, "\n");
-			}
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
+			fprintf (fp_cal, "%-5d %27s", mMcAscData.mMcAscConstants->indexValues[i], mMcAscData.mMcAscConstants->labels[i]);
+			for (j=0; j < Ini->NUMBER_ALTS; j++)
+				fprintf (fp_cal, " %9.1f", 100.0*m_cal_est[i][j]);
+			fprintf (fp_cal, "\n");
 		}
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "%-33s", "REGIONAL ESTIMATED MODE SHARES");
@@ -175,22 +163,20 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "INDEX                 DESCRIPTION        DA       SR2       SR3       SR4        WT        DT        WC        DC        TX        NM        SB\n");
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
-		for (i=0; i < msc->motorized_max_index; i++) {
-			if (msc->motorized_index_used[i] == 1) {
-				fprintf (fp_cal, "%-5d %27s", i, msc->motorized_labels[i]);
-				for (j=0; j < Ini->NUMBER_ALTS; j++) {
-					if (m_cal_obs[i][j] > 0.0)
-						fprintf (fp_cal, " %9d", m_re[i][j]);
-					else
-						fprintf (fp_cal, " %9s", "+INF");
-				}
-			fprintf (fp_cal, "\n");
+		for (i=0; i < mMcAscData.mMcAscConstants->numValues; i++) {
+			fprintf (fp_cal, "%-5d %27s", mMcAscData.mMcAscConstants->indexValues[i], mMcAscData.mMcAscConstants->labels[i]);
+			for (j=0; j < Ini->NUMBER_ALTS; j++) {
+				if (m_cal_obs[i][j] > 0.0)
+					fprintf (fp_cal, " %9d", m_re[i][j]);
+				else
+					fprintf (fp_cal, " %9s", "+INF");
 			}
+			fprintf (fp_cal, "\n");
 		}
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "%-33s", "REGIONAL RELATIVE ERRORS");
 		for (j=0; j < Ini->NUMBER_ALTS; j++)
-			fprintf (fp_cal, " %9d", m_re[msc->motorized_max_index][j]);
+			fprintf (fp_cal, " %9d", m_re[mMcAscData.mMcAscConstants->numValues][j]);
 		fprintf (fp_cal, "\n");
 		fprintf (fp_cal, "-----------------------------------------------------------------------------------------------------------------------------------------------\n");
 
@@ -201,24 +187,22 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 		fprintf (fp_cal, "-------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "INDEX                 DESCRIPTION       MSC    OBS NM    EST NM     RE NM\n");
 		fprintf (fp_cal, "-------------------------------------------------------------------------\n");
-		for (i=0; i < msc->nm_max_index; i++) {
-			if (msc->nm_index_used[i] == 1) {
-				fprintf (fp_cal, "%-5d %27s %9.5f", i, msc->nm_labels[i], msc->nmMSC[i]);
-				fprintf (fp_cal, " %9.1f", 100.0*nm_cal_obs[i]);
-				fprintf (fp_cal, " %9.1f", 100.0*nm_cal_est[i][0]);
-				if (nm_cal_obs[i] > 0.0)
-					fprintf (fp_cal, " %9.1f", 100.0*(nm_cal_est[i][0] - nm_cal_obs[i])/nm_cal_obs[i]);
-				else
-					fprintf (fp_cal, " %9s", "+INF");
-				fprintf (fp_cal, "\n");
-			}
+		for (i=0; i < nmMcAscData.nmMcAscConstants->numValues; i++) {
+			fprintf (fp_cal, "%-5d %27s %9.5f", mMcAscData.mMcAscConstants->indexValues[i], nmMcAscData.nmMcAscConstants->labels[i], nmMcAscData.constants[i]);
+			fprintf (fp_cal, " %9.1f", 100.0*nm_cal_obs[i]);
+			fprintf (fp_cal, " %9.1f", 100.0*nm_cal_est[i][0]);
+			if (nm_cal_obs[i] > 0.0)
+				fprintf (fp_cal, " %9.1f", 100.0*(nm_cal_est[i][0] - nm_cal_obs[i])/nm_cal_obs[i]);
+			else
+				fprintf (fp_cal, " %9s", "+INF");
+			fprintf (fp_cal, "\n");
 		}
 		fprintf (fp_cal, "-------------------------------------------------------------------------\n");
 		fprintf (fp_cal, "%-43s", "REGIONAL VALUES");
-		fprintf (fp_cal, " %9.1f", 100.0*nm_cal_obs[msc->nm_max_index]);
-		fprintf (fp_cal, " %9.1f", 100.0*nm_EstFreq[msc->nm_max_index][0]/nm_EstFreq[msc->nm_max_index][1]);
-		if (nm_cal_obs[msc->nm_max_index] > 0.0)
-			fprintf (fp_cal, " %9.1f", 100.0*(nm_EstFreq[msc->nm_max_index][0]/nm_EstFreq[msc->nm_max_index][1] - nm_cal_obs[msc->nm_max_index])/nm_cal_obs[msc->nm_max_index]);
+		fprintf (fp_cal, " %9.1f", 100.0*nm_cal_obs[nmMcAscData.nmMcAscConstants->numValues]);
+		fprintf (fp_cal, " %9.1f", 100.0*nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][0]/nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][1]);
+		if (nm_cal_obs[nmMcAscData.nmMcAscConstants->numValues] > 0.0)
+			fprintf (fp_cal, " %9.1f", 100.0*(nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][0]/nm_EstFreq[nmMcAscData.nmMcAscConstants->numValues][1] - nm_cal_obs[nmMcAscData.nmMcAscConstants->numValues])/nm_cal_obs[nmMcAscData.nmMcAscConstants->numValues]);
 		else
 			fprintf (fp_cal, " %9s", "+INF");
 		fprintf (fp_cal, "\n");
@@ -229,23 +213,18 @@ void calibration_report (int iter, FILE *fp_cal, struct msc_data *msc, float *Mo
 
 
 
-	for (i=0; i < msc->motorized_max_index + 1; i++) {
+	for (i=0; i < mMcAscData.mMcAscConstants->numValues + 1; i++) {
 		HeapFree (heapHandle, 0, m_re[i]);
 		HeapFree (heapHandle, 0, m_EstFreq[i]);
 	}
 	HeapFree (heapHandle, 0, m_re);
 	HeapFree (heapHandle, 0, m_EstFreq);
 
-	for (i=0; i < msc->nm_max_index + 1; i++)
+	for (i=0; i < nmMcAscData.nmMcAscConstants->numValues + 1; i++)
 		HeapFree (heapHandle, 0, nm_EstFreq[i]);
 	HeapFree (heapHandle, 0, nm_EstFreq);
 
 	HeapFree (heapHandle, 0, m_EstTots);
 	HeapFree (heapHandle, 0, Mode_Est);
 
-//	relRAM ("calibration_report", (msc->motorized_max_index+1)*(Ini->NUMBER_ALTS+1)*sizeof(int)
-//								+ (msc->motorized_max_index+1)*(Ini->NUMBER_ALTS+1)*sizeof(float)
-//								+ (msc->motorized_max_index)*sizeof(float)
-//								+ (msc->nm_max_index+1)*2*sizeof(float)
-//								+ (Ini->NUMBER_ALTS + 1)*sizeof(float));
 }

@@ -2,7 +2,7 @@
 
 void debug_props (int k, struct dc_coeff_data *DCcoeff, struct journey_attribs *JourneyAttribs, struct zone_data *ZonalData,
 				  float ***OD_Utility, float ***z_attrs, struct river_crossing_data RiverData, float **hwy_dist,
-				  struct bpmdist1_coeff_data BPMDist1, struct msc_data *msc, double **util, double **props)
+				  struct dc_constant_data *dcConstants, struct m_mc_asc_data mMcAscData, struct nm_mc_asc_data nmMcAscData, double **util, double **props)
 {
 
 	int i, j, walk[2], debug_mode=1;
@@ -85,13 +85,12 @@ void debug_props (int k, struct dc_coeff_data *DCcoeff, struct journey_attribs *
 		// calculate motorized mode choice logsums for each destination (with walk access at dest and without)
 		if (se_flag < Ini->NUMBER_ALTS && od_flag < Ini->NUMBER_ALTS - 2) {
 			walk[1] = 0;
-//			motorized_MSC_index = get_motorized_MSC_index (orig, j, ZonalData, msc);
-            idist = ZonalData->bpmdist1_index[orig];
-            jdist = ZonalData->bpmdist1_index[j];
-            motorized_MSC_index = msc->motorized_indices[idist][jdist];
-//			Logsum[j][0] = mc_logsum[JourneyAttribs->purpose[k]] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, atwork_mode, ODutil, SEutil, (float *)msc->MSC[motorized_MSC_index]);
+			idist = ZonalData->m_mc_asc_index[orig];
+            jdist = ZonalData->m_mc_asc_index[j];
+			motorized_MSC_index = mMcAscData.indices[mMcAscData.mMcAscIndices->indexIndices[idist]][mMcAscData.mMcAscIndices->indexIndices[jdist]];
+//			Logsum[j][0] = mc_logsum[JourneyAttribs->purpose[k]] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, atwork_mode, ODutil, SEutil, (float *)mMcAscData.constants[motorized_MSC_index]);
 			walk[1] = 1;
-//			Logsum[j][1] = mc_logsum[JourneyAttribs->purpose[k]] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, atwork_mode, ODutil, SEutil, (float *)msc->MSC[motorized_MSC_index]);
+//			Logsum[j][1] = mc_logsum[JourneyAttribs->purpose[k]] (k, orig, j, AvailModes, person_type, JourneyAttribs->autos[k], walk, atwork_mode, ODutil, SEutil, (float *)mMcAscData.constants[motorized_MSC_index]);
 		}
 		else {
 			Logsum[j][0] = MISSING;
@@ -104,7 +103,7 @@ void debug_props (int k, struct dc_coeff_data *DCcoeff, struct journey_attribs *
 	// of joint destination/access probability distribution.
 	for (i=0; i < Ini->MAX_TAZS*2 + 2; i++)
 		dc_cum[i] = 0.0;
-	motor_dc_props (JourneyAttribs->orig[k], JourneyAttribs->purpose[k], DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, BPMDist1, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 0);
+	motor_dc_props (JourneyAttribs->orig[k], JourneyAttribs->purpose[k], DCcoeff, OD_Utility, SEutil, Logsum, z_attrs, RiverData, ZonalData, dcConstants, dc_cum, hwy_dist[JourneyAttribs->orig[k]], debug_mode, util, props, 0);
 
 
 	// save values to restore for original journey record

@@ -20,11 +20,11 @@ void read_attr_corrections (FILE *fp, double *attr_corrections)
 
 
 // Read attraction correction factor records.
-	fgets(InputRecord, RECORD_LENGTH+2, fp);										// ignore header record
-	while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
-		InputRecord[RECORD_LENGTH] = '\0';
-		rec_len = (int)strlen(InputRecord);
-		if (rec_len == RECORD_LENGTH) {
+	fgets(InputRecord, RECORD_LENGTH+5, fp);										// ignore header record
+	while ((fgets(InputRecord, RECORD_LENGTH+5, fp)) != NULL) {
+		//InputRecord[RECORD_LENGTH] = '\0';
+		//rec_len = (int)strlen(InputRecord);
+		//if (rec_len == RECORD_LENGTH) {
 			strncpy (temp, &InputRecord[TAZ_START-1], TAZ_LENGTH);
 			temp[TAZ_LENGTH] = '\0';
 			i = atoi(temp);
@@ -32,7 +32,7 @@ void read_attr_corrections (FILE *fp, double *attr_corrections)
 			strncpy (temp, &InputRecord[FACTOR_START-1], FACTOR_LENGTH);
 			temp[FACTOR_LENGTH] = '\0';
 			attr_corrections[i] = atof(temp);
-		}
+		//}
 	}
 }
 

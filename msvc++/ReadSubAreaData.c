@@ -18,10 +18,10 @@ void read_subarea_data (FILE *fp, struct zone_data *ZonalData)
 
 // Read sub-area definitions file.
 	fgets(InputRecord, 200, fp);							// ignore header record for origin subset
-	while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
-		InputRecord[RECORD_LENGTH] = '\0';
-		rec_len = (int)strlen(InputRecord);
-		if (rec_len == RECORD_LENGTH) {
+	while ((fgets(InputRecord, RECORD_LENGTH+5, fp)) != NULL) {
+		//InputRecord[RECORD_LENGTH] = '\0';
+		//rec_len = (int)strlen(InputRecord);
+		//if (rec_len == RECORD_LENGTH) {
 
 			strncpy (temp, &InputRecord[ZONE_START-1], ZONE_LENGTH);
 			temp[ZONE_LENGTH] = '\0';
@@ -35,15 +35,15 @@ void read_subarea_data (FILE *fp, struct zone_data *ZonalData)
 				printf ("invalid origin zone number = %d read in from sub-area defintions file.\n", zone);
 				exit (-1);
 			}
-		}
-		else {
-			break;
-		}
+		//}
+		//else {
+	    //	break;
+		//}
 	}
 
 
 	fgets(InputRecord, 200, fp);							// ignore header record for destination subset
-	while ((fgets(InputRecord, RECORD_LENGTH+2, fp)) != NULL) {
+	while ((fgets(InputRecord, RECORD_LENGTH+5, fp)) != NULL) {
 		InputRecord[RECORD_LENGTH] = '\0';
 		rec_len = (int)strlen(InputRecord);
 		if (rec_len == RECORD_LENGTH) {

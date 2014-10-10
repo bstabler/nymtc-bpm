@@ -156,6 +156,32 @@ char *ErrorCodes[] = 	{ 	"Normal Exit", 																	// 0
 				"HIGHWAY_TAXI_SKIM entry missing in control file (.ini)",																			// 149
 				"PARKINGUSER zonal free parking percent over-rides file could not be opened for reading",											// 150
 				"PARKINGCOSTS indexed parking costs values file could not be opened for reading",													// 151
+				"Could not open destination choice constants index/label definitions file",					// 152
+				"DESTCHOICE_CONSTANT_INDICES entry missing in control file (.ini)",							// 153
+				"Could not open destination choice constants values file",									// 154
+				"DESTCHOICE_CONSTANT_VALUES entry missing in control file (.ini)",							// 155
+				"number of columns in dcConstantValues file was not equal to the number of constants in the indices file",							// 156
+				"Could not open district to district journeys report indices file",							// 157
+				"DIST_TO_DIST_REPORT_INDICES entry missing in control file (.ini)",							// 158
+				"Could not open county indices file",														// 159
+				"COUNTY_INDICES entry missing in control file (.ini)",										// 160
+				"Could not open county_extended indices file",												// 161
+				"COUNTY_EXTENDED_INDICES entry missing in control file (.ini)",								// 162
+				"Could not open mode journeys report indices file",											// 163
+				"MODE_REPORT_INDICES entry missing in control file (.ini)",									// 164
+				"Could not open flexible districts / taz correspondence file",								// 165
+				"FLEX_DISTRICT_TAZ_CORRESP entry missing in control file (.ini)",							// 166
+				"Could not open M_MC_ASC_INDICES file",														// 167
+				"M_MC_ASC_INDICES entry missing in control file (.ini)",									// 168
+				"Could not open M_MC_ASC_VALUES file",														// 169
+				"M_MC_ASC_VALUES entry missing in control file (.ini)",										// 170
+				"Could not open NM_MC_ASC_INDICES file",													// 171
+				"NM_MC_ASC_INDICES entry missing in control file (.ini)",									// 172
+				"Could not open NM_MC_ASC_VALUES file",														// 173
+				"NM_MC_ASC_VALUES entry missing in control file (.ini)",									// 174
+				"number of columns in mMcAscValues file was not equal to the number of constants in the indices file",							// 175
+				"number of columns in nmMcAscValues file was not equal to the number of constants in the indices file",							// 176
+				"M_MSC_INDICES entry missing in control file (.ini)",										// 177
 				""
 			};
 

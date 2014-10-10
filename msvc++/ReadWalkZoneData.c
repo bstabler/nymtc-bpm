@@ -17,7 +17,7 @@
 
 void read_walk_zone_data (FILE *fp, struct walk_zone_data *WalkZoneData)
 {
-	int j, orig, old_orig, count, rec_len, tempRAM;
+	int j, orig, old_orig, count, tempRAM;
 	char InputRecord[WALK_ZONE_RECORD_LENGTH+2];
 	char temp[LRECL];
 	struct avail_dests *temp_list;
@@ -32,10 +32,10 @@ void read_walk_zone_data (FILE *fp, struct walk_zone_data *WalkZoneData)
 	j = 0;
 	count = 0;
 	tempRAM = 0;
-	while ((fgets(InputRecord, WALK_ZONE_RECORD_LENGTH+2, fp)) != NULL) {
-		InputRecord[WALK_ZONE_RECORD_LENGTH] = '\0';
-		rec_len = (int)strlen(InputRecord);
-		if (rec_len == WALK_ZONE_RECORD_LENGTH) {
+	while ((fgets(InputRecord, WALK_ZONE_RECORD_LENGTH+5, fp)) != NULL) {
+		//InputRecord[WALK_ZONE_RECORD_LENGTH] = '\0';
+		//rec_len = (int)strlen(InputRecord);
+		//if (rec_len == WALK_ZONE_RECORD_LENGTH) {
 			strncpy (temp, &InputRecord[ORIG_START-1], ORIG_LENGTH);
 			temp[ORIG_LENGTH] = '\0';
 			orig = atoi(temp);
@@ -67,7 +67,7 @@ void read_walk_zone_data (FILE *fp, struct walk_zone_data *WalkZoneData)
 			temp_list[j].walk_pct = (float)atof(temp);
 
 			j++;
-		}
+		//}
 	}
 
 
